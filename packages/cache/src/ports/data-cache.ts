@@ -65,7 +65,7 @@ export interface DataCache<T> {
    * @param keys Cache keys to retrieve.
    * @param opts Optional retrieval options.
    */
-  getMany?(
+  getMany(
     keys: readonly CacheKey[],
     opts?: Partial<CacheGetOptions>,
   ): Promise<Map<CacheKey, CacheResult<T>>>
@@ -80,7 +80,7 @@ export interface DataCache<T> {
    * @param entries Cache entries to write.
    * @param opts Optional cache write options.
    */
-  setMany?(
+  setMany(
     entries: readonly CacheEntry<T>[],
     opts?: Partial<CacheSetOptions>,
   ): Promise<void>
@@ -95,7 +95,7 @@ export interface DataCache<T> {
    * @param keys Cache keys to invalidate.
    * @param opts Optional invalidation options.
    */
-  invalidateMany?(
+  invalidateMany(
     keys: readonly CacheKey[],
     opts?: Partial<CacheInvalidateOptions>,
   ): Promise<void>
