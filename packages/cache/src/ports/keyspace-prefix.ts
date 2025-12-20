@@ -15,6 +15,6 @@
  * - `app:prod:sessions:`
  * - `app:prod:ratelimit:`
  *
- * Adapters must treat this value as an opaque string and simply prepend it to
+ * Adapters must treat this value as an opaque string and simply prepend it to.
  */
 export type KeyspacePrefix = string

@@ -8,22 +8,4 @@ export type CacheTtl = SecondsTtl | MillisecondsTtl | UntilDateTtl
 
 export type CacheSetOptions = {
   ttl: CacheTtl
-
-  /**
-   * Optional tag(s) for more coarse invalidation strategies.
-   */
-  tags: readonly string[]
-}
-
-export type CacheGetOptions = {
-  /**
-   * Allow returning stale values if the adapter supports it (e.g., stale-while-revalidate).
-   *
-   * Default: `false`.
-   */
-  allowStale: boolean
-}
-
-export type CacheInvalidateOptions = {
-  tags: readonly string[]
 }

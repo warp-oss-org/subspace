@@ -1,10 +1,6 @@
 import type { CacheEntry } from "./cache-entry"
 import type { CacheKey } from "./cache-key"
-import type {
-  CacheGetOptions,
-  CacheInvalidateOptions,
-  CacheSetOptions,
-} from "./cache-options"
+import type { CacheSetOptions } from "./cache-options"
 import type { CacheResult } from "./cache-result"
 
 /**
@@ -26,9 +22,8 @@ export interface DataCache<T> {
    * - Adapters may return stale data depending on configuration and backend support.
    *
    * @param key Cache key identifying the entry.
-   * @param opts Optional retrieval options (best-effort).
    */
-  get(key: CacheKey, opts?: Partial<CacheGetOptions>): Promise<CacheResult<T>>
+  get(key: CacheKey): Promise<CacheResult<T>>
 
   /**
    * Store a value in the cache.
@@ -51,9 +46,8 @@ export interface DataCache<T> {
    * - Adapters may translate this into deletes, expirations, or tag-based invalidation.
    *
    * @param key Cache key identifying the entry to invalidate.
-   * @param opts Optional invalidation options.
    */
-  invalidate(key: CacheKey, opts?: Partial<CacheInvalidateOptions>): Promise<void>
+  invalidate(key: CacheKey): Promise<void>
 
   /**
    * Retrieve multiple values from the cache.
@@ -63,12 +57,8 @@ export interface DataCache<T> {
    * - Results are returned per key; some entries may be hits while others are misses.
    *
    * @param keys Cache keys to retrieve.
-   * @param opts Optional retrieval options.
    */
-  getMany(
-    keys: readonly CacheKey[],
-    opts?: Partial<CacheGetOptions>,
-  ): Promise<Map<CacheKey, CacheResult<T>>>
+  getMany(keys: readonly CacheKey[]): Promise<Map<CacheKey, CacheResult<T>>>
 
   /**
    * Store multiple values in the cache.
@@ -93,10 +83,6 @@ export interface DataCache<T> {
    *   or tag-based mechanisms.
    *
    * @param keys Cache keys to invalidate.
-   * @param opts Optional invalidation options.
    */
-  invalidateMany(
-    keys: readonly CacheKey[],
-    opts?: Partial<CacheInvalidateOptions>,
-  ): Promise<void>
+  invalidateMany(keys: readonly CacheKey[]): Promise<void>
 }
