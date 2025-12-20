@@ -1,6 +1,11 @@
 import unicorn from "eslint-plugin-unicorn"
+import tseslint from "typescript-eslint"
 
 export default [
+  ...tseslint.configs.recommended,
+  {
+    files: ["**/*.ts"],
+  },
   {
     files: [
       "packages/**/src/**/*.{ts,tsx,js,jsx}",
