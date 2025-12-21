@@ -1,10 +1,10 @@
-import type { RedisBytesClient } from "../../core/redis-client"
 import type { BytesCache } from "../../ports/bytes-cache"
 import type { CacheEntry } from "../../ports/cache-entry"
 import type { CacheKey } from "../../ports/cache-key"
 import type { CacheSetOptions, CacheTtl } from "../../ports/cache-options"
 import type { CacheResult } from "../../ports/cache-result"
 import type { KeyspacePrefix } from "../../ports/keyspace-prefix"
+import type { RedisBytesClient } from "./redis-client"
 
 type RedisCacheOptions = {
   /**
