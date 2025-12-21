@@ -8,12 +8,6 @@ export class FifoMemoryMap<K, V> implements EvictionMap<K, V> {
   }
 
   set(key: K, value: V): void {
-    if (this.map.has(key)) {
-      this.map.set(key, value)
-
-      return
-    }
-
     this.map.set(key, value)
   }
 
