@@ -31,6 +31,7 @@ export interface DataCache<T> {
    * @remarks
    * - Overwrites are allowed.
    * - The cache may still evict the entry earlier than requested.
+   * - Overwriting an existing entry replaces any previously associated TTL.
    *
    * @param key Cache key identifying the entry.
    * @param value Value to cache.
@@ -66,6 +67,7 @@ export interface DataCache<T> {
    * @remarks
    * - All entries share the same write options.
    * - Implementations may batch or pipeline writes where supported.
+   * - Overwriting existing entries replaces any previously associated TTLs.
    *
    * @param entries Cache entries to write.
    * @param opts Optional cache write options.
