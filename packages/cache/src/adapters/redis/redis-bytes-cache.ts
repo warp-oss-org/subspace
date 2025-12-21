@@ -6,7 +6,7 @@ import type { CacheSetOptions, CacheTtl } from "../../ports/cache-options"
 import type { CacheResult } from "../../ports/cache-result"
 import type { KeyspacePrefix } from "../../ports/keyspace-prefix"
 
-type RedisBytesCacheOptions = {
+type RedisCacheOptions = {
   /**
    * Maximum number of keys processed in a single Redis operation when using
    * bulk methods (`getMany`, `setMany`, `invalidateMany`).
@@ -26,7 +26,7 @@ type RedisTtl = { EX?: number; PX?: number; EXAT?: number; PXAT?: number }
 export class RedisBytesCache implements BytesCache {
   public constructor(
     private readonly client: RedisBytesClient,
-    private readonly opts: RedisBytesCacheOptions,
+    private readonly opts: RedisCacheOptions,
   ) {}
 
   async get(key: CacheKey): Promise<CacheResult<Uint8Array>> {

@@ -1,5 +1,5 @@
-import type { CacheKey } from "../ports/cache-key"
-import type { CacheSetOptions } from "../ports/cache-options"
+import type { CacheKey } from "../../ports/cache-key"
+import type { CacheSetOptions } from "../../ports/cache-options"
 
 /**
  * Write-through capability (policy-level).
