@@ -1,10 +1,10 @@
-import type { BytesCache } from "../ports/bytes-cache"
-import type { CacheEntry } from "../ports/cache-entry"
-import type { CacheKey } from "../ports/cache-key"
-import type { CacheSetOptions } from "../ports/cache-options"
-import type { CacheResult } from "../ports/cache-result"
-import type { Codec } from "../ports/codec"
-import type { DataCache } from "../ports/data-cache"
+import type { BytesCache } from "../../ports/bytes-cache"
+import type { CacheEntry } from "../../ports/cache-entry"
+import type { CacheKey } from "../../ports/cache-key"
+import type { CacheSetOptions } from "../../ports/cache-options"
+import type { CacheResult } from "../../ports/cache-result"
+import type { Codec } from "../../ports/codec"
+import type { DataCache } from "../../ports/data-cache"
 
 export class CodecDataCache<T> implements DataCache<T> {
   public constructor(
