@@ -55,14 +55,12 @@ export class CodecDataCache<T> implements DataCache<T> {
     if (res.kind === "miss") {
       return {
         kind: "miss",
-        ...(res.meta !== undefined ? { meta: res.meta } : {}),
       }
     }
 
     return {
       kind: "hit",
       value: this.codec.decode(res.value),
-      ...(res.meta !== undefined ? { meta: res.meta } : {}),
     }
   }
 }
