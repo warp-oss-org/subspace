@@ -5,5 +5,9 @@
   "scripts": {
     "test": "vitest run",
     "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "pino": "^10.1.0",
+    "pino-std-serializers": "^7.0.0"
   }
 }
