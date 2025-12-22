@@ -7,7 +7,7 @@ import type { CacheSetOptions, CacheTtl } from "../../ports/cache-options"
 import type { CacheResult } from "../../ports/cache-result"
 import type { Milliseconds } from "../../ports/time"
 
-type MemoryCacheOptions = {
+export type MemoryCacheOptions = {
   /**
    * Maximum number of entries retained in the cache.
    *
@@ -17,12 +17,12 @@ type MemoryCacheOptions = {
   maxEntries: number
 }
 
-type MemoryCacheDeps = {
+export type MemoryCacheDeps = {
   clock: Clock
   store: EvictionMap<CacheKey, MemoryCacheEntry>
 }
 
-type MemoryCacheEntry = {
+export type MemoryCacheEntry = {
   value: Uint8Array
   expiresAtMs?: Milliseconds
 }

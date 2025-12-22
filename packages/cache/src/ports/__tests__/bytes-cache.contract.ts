@@ -1,12 +1,13 @@
 import { beforeEach, describe, expect, it } from "vitest"
+import { bytes, entry, keys } from "../../tests/utils/cache-test-helpers"
 import { expectMapEntries } from "../../tests/utils/expect-map-entries"
+import { SLOW_TEST_TAG, sleep } from "../../tests/utils/sleep"
 import type { BytesCache } from "../bytes-cache"
 import type { CacheEntry } from "../cache-entry"
-import type { CacheKey } from "../cache-key"
 
 type CreateBytesCache = () => BytesCache
 
-export function bytesCacheContract(
+export function runBytesCacheContractTests(
   adapterName: string,
   createCache: CreateBytesCache,
 ): void {
@@ -429,7 +430,7 @@ export function bytesCacheContract(
         ])
       })
 
-      it("TTL kind: seconds — expires after the specified number of seconds [#slow]", async () => {
+      it(`TTL kind: seconds — expires after the specified number of seconds ${SLOW_TEST_TAG}`, async () => {
         const ttlSeconds = 1
         await cache.set(keys.one(), bytes.a(), {
           ttl: { kind: "seconds", seconds: ttlSeconds },
@@ -638,9 +639,10 @@ export function bytesCacheContract(
         expect(res).toStrictEqual({ kind: "hit", value })
       })
 
-      it("handles keys with Arabic, Mandarin, and Hindi characters correctly", async () => {
-        const multilingualKey = "lang:العربية:中文:हिन्दी"
-        const [key, value] = entry(multilingualKey, bytes.b())
+      it("handles Unicode keys (emoji, combining marks, and non-Latin scripts) correctly", async () => {
+        const complexUnicodeKey = "lang:العربية:中文:हिन्दी:😀:e\u0301:\t"
+
+        const [key, value] = entry(complexUnicodeKey, bytes.b())
 
         await cache.set(key, value)
 
@@ -650,7 +652,7 @@ export function bytesCacheContract(
       })
     })
 
-    describe("optional: concurrency smoke tests", () => {
+    describe("concurrency smoke tests", () => {
       it("concurrent sets to different keys are both visible", async () => {
         const [key1, value1] = entry(keys.one(), bytes.a())
         const [key2, value2] = entry(keys.two(), bytes.b())
@@ -699,34 +701,4 @@ export function bytesCacheContract(
       })
     })
   })
-}
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
-
-const bytes = {
-  a(): Uint8Array {
-    return new Uint8Array([1, 2, 3])
-  },
-  b(): Uint8Array {
-    return new Uint8Array([9, 8, 7])
-  },
-  empty(): Uint8Array {
-    return new Uint8Array([])
-  },
-}
-
-const keys = {
-  one(): CacheKey {
-    return "k:one"
-  },
-  two(): CacheKey {
-    return "k:two"
-  },
-  three(): CacheKey {
-    return "k:three"
-  },
-}
-
-const entry = (key: CacheKey, value: Uint8Array): CacheEntry<Uint8Array> => {
-  return [key, value]
 }

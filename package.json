@@ -13,6 +13,8 @@
     "lint": "pnpm lint:eslint && pnpm lint:biome",
     "typecheck": "tsc -b -v",
     "test": "vitest run",
+    "test:up": "pnpm -r --if-present run test:up",
+    "test:down": "pnpm -r --if-present run test:down",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "build": "pnpm -r run build",
@@ -27,6 +29,7 @@
     "eslint-plugin-unicorn": "^62.0.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.50.0",
-    "vitest": "^4.0.16"
+    "vitest": "^4.0.16",
+    "vitest-mock-extended": "^3.1.0"
   }
 }

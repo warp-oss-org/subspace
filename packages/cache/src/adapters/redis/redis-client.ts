@@ -1,29 +1,31 @@
-import { RESP_TYPES, type RedisClientType } from "redis"
+import { createClient, RESP_TYPES } from "redis"
+
+export type RedisTtl = { EX?: number; PX?: number; EXAT?: number; PXAT?: number }
+
 export type RedisBytesClient = {
   get(key: string): Promise<Buffer | null>
   mGet(keys: readonly string[]): Promise<(Buffer | null)[]>
 
-  set(
-    key: string,
-    value: Uint8Array | Buffer,
-    opts?: { EX?: number; PX?: number; EXAT?: number; PXAT?: number },
-  ): Promise<unknown>
+  quit(): Promise<void>
+  connect(): Promise<void>
+  isOpen: boolean
 
-  del(...keys: readonly string[]): Promise<number>
+  keys(pattern: string): Promise<string[]>
+  unlink(...keys: string[]): Promise<number>
+
+  set(key: string, value: Uint8Array | Buffer, opts?: RedisTtl): Promise<unknown>
+
+  del(keys: string | readonly string[]): Promise<number>
 
   multi(): {
-    set(
-      key: string,
-      value: Uint8Array | Buffer,
-      opts?: { EX?: number; PX?: number; EXAT?: number; PXAT?: number },
-    ): unknown
-    del(...keys: readonly string[]): unknown
+    set(key: string, value: Uint8Array | Buffer, opts?: RedisTtl): unknown
+    del(keys: string | readonly string[]): unknown
     exec(): Promise<unknown>
   }
 }
 
-export function createRedisBufferClient(redis: RedisClientType): RedisBytesClient {
-  return redis.withTypeMapping({
+export function createRedisBytesClient(url: string): RedisBytesClient {
+  return createClient({ url }).withTypeMapping({
     [RESP_TYPES.BLOB_STRING]: Buffer,
   }) as unknown as RedisBytesClient
 }

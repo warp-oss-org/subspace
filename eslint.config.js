@@ -2,10 +2,10 @@ import unicorn from "eslint-plugin-unicorn"
 import tseslint from "typescript-eslint"
 
 export default [
-  ...tseslint.configs.recommended,
   {
-    files: ["**/*.ts"],
+    ignores: ["coverage/**"],
   },
+  ...tseslint.configs.recommended,
   {
     files: [
       "packages/**/src/**/*.{ts,tsx,js,jsx}",

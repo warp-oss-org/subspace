@@ -4,9 +4,9 @@ import type { CacheKey } from "../../ports/cache-key"
 import type { CacheSetOptions, CacheTtl } from "../../ports/cache-options"
 import type { CacheResult } from "../../ports/cache-result"
 import type { KeyspacePrefix } from "../../ports/keyspace-prefix"
-import type { RedisBytesClient } from "./redis-client"
+import type { RedisBytesClient, RedisTtl } from "./redis-client"
 
-type RedisCacheOptions = {
+export type RedisCacheOptions = {
   /**
    * Maximum number of keys processed in a single Redis operation when using
    * bulk methods (`getMany`, `setMany`, `invalidateMany`).
@@ -20,8 +20,6 @@ type RedisCacheOptions = {
 
   keyspacePrefix: KeyspacePrefix
 }
-
-type RedisTtl = { EX?: number; PX?: number; EXAT?: number; PXAT?: number }
 
 export class RedisBytesCache implements BytesCache {
   public constructor(
@@ -41,11 +39,12 @@ export class RedisBytesCache implements BytesCache {
     opts?: Partial<CacheSetOptions>,
   ): Promise<void> {
     const fullKey = this.fullKey(key)
+    const buffer = this.toBuffer(value)
 
     if (opts?.ttl) {
-      await this.client.set(fullKey, value, this.toRedisTtl(opts.ttl))
+      await this.client.set(fullKey, buffer, this.toRedisTtl(opts.ttl))
     } else {
-      await this.client.set(fullKey, value)
+      await this.client.set(fullKey, buffer)
     }
   }
 
@@ -85,8 +84,9 @@ export class RedisBytesCache implements BytesCache {
 
       for (const [key, value] of batch) {
         const fullKey = this.fullKey(key)
-        if (ttl) tx.set(fullKey, value, ttl)
-        else tx.set(fullKey, value)
+        const buf = this.toBuffer(value)
+        if (ttl) tx.set(fullKey, buf, ttl)
+        else tx.set(fullKey, buf)
       }
 
       await tx.exec()
@@ -99,7 +99,7 @@ export class RedisBytesCache implements BytesCache {
     const fullKeys = keys.map((k) => this.fullKey(k))
 
     for (const batch of this.chunks(fullKeys, this.opts.batchSize)) {
-      await this.client.del(...batch)
+      await this.client.del(batch)
     }
   }
 
@@ -113,6 +113,10 @@ export class RedisBytesCache implements BytesCache {
     if (buffer === null) return { kind: "miss" }
 
     return { kind: "hit", value: new Uint8Array(buffer) }
+  }
+
+  private toBuffer(value: Uint8Array): Buffer {
+    return Buffer.from(value.buffer, value.byteOffset, value.byteLength)
   }
 
   private toRedisTtl(ttl: CacheTtl): RedisTtl {

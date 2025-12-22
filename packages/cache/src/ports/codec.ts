@@ -6,15 +6,6 @@
  * Codecs sit at the boundary between typed cache usage (`DataCache<T>`) and
  * byte-oriented cache adapters (e.g. Redis, Memcached).
  *
- * Responsibilities:
- * - encode a value into bytes before it is written to the cache backend
- * - decode bytes read from the backend back into a value
- *
- * Non-responsibilities:
- * - cache policy (TTL, invalidation, retries)
- * - infrastructure concerns (Redis clients, networking)
- * - domain logic or validation
- *
  * Codecs should be pure, deterministic transforms. Adapters must treat codec
  * output as opaque bytes and must not import or depend on codecs directly.
  *

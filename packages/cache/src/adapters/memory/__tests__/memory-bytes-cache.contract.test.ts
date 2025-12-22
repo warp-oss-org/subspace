@@ -1,9 +1,9 @@
 import { LruMemoryMap } from "../../../core/eviction/lru-memory-map"
 import { SystemClock } from "../../../core/time/clock"
-import { bytesCacheContract } from "../../../ports/__tests__/bytes-cache.contract"
+import { runBytesCacheContractTests } from "../../../ports/__tests__/bytes-cache.contract"
 import { MemoryBytesCache } from "../memory-bytes-cache"
 
-bytesCacheContract(
+runBytesCacheContractTests(
   "MemoryBytesCache",
   () =>
     new MemoryBytesCache(

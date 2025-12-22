@@ -8,5 +8,8 @@ export default defineConfig({
     clearMocks: true,
     restoreMocks: true,
     mockReset: true,
+    coverage: {
+      exclude: ["**/__tests__/**", "**/*.test.*", "**/*.spec.*"],
+    },
   },
 })

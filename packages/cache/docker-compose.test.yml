@@ -1,0 +1,11 @@
+services:
+  redis:
+    image: redis:8
+    container_name: subspace_cache_redis_test
+    ports:
+      - "16379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 1s
+      timeout: 2s
+      retries: 30

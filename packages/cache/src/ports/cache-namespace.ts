@@ -18,9 +18,6 @@ import type { CacheKey } from "./cache-key"
  * ```
  * <adapter prefix> + <namespace prefix> + ":" + <key parts>
  * ```
- *
- * Cache adapters treat {@link CacheKey} values as opaque strings and do not
- * interpret or validate namespace structure.
  */
 export interface CacheNamespace {
   /**
