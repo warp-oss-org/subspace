@@ -1,15 +1,17 @@
-import type { Lock, LockKey } from "../ports/lock"
-import type { AcquireOptions } from "../ports/options"
+import type { Lock } from "../ports/lock"
+import type { AcquireOptions, TryAcquireOptions } from "../ports/options"
 
-export async function withLock<T>(
+export async function tryWithLock<T>(
   lock: Lock,
-  key: LockKey,
+  key: string,
   fn: () => Promise<T>,
-  opts: AcquireOptions,
-): Promise<T> {
-  const lease = await lock.acquire(key, opts)
+  opts: TryAcquireOptions,
+): Promise<T | null> {
+  const lease = await lock.tryAcquire(key, opts)
 
-  if (!lease) throw new Error(`Failed to acquire lock: ${key}`)
+  if (!lease) {
+    return null
+  }
 
   try {
     return await fn()
@@ -18,15 +20,20 @@ export async function withLock<T>(
   }
 }
 
-export async function tryWithLock<T>(
+export async function withLock<T>(
   lock: Lock,
-  key: LockKey,
+  key: string,
   fn: () => Promise<T>,
   opts: AcquireOptions,
-): Promise<T | null> {
-  const lease = await lock.tryAcquire(key, opts)
+): Promise<T> {
+  if (opts.signal?.aborted) {
+    throw new Error("Lock acquisition aborted")
+  }
 
-  if (!lease) return null
+  const lease = await lock.acquire(key, opts)
+  if (!lease) {
+    throw new Error("Failed to acquire lock")
+  }
 
   try {
     return await fn()

@@ -3,15 +3,11 @@ import { sleep } from "../../../core/polling/sleep"
 import { SystemClock } from "../../../core/time/clock"
 import { describeLockContract } from "../../../ports/__tests__/lock.contract"
 import type { LockTtl } from "../../../ports/options"
+import { createPgTestPool } from "../../../test/utils/create-postgres-test-client"
 import { PostgresAdvisoryLock } from "../postgres-advisory-lock"
-import { createPgClientPool } from "../postgres-client"
 
 describe("PostgresAdvisoryLock contract", () => {
-  const pool = createPgClientPool({
-    connectionString:
-      process.env.POSTGRES_URL ??
-      "postgres://subspace_lock_user:subspace_lock_password@localhost:15432/subspace_lock_db",
-  })
+  const { pool } = createPgTestPool()
 
   beforeAll(async () => {
     const client = await pool.connect()

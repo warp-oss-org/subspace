@@ -15,6 +15,10 @@ export type RedisClient = {
     opts?: RedisTtl,
   ): Promise<"OK" | null>
 
+  get(key: string): Promise<string | null>
+
+  del(keys: string | readonly string[]): Promise<number>
+
   eval(script: string, opts: { keys: string[]; arguments: string[] }): Promise<unknown>
 
   connect(): Promise<void>

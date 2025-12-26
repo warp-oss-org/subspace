@@ -49,8 +49,8 @@ export class MemoryLease implements LockLease {
     this.ttlTimer = null
   }
 
-  private preventTimerFromBlockingExit(timer: NodeJS.Timeout | null): void {
-    timer?.unref?.()
+  private preventTimerFromBlockingExit(timer: NodeJS.Timeout): void {
+    timer.unref?.()
   }
 
   private scheduleAutoRelease(ttl: LockTtl): void {

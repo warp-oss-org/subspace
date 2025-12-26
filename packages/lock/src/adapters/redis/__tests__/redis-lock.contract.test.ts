@@ -3,13 +3,11 @@ import { sleep } from "../../../core/polling/sleep"
 import { SystemClock } from "../../../core/time/clock"
 import { describeLockContract } from "../../../ports/__tests__/lock.contract"
 import type { LockTtl } from "../../../ports/options"
-import { createRedisClient } from "../redis-client"
+import { createRedisTestClient } from "../../../test/utils/create-redis-test-client"
 import { RedisLock } from "../redis-lock"
 
 describe("RedisLock contract", () => {
-  const client = createRedisClient({
-    url: process.env.REDIS_URL ?? "redis://localhost:16380",
-  })
+  const { client } = createRedisTestClient()
 
   beforeAll(async () => {
     await client.connect()
