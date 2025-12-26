@@ -2,7 +2,7 @@ import crypto from "node:crypto"
 import { pollUntil } from "../../../core/polling/poll-until"
 import { sleep } from "../../../core/polling/sleep"
 import { SystemClock } from "../../../core/time/clock"
-import { createRedisTestClient } from "../../../test/utils/create-redis-test-client"
+import { createRedisTestClient } from "../../../tests/utils/create-redis-test-client"
 import { RedisLock } from "../redis-lock"
 
 const delay = (n: number) => new Promise<void>((r) => setTimeout(r, n))

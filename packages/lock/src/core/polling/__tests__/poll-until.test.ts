@@ -1,4 +1,4 @@
-import { ManualTestClock } from "../../../test/utils/manual-test-clock"
+import { ManualTestClock } from "../../../tests/utils/manual-test-clock"
 import type { PollUntilResult } from "../poll-until"
 import { pollUntil } from "../poll-until"
 import type { Sleep } from "../sleep"

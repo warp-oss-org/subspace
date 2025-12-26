@@ -3,7 +3,7 @@ import { sleep } from "../../../core/polling/sleep"
 import { SystemClock } from "../../../core/time/clock"
 import { describeLockContract } from "../../../ports/__tests__/lock.contract"
 import type { LockTtl } from "../../../ports/options"
-import { createRedisTestClient } from "../../../test/utils/create-redis-test-client"
+import { createRedisTestClient } from "../../../tests/utils/create-redis-test-client"
 import { RedisLock } from "../redis-lock"
 
 describe("RedisLock contract", () => {

@@ -1,7 +1,7 @@
 import { pollUntil } from "../../../core/polling/poll-until"
 import { sleep } from "../../../core/polling/sleep"
 import { SystemClock } from "../../../core/time/clock"
-import { createPgTestPool } from "../../../test/utils/create-postgres-test-client"
+import { createPgTestPool } from "../../../tests/utils/create-postgres-test-client"
 import { hashLockKeyInt64 } from "../hashLockKeyInt64"
 import { PostgresAdvisoryLock } from "../postgres-advisory-lock"
 

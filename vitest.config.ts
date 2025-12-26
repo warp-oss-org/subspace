@@ -8,6 +8,7 @@ export default defineConfig({
     clearMocks: true,
     restoreMocks: true,
     mockReset: true,
+    exclude: ["**/dist/**", "**/node_modules/**"],
     coverage: {
       enabled: true,
       provider: "v8",

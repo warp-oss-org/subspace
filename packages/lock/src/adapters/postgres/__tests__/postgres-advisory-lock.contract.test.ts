@@ -3,7 +3,7 @@ import { sleep } from "../../../core/polling/sleep"
 import { SystemClock } from "../../../core/time/clock"
 import { describeLockContract } from "../../../ports/__tests__/lock.contract"
 import type { LockTtl } from "../../../ports/options"
-import { createPgTestPool } from "../../../test/utils/create-postgres-test-client"
+import { createPgTestPool } from "../../../tests/utils/create-postgres-test-client"
 import { PostgresAdvisoryLock } from "../postgres-advisory-lock"
 
 describe("PostgresAdvisoryLock contract", () => {
