@@ -7,12 +7,14 @@ export type LogContext = {
   method: string
   path: string
 
-  status: number
-  durationMs: number
-
   service: string
   module: string
   env: string
+}
+
+export type LogOutcome = {
+  status: number
+  durationMs: number
 }
 
 export type LogEvent = {
@@ -20,4 +22,11 @@ export type LogEvent = {
 }
 
 export type LogMeta<TContext extends LogContext = LogContext> = Partial<TContext> &
+  Partial<LogOutcome> &
   Partial<LogEvent>
+
+/**
+ * A partial overlay applied to an existing log context.
+ * Used by child() to add or override context fields.
+ */
+export type LogContextPatch = Partial<LogContext> & Record<string, unknown>

@@ -7,7 +7,7 @@ import type { CacheEntry } from "../cache-entry"
 
 type CreateBytesCache = () => BytesCache
 
-export function runBytesCacheContractTests(
+export function describeCacheContract(
   adapterName: string,
   createCache: CreateBytesCache,
 ): void {

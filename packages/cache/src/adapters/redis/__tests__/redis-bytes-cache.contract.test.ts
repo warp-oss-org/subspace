@@ -1,4 +1,4 @@
-import { runBytesCacheContractTests } from "../../../ports/__tests__/bytes-cache.contract"
+import { describeCacheContract } from "../../../ports/__tests__/bytes-cache.contract"
 import { createRedisTestClient } from "../../../tests/utils/create-redis-test-client"
 import { deleteKeysByPrefix } from "../../../tests/utils/delete-keys-by-prefix"
 import { RedisBytesCache } from "../redis-bytes-cache"
@@ -25,7 +25,7 @@ describe("RedisBytesCache (contract)", () => {
     await deleteKeysByPrefix(client, keyspacePrefix)
   })
 
-  runBytesCacheContractTests("RedisBytesCache", () => {
+  describeCacheContract("RedisBytesCache", () => {
     return new RedisBytesCache(client, { keyspacePrefix, batchSize: 1000 })
   })
 })

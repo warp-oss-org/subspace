@@ -1,14 +1,22 @@
-import type { LogContext, LogMeta } from "../../ports/log-context"
+import type { LogContext, LogContextPatch, LogMeta } from "../../ports/log-context"
 import { type LogLevelName, LogLevels } from "../../ports/log-level"
 import type { Logger } from "../../ports/logger"
 import type { LoggerOptions } from "../../ports/logger-options"
 
-type ConsoleMethod = "debug" | "info" | "warn" | "error"
+export type ConsoleWriter = Pick<Console, "trace" | "debug" | "info" | "warn" | "error">
 
-type ConsoleLoggerContext = Partial<LogContext> & Record<string, unknown>
+export type ConsoleLoggerDeps = {
+  /**
+   * Console sink used for emitting logs.
+   * Defaults to the global `console`.
+   */
+  console?: ConsoleWriter
+}
+
+type ConsoleMethod = "trace" | "debug" | "info" | "warn" | "error"
 
 const LEVEL_TO_CONSOLE_METHOD: Record<LogLevelName, ConsoleMethod> = {
-  trace: "debug",
+  trace: "trace",
   debug: "debug",
   info: "info",
   warn: "warn",
@@ -28,18 +36,24 @@ const LEVEL_SEVERITY: Record<LogLevelName, number> = {
 export class ConsoleLogger<TContext extends LogContext = LogContext>
   implements Logger<TContext>
 {
+  private readonly deps: Readonly<ConsoleLoggerDeps>
+  private readonly sink: ConsoleWriter
   private readonly opts: Partial<LoggerOptions>
-  private readonly context: ConsoleLoggerContext
+  private readonly context: LogContextPatch
 
-  constructor(opts: Partial<LoggerOptions> = {}, context: ConsoleLoggerContext = {}) {
+  constructor(
+    deps: ConsoleLoggerDeps = {},
+    opts: Partial<LoggerOptions> = {},
+    context: LogContextPatch = {},
+  ) {
+    this.deps = deps
+    this.sink = deps.console ?? globalThis.console
     this.opts = opts
     this.context = this.stripUndefined(context)
   }
 
-  child<U extends Partial<LogContext> & Record<string, unknown>>(
-    context: U,
-  ): Logger<TContext & U> {
-    return new ConsoleLogger<TContext & U>(this.opts, {
+  child<U extends LogContextPatch>(context: U): Logger<TContext & U> {
+    return new ConsoleLogger<TContext & U>(this.deps, this.opts, {
       ...this.context,
       ...this.stripUndefined(context),
     })
@@ -130,6 +144,6 @@ export class ConsoleLogger<TContext extends LogContext = LogContext>
       ? this.prettyLine(payload)
       : this.safeStringify(payload)
 
-    console[LEVEL_TO_CONSOLE_METHOD[level]](output)
+    this.sink[LEVEL_TO_CONSOLE_METHOD[level]](output)
   }
 }

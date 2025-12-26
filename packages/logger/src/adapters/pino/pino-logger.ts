@@ -1,32 +1,45 @@
 import pino, {
+  type DestinationStream,
   type Logger as PinoLoggerBase,
   type LoggerOptions as PinoOptions,
 } from "pino"
 import { errWithCause } from "pino-std-serializers"
-import type { LogContext, LogMeta } from "../../ports/log-context"
+import type { LogContext, LogContextPatch, LogMeta } from "../../ports/log-context"
 import type { Logger } from "../../ports/logger"
 import type { LoggerOptions } from "../../ports/logger-options"
+
+export type PinoLoggerDeps = {
+  /**
+   * Base pino logger to create children from (inherits config).
+   * When provided, this adapter will only add `bindings` via `.child(...)`.
+   */
+  base?: PinoLoggerBase
+
+  /**
+   * Optional destination stream for pino output.
+   */
+  destination?: DestinationStream
+}
 
 export class PinoLogger<TContext extends LogContext = LogContext>
   implements Logger<TContext>
 {
   protected readonly logger: PinoLoggerBase
   protected readonly opts: Partial<LoggerOptions>
+  protected readonly deps: Readonly<PinoLoggerDeps>
 
   constructor(
+    deps: PinoLoggerDeps = {},
     opts: Partial<LoggerOptions> = {},
-    bindings: Partial<LogContext> & Record<string, unknown> = {},
-    base?: PinoLoggerBase,
+    context: LogContextPatch = {},
   ) {
     this.opts = opts
-    this.logger = this.init(bindings, base)
+    this.deps = deps
+    this.logger = this.init(context)
   }
 
-  private init(
-    bindings: Partial<LogContext> & Record<string, unknown>,
-    base?: PinoLoggerBase,
-  ): PinoLoggerBase {
-    if (base) return base.child(bindings)
+  private init(context: LogContextPatch): PinoLoggerBase {
+    if (this.deps.base) return this.deps.base.child(context)
 
     const pinoOpts: PinoOptions = {
       ...(this.opts.level && { level: this.opts.level }),
@@ -43,7 +56,11 @@ export class PinoLogger<TContext extends LogContext = LogContext>
       }),
     }
 
-    return pino(pinoOpts).child(bindings)
+    const root = this.deps.destination
+      ? pino(pinoOpts, this.deps.destination)
+      : pino(pinoOpts)
+
+    return root.child(context)
   }
 
   private toPinoMeta(meta?: LogMeta<TContext>) {
@@ -74,9 +91,7 @@ export class PinoLogger<TContext extends LogContext = LogContext>
     this.logger.fatal(this.toPinoMeta(meta), message)
   }
 
-  child<U extends Partial<LogContext> & Record<string, unknown>>(
-    context: U,
-  ): Logger<TContext & U> {
-    return new PinoLogger<TContext & U>(this.opts, context, this.logger)
+  child<U extends LogContextPatch>(context: U): Logger<TContext & U> {
+    return new PinoLogger<TContext & U>({ base: this.logger }, this.opts, context)
   }
 }
