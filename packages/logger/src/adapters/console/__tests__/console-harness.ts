@@ -1,6 +1,6 @@
 import type { CapturedLog, LoggerHarness } from "../../../ports/__tests__/logger-harness"
 import type { LogLevelName } from "../../../ports/log-level"
-import { ConsoleLogger } from "../console.logger"
+import { ConsoleLogger } from "../console-logger"
 
 export function consoleHarness(): LoggerHarness {
   return {

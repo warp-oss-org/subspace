@@ -13,6 +13,7 @@
     "lint": "pnpm lint:eslint && pnpm lint:biome",
     "typecheck": "tsc -b -v",
     "test": "vitest run",
+    "test:ui": "vitest --ui",
     "test:up": "pnpm -r --if-present run test:up",
     "test:down": "pnpm -r --if-present run test:down",
     "test:watch": "vitest",

@@ -9,6 +9,9 @@ export default defineConfig({
     restoreMocks: true,
     mockReset: true,
     coverage: {
+      enabled: true,
+      provider: "v8",
+      reporter: ["text", "html"],
       exclude: ["**/__tests__/**", "**/*.test.*", "**/*.spec.*"],
     },
   },

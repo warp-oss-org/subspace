@@ -62,18 +62,23 @@ export class ConsoleLogger<TContext extends LogContext = LogContext>
   trace(message: string, meta?: LogMeta<TContext>): void {
     this.write("trace", message, meta)
   }
+
   debug(message: string, meta?: LogMeta<TContext>): void {
     this.write("debug", message, meta)
   }
+
   info(message: string, meta?: LogMeta<TContext>): void {
     this.write("info", message, meta)
   }
+
   warn(message: string, meta?: LogMeta<TContext>): void {
     this.write("warn", message, meta)
   }
+
   error(message: string, meta?: LogMeta<TContext>): void {
     this.write("error", message, meta)
   }
+
   fatal(message: string, meta?: LogMeta<TContext>): void {
     this.write("fatal", message, meta)
   }
@@ -128,13 +133,21 @@ export class ConsoleLogger<TContext extends LogContext = LogContext>
   private write(level: LogLevelName, message: string, meta?: LogMeta<TContext>) {
     if (!this.shouldLog(level)) return
 
-    const payload: Record<string, unknown> = this.stripUndefined({
+    const safeMeta = meta
+      ? this.stripUndefined(meta as unknown as Record<string, unknown>)
+      : {}
+
+    delete safeMeta.timestamp
+    delete safeMeta.level
+    delete safeMeta.message
+
+    const payload: Record<string, unknown> = {
       timestamp: new Date().toISOString(),
       level,
       message,
       ...this.context,
-      ...(meta ? this.stripUndefined(meta as unknown as Record<string, unknown>) : {}),
-    })
+      ...safeMeta,
+    }
 
     if ("err" in payload) {
       payload.err = this.normalizeErr(payload.err)

@@ -78,5 +78,20 @@ export function describeLoggerContract(h: LoggerHarness) {
 
       expect(levels).toEqual(["warn", "error"])
     })
+
+    it("debug() is emitted when level filtering allows it", () => {
+      const { logger, read } = h.make({ level: "trace" })
+
+      const child = logger.child({ requestId: "req-1" })
+      child.debug("debug-message")
+
+      const logs = read()
+
+      expect(logs).toHaveLength(1)
+      expect(logs[0]?.level).toBe("debug")
+      expect(logs[0]?.payload).toMatchObject({
+        requestId: "req-1",
+      })
+    })
   })
 }
