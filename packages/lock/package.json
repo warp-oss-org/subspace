@@ -1,0 +1,15 @@
+{
+  "name": "@subspace/lock",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:up": "docker compose -f docker-compose.test.yml up -d --wait",
+    "test:down": "docker compose -f docker-compose.test.yml down",
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "pg": "^8.16.3",
+    "redis": "^5.10.0"
+  }
+}

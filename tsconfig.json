@@ -1,4 +1,8 @@
 {
   "files": [],
-  "references": [{ "path": "./packages/cache" }]
+  "references": [
+    { "path": "./packages/cache" },
+    { "path": "./packages/logger" },
+    { "path": "./packages/lock" }
+  ]
 }

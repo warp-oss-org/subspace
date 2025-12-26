@@ -1,0 +1,26 @@
+services:
+  redis:
+    image: redis:8
+    container_name: subspace_lock_redis_test
+    ports:
+      - "16380:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 1s
+      timeout: 2s
+      retries: 30
+
+  postgres:
+    image: postgres:18
+    container_name: subspace_lock_postgres_test
+    environment:
+      POSTGRES_USER: subspace_lock_user
+      POSTGRES_PASSWORD: subspace_lock_password
+      POSTGRES_DB: subspace_lock_db
+    ports:
+      - "15432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U subspace_lock_user -d subspace_lock_db" ]
+      interval: 1s
+      timeout: 2s
+      retries: 30
