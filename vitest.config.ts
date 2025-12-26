@@ -13,7 +13,7 @@ export default defineConfig({
       enabled: true,
       provider: "v8",
       reporter: ["text", "html"],
-      exclude: ["**/__tests__/**", "**/*.test.*", "**/*.spec.*"],
+      exclude: ["**/*tests*/**", "**/*.test.*", "**/*.spec.*"],
     },
   },
 })
