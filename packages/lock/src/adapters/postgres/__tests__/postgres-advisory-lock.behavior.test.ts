@@ -12,7 +12,7 @@ describe("PostgresAdvisoryLock behavior", () => {
         "a",
         "contract:mutex",
         "user:123:checkout",
-        "very:long:key:" + "x".repeat(512),
+        `very:long:key:${"x".repeat(512)}`,
         "unicode:🔒:ключ:鍵",
       ]
 
