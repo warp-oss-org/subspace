@@ -3,6 +3,7 @@
   "references": [
     { "path": "./packages/cache" },
     { "path": "./packages/logger" },
-    { "path": "./packages/lock" }
+    { "path": "./packages/lock" },
+    { "path": "./packages/clock" }
   ]
 }
