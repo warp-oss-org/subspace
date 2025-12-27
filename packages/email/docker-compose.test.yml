@@ -1,0 +1,28 @@
+services:
+  mailpit:
+    image: axllent/mailpit:v1.28.0
+    container_name: subspace_email_mailpit_test
+    ports:
+      - "1026:1025" # SMTP
+      - "8026:8025" # Web UI
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+    healthcheck:
+      test: [ "CMD", "wget", "-q", "--spider", "http://localhost:8025/api/v1/info" ]
+      interval: 1s
+      timeout: 2s
+      retries: 30
+
+  sesv2:
+    image: ghcr.io/domdomegg/aws-ses-v2-local:2.8.0
+    container_name: subspace_email_sesv2_test
+    ports:
+      - "4587:8005"
+    environment:
+      AWS_REGION: us-east-1
+    healthcheck:
+      test: [ "CMD", "wget", "-q", "--spider", "http://localhost:8005/health-check" ]
+      interval: 1s
+      timeout: 2s
+      retries: 30
