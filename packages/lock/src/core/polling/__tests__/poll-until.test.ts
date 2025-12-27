@@ -157,4 +157,56 @@ describe("pollUntil", () => {
     expect(fn).not.toHaveBeenCalled()
     expect(sleep).not.toHaveBeenCalled()
   })
+
+  it("throws when timeoutMs is Infinity", async () => {
+    const clock = new ManualTestClock(new Date(0))
+    const sleep = makeFakeSleep(clock)
+
+    const fn = vi.fn(async () => null)
+
+    await expect(
+      pollUntil(fn, { clock, sleep }, { pollMs: 10, timeoutMs: Infinity }),
+    ).rejects.toThrow(/timeoutMs/i)
+
+    expect(fn).not.toHaveBeenCalled()
+  })
+
+  it("throws when timeoutMs is negative", async () => {
+    const clock = new ManualTestClock(new Date(0))
+    const sleep = makeFakeSleep(clock)
+
+    const fn = vi.fn(async () => null)
+
+    await expect(
+      pollUntil(fn, { clock, sleep }, { pollMs: 10, timeoutMs: -1 }),
+    ).rejects.toThrow(/timeoutMs/i)
+
+    expect(fn).not.toHaveBeenCalled()
+  })
+
+  it("throws when pollMs is Infinity", async () => {
+    const clock = new ManualTestClock(new Date(0))
+    const sleep = makeFakeSleep(clock)
+
+    const fn = vi.fn(async () => null)
+
+    await expect(
+      pollUntil(fn, { clock, sleep }, { pollMs: Infinity, timeoutMs: 100 }),
+    ).rejects.toThrow(/pollMs/i)
+
+    expect(fn).not.toHaveBeenCalled()
+  })
+
+  it("throws when pollMs is negative", async () => {
+    const clock = new ManualTestClock(new Date(0))
+    const sleep = makeFakeSleep(clock)
+
+    const fn = vi.fn(async () => null)
+
+    await expect(
+      pollUntil(fn, { clock, sleep }, { pollMs: -1, timeoutMs: 100 }),
+    ).rejects.toThrow(/pollMs/i)
+
+    expect(fn).not.toHaveBeenCalled()
+  })
 })

@@ -8,6 +8,7 @@
   },
   "scripts": {
     "format": "biome check --write .",
+    "format:force": "biome check --write --unsafe",
     "lint:eslint": "eslint .",
     "lint:biome": "biome check .",
     "lint": "pnpm lint:eslint && pnpm lint:biome",

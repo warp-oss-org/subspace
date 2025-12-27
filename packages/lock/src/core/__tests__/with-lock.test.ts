@@ -101,6 +101,34 @@ describe("tryWithLock", () => {
     expect(res).toBeNull()
     expect(fn).not.toHaveBeenCalled()
   })
+
+  it("releases lock even when fn throws", async () => {
+    const release = vi.fn()
+    const lease: LockLease = {
+      key: "test",
+      release,
+      extend: vi.fn(async () => true),
+    }
+    const lock: Lock = {
+      acquire: vi.fn(async () => lease),
+      tryAcquire: vi.fn(async () => lease),
+    }
+
+    const error = new Error("fn failed")
+
+    await expect(
+      tryWithLock(
+        lock,
+        "test",
+        async () => {
+          throw error
+        },
+        { ttl: { milliseconds: 100 } },
+      ),
+    ).rejects.toThrow(error)
+
+    expect(release).toHaveBeenCalledOnce()
+  })
 })
 
 describe("withLock", () => {
@@ -193,5 +221,33 @@ describe("withLock", () => {
 
     await expect(withLock(lock, "k", fn, { ttl })).rejects.toBeInstanceOf(Error)
     expect(fn).not.toHaveBeenCalled()
+  })
+
+  it("releases lock even when fn throws", async () => {
+    const release = vi.fn()
+    const lease: LockLease = {
+      key: "test",
+      release,
+      extend: vi.fn(async () => true),
+    }
+    const lock: Lock = {
+      acquire: vi.fn(async () => lease),
+      tryAcquire: vi.fn(async () => lease),
+    }
+
+    const error = new Error("fn failed")
+
+    await expect(
+      withLock(
+        lock,
+        "test",
+        async () => {
+          throw error
+        },
+        { ttl: { milliseconds: 100 }, timeoutMs: 100 },
+      ),
+    ).rejects.toThrow(error)
+
+    expect(release).toHaveBeenCalledOnce()
   })
 })

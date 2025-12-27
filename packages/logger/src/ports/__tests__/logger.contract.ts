@@ -1,5 +1,20 @@
 import type { LogContext } from "../log-context"
-import type { LoggerHarness } from "./logger-harness"
+import type { LogLevelName } from "../log-level"
+import type { Logger } from "../logger"
+
+export type CapturedLog = {
+  level: LogLevelName
+  payload: Record<string, unknown>
+}
+
+export type LoggerHarness = {
+  name: string
+  make: (opts?: { level?: LogLevelName }) => {
+    logger: Logger
+    read: () => CapturedLog[]
+    clear: () => void
+  }
+}
 
 export function describeLoggerContract(h: LoggerHarness) {
   describe(`Logger contract: ${h.name}`, () => {
@@ -92,6 +107,21 @@ export function describeLoggerContract(h: LoggerHarness) {
       expect(logs[0]?.payload).toMatchObject({
         requestId: "req-1",
       })
+    })
+
+    it("emits at the correct level for trace/debug/info/warn/error/fatal", () => {
+      const { logger, read } = h.make({ level: "trace" })
+
+      logger.trace("t")
+      logger.debug("d")
+      logger.info("i")
+      logger.warn("w")
+      logger.error("e")
+      logger.fatal("f")
+
+      const levels = read().map((l) => l.level)
+
+      expect(levels).toEqual(["trace", "debug", "info", "warn", "error", "fatal"])
     })
   })
 }

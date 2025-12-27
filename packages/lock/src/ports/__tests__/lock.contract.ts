@@ -1,6 +1,7 @@
 import { sleep } from "../../core/polling/sleep"
 import type { Lock, LockKey } from "../lock"
 import type { LockTtl } from "../options"
+import type { Milliseconds } from "../time"
 
 export type LockHarness = {
   name: string
@@ -9,6 +10,7 @@ export type LockHarness = {
     close?: () => Promise<void>
   }>
   ttl: () => LockTtl
+  defaultTimeoutMs: () => Milliseconds
 }
 
 export function describeLockContract(h: LockHarness) {
@@ -145,6 +147,36 @@ export function describeLockContract(h: LockHarness) {
         }
       })
 
+      it("throws when timeoutMs is Infinity", async () => {
+        const { lock, close } = await h.make()
+
+        try {
+          await expect(
+            lock.acquire("contract:timeout-infinity", {
+              ttl: h.ttl(),
+              timeoutMs: Infinity,
+            }),
+          ).rejects.toThrow(/timeoutMs/i)
+        } finally {
+          await close?.()
+        }
+      })
+
+      it("throws when timeoutMs is negative", async () => {
+        const { lock, close } = await h.make()
+
+        try {
+          await expect(
+            lock.acquire("contract:timeout-negative", {
+              ttl: h.ttl(),
+              timeoutMs: -1,
+            }),
+          ).rejects.toThrow(/timeoutMs/i)
+        } finally {
+          await close?.()
+        }
+      })
+
       it("acquire waits until the lock is released (within timeout)", async () => {
         const { lock, close } = await h.make()
 
@@ -243,6 +275,31 @@ export function describeLockContract(h: LockHarness) {
 
           const lease = await p
           expect(lease).toBeNull()
+
+          await held!.release()
+        } finally {
+          await close?.()
+        }
+      })
+
+      it("acquire uses defaultTimeoutMs when timeoutMs is omitted", async () => {
+        const { lock, close } = await h.make()
+        const expectedTimeout = h.defaultTimeoutMs()
+
+        try {
+          const key: LockKey = "contract:default-timeout"
+          const ttl = h.ttl()
+
+          const held = await lock.tryAcquire(key, { ttl })
+          expect(held).not.toBeNull()
+
+          const start = Date.now()
+          const lease = await lock.acquire(key, { ttl })
+          const elapsed = Date.now() - start
+
+          expect(lease).toBeNull()
+          expect(elapsed).toBeGreaterThanOrEqual(expectedTimeout * 0.8)
+          expect(elapsed).toBeLessThan(expectedTimeout * 2)
 
           await held!.release()
         } finally {

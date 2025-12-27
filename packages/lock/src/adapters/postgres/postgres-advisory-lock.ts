@@ -1,6 +1,7 @@
 import type { PollOptions, PollUntilFn } from "../../core/polling/poll-until"
 import type { Sleep } from "../../core/polling/sleep"
 import type { Clock } from "../../core/time/clock"
+import { assertValidTimeMs } from "../../core/validation/validation"
 import type { Lock, LockKey } from "../../ports/lock"
 import type { LockLease } from "../../ports/lock-lease"
 import type { AcquireOptions, LockConfig, TryAcquireOptions } from "../../ports/options"
@@ -33,17 +34,15 @@ export class PostgresAdvisoryLock implements Lock {
   async acquire(key: LockKey, opts: AcquireOptions): Promise<LockLease | null> {
     if (opts.signal?.aborted) return null
 
-    const budget = opts.timeoutMs ?? this.config.defaultTimeoutMs
+    const timeoutMs = opts.timeoutMs ?? this.config.defaultTimeoutMs
 
-    if (!Number.isFinite(budget) || budget < 0) {
-      throw new Error(`Invalid ttlMs: ${opts.ttl.milliseconds} for lock ${key}`)
-    }
+    assertValidTimeMs(timeoutMs, "acquire timeoutMs")
 
-    if (budget === 0) return await this.tryAcquire(key, { ttl: opts.ttl })
+    if (timeoutMs === 0) return await this.tryAcquire(key, { ttl: opts.ttl })
 
     const pollOpts: PollOptions = {
       pollMs: this.config.pollMs,
-      timeoutMs: budget,
+      timeoutMs: timeoutMs,
       ...(opts.signal && { signal: opts.signal }),
     }
 

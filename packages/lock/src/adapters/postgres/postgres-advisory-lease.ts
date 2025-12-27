@@ -1,3 +1,4 @@
+import { assertValidTimeMs } from "../../core/validation/validation"
 import type { LockKey } from "../../ports/lock"
 import type { LockLease } from "../../ports/lock-lease"
 import type { LockTtl, MillisecondsTtl } from "../../ports/options"
@@ -73,9 +74,7 @@ export class PostgresAdvisoryLease implements LockLease {
   }
 
   private scheduleAutoRelease(ttl: LockTtl): void {
-    if (!Number.isFinite(ttl.milliseconds) || ttl.milliseconds <= 0) {
-      throw new Error(`Invalid ttlMs: ${ttl.milliseconds} for lock ${this.key}`)
-    }
+    assertValidTimeMs(ttl.milliseconds, "lease ttl")
 
     const timer = this.armTtlWatchdog(ttl)
     this.preventTimerFromBlockingExit(timer)

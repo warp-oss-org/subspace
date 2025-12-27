@@ -6,9 +6,12 @@ import type { LockTtl } from "../../../ports/options"
 import { MemoryLock } from "../memory-lock"
 
 describe("MemoryLock contract", () => {
+  const defaultTimeoutMs = 250
+
   describeLockContract({
     name: "MemoryLock",
     ttl: (): LockTtl => ({ milliseconds: 5_000 }),
+    defaultTimeoutMs: (): number => defaultTimeoutMs,
 
     async make() {
       const lock = new MemoryLock(
@@ -18,7 +21,7 @@ describe("MemoryLock contract", () => {
           pollUntil,
         },
         {
-          defaultTimeoutMs: 250,
+          defaultTimeoutMs,
           pollMs: 10,
         },
       )

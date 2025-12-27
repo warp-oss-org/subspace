@@ -24,8 +24,12 @@ export async function pollUntil<T>(
   deps: PollDeps,
   opts: PollOptions,
 ): Promise<PollUntilResult<T>> {
-  if (!Number.isFinite(opts.timeoutMs)) {
+  if (!Number.isFinite(opts.timeoutMs) || opts.timeoutMs < 0) {
     throw new Error(`Invalid timeoutMs: ${opts.timeoutMs}`)
+  }
+
+  if (!Number.isFinite(opts.pollMs) || opts.pollMs <= 0) {
+    throw new Error(`Invalid pollMs: ${opts.pollMs}`)
   }
 
   const deadline = deps.clock.nowMs() + opts.timeoutMs

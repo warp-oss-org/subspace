@@ -1,3 +1,4 @@
+import { assertValidTimeMs } from "../../core/validation/validation"
 import type { LockKey } from "../../ports/lock"
 import type { LockLease } from "../../ports/lock-lease"
 import type { LockTtl } from "../../ports/options"
@@ -67,11 +68,7 @@ export class RedisLease implements LockLease {
   }
 
   private ttlToMs(key: LockKey, ttl: LockTtl): Milliseconds {
-    if (
-      !Number.isFinite(ttl.milliseconds as unknown as number) ||
-      (ttl.milliseconds as unknown as number) <= 0
-    )
-      throw new Error(`Invalid ttlMs: ${ttl.milliseconds} for key: ${key}`)
+    assertValidTimeMs(ttl.milliseconds, `ttl for lock ${key}`)
 
     return ttl.milliseconds
   }

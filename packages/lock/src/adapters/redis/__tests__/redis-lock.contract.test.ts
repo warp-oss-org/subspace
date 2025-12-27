@@ -7,6 +7,7 @@ import { createRedisTestClient } from "../../../tests/utils/create-redis-test-cl
 import { RedisLock } from "../redis-lock"
 
 describe("RedisLock contract", () => {
+  const defaultTimeoutMs = 250
   const { client } = createRedisTestClient()
 
   beforeAll(async () => {
@@ -20,6 +21,7 @@ describe("RedisLock contract", () => {
   describeLockContract({
     name: "RedisLock",
     ttl: (): LockTtl => ({ milliseconds: 5_000 }),
+    defaultTimeoutMs: (): number => defaultTimeoutMs,
 
     async make() {
       const lock = new RedisLock(
@@ -31,7 +33,7 @@ describe("RedisLock contract", () => {
           pollUntil,
         },
         {
-          defaultTimeoutMs: 250,
+          defaultTimeoutMs,
           pollMs: 10,
           keyspacePrefix: "test:lock:",
         },

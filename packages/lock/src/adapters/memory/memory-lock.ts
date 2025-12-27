@@ -1,6 +1,7 @@
 import type { PollOptions, PollUntilFn } from "../../core/polling/poll-until"
 import type { Sleep } from "../../core/polling/sleep"
 import type { Clock } from "../../core/time/clock"
+import { assertValidTimeMs } from "../../core/validation/validation"
 import type { Lock, LockKey } from "../../ports/lock"
 import type { LockLease } from "../../ports/lock-lease"
 import type { AcquireOptions, LockConfig, TryAcquireOptions } from "../../ports/options"
@@ -31,9 +32,7 @@ export class MemoryLock implements Lock {
 
     const timeoutMs = opts.timeoutMs ?? this.config.defaultTimeoutMs
 
-    if (!Number.isFinite(timeoutMs) || timeoutMs < 0) {
-      throw new Error(`Invalid timeoutMs: ${timeoutMs} for lock ${key}`)
-    }
+    assertValidTimeMs(timeoutMs, "acquire timeoutMs")
 
     if (timeoutMs === 0) return await this.tryAcquire(key, { ttl: opts.ttl })
 

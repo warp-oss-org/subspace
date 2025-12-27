@@ -3,10 +3,13 @@ import { sleep } from "../../../core/polling/sleep"
 import { SystemClock } from "../../../core/time/clock"
 import { describeLockContract } from "../../../ports/__tests__/lock.contract"
 import type { LockTtl } from "../../../ports/options"
+import type { Milliseconds } from "../../../ports/time"
 import { createPgTestPool } from "../../../tests/utils/create-postgres-test-client"
+import { hashLockKeyInt64 } from "../hashLockKeyInt64"
 import { PostgresAdvisoryLock } from "../postgres-advisory-lock"
 
 describe("PostgresAdvisoryLock contract", () => {
+  const defaultTimeoutMs = 250
   const { pool } = createPgTestPool()
 
   beforeAll(async () => {
@@ -21,14 +24,14 @@ describe("PostgresAdvisoryLock contract", () => {
   describeLockContract({
     name: "PostgresAdvisoryLock",
     ttl: (): LockTtl => ({ milliseconds: 5_000 }),
+    defaultTimeoutMs: (): Milliseconds => defaultTimeoutMs,
 
     async make() {
-      const INT64_MAX = 2n ** 63n - 1n
-
       const lock = new PostgresAdvisoryLock(
         {
           leaseClient: async () => {
             const client = await pool.connect()
+
             return {
               client,
               release: async () => client.release(),
@@ -37,24 +40,15 @@ describe("PostgresAdvisoryLock contract", () => {
           clock: new SystemClock(),
           sleep,
           pollUntil,
-          hashKey: (key) => {
-            let hash = 0n
-            for (let i = 0; i < key.length; i++) {
-              hash = (hash << 5n) - hash + BigInt(key.charCodeAt(i))
-              hash &= INT64_MAX
-            }
-            return hash
-          },
+          hashKey: hashLockKeyInt64,
         },
         {
-          defaultTimeoutMs: 250,
+          defaultTimeoutMs,
           pollMs: 10,
         },
       )
 
-      return {
-        lock,
-      }
+      return { lock }
     },
   })
 })
