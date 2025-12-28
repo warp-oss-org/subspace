@@ -46,7 +46,7 @@ export interface FlightResult<T> {
  * a.value === b.value === c.value  // same instance
  * ```
  */
-export interface ISingleflight<T = unknown> {
+export interface Singleflight<T = unknown> {
   /**
    * Execute fn() for key, deduplicating concurrent calls.
    *

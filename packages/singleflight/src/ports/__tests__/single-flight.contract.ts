@@ -1,11 +1,11 @@
-import type { ISingleflight } from "../single-flight"
+import type { Singleflight } from "../single-flight"
 
 export function describeSingleFlightContract(
   name: string,
-  factory: () => ISingleflight<unknown>,
+  factory: () => Singleflight<unknown>,
 ) {
   describe(`${name} contract`, () => {
-    let singleflight: ISingleflight<unknown>
+    let singleflight: Singleflight<unknown>
 
     beforeEach(() => {
       singleflight = factory()

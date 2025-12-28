@@ -3,7 +3,7 @@ import {
   hashLockKeyInt64,
   POSTGRES_INT64_MAX,
   POSTGRES_INT64_MIN,
-} from "../hashLockKeyInt64"
+} from "../hash-lock-key-int64"
 
 describe("PostgresAdvisoryLock behavior", () => {
   describe("key hashing", () => {

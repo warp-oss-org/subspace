@@ -1,4 +1,4 @@
-import type { FlightResult, InFlightKey, ISingleflight } from "../../ports/single-flight"
+import type { FlightResult, InFlightKey, Singleflight } from "../../ports/single-flight"
 
 interface InFlight<T> {
   promise: Promise<T>
@@ -6,7 +6,7 @@ interface InFlight<T> {
   forgotten: boolean
 }
 
-export class MemorySingleflight<T = unknown> implements ISingleflight<T> {
+export class MemorySingleflight<T = unknown> implements Singleflight<T> {
   private flights = new Map<string, InFlight<unknown>>()
 
   async run<R = T>(key: string, fn: () => Promise<R>): Promise<FlightResult<R>> {

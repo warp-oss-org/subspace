@@ -5,7 +5,7 @@ import { describeLockContract } from "../../../ports/__tests__/lock.contract"
 import type { LockTtl } from "../../../ports/options"
 import type { Milliseconds } from "../../../ports/time"
 import { createPgTestPool } from "../../../tests/utils/create-postgres-test-client"
-import { hashLockKeyInt64 } from "../hashLockKeyInt64"
+import { hashLockKeyInt64 } from "../hash-lock-key-int64"
 import { PostgresAdvisoryLock } from "../postgres-advisory-lock"
 
 describe("PostgresAdvisoryLock contract", () => {
