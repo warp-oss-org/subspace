@@ -239,7 +239,7 @@ describe("ConsoleLogger behavior", () => {
     logger.info("test-message", {
       timestamp: 123,
       level: 456,
-      message: 789,
+      message: "SHOULD_NOT_APPEAR",
     } as any)
 
     const line = lines[0]!
@@ -249,7 +249,7 @@ describe("ConsoleLogger behavior", () => {
     expect(line).toContain("INFO")
     expect(line).not.toContain("456")
     expect(line).toContain("test-message")
-    expect(line).not.toContain("789")
+    expect(line).not.toContain("SHOULD_NOT_APPEAR")
   })
 
   it("drops undefined metadata fields", () => {
