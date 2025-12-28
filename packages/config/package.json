@@ -1,0 +1,13 @@
+{
+  "name": "@subspace/config",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "zod": "^4.2.1"
+  }
+}
