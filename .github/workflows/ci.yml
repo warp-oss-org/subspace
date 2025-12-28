@@ -26,4 +26,3 @@ jobs:
       - run: pnpm -r run build
       - run: pnpm test:up
       - run: pnpm test
-      - run: pnpm test:down
