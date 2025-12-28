@@ -1,5 +1,7 @@
 # Subspace
 
+WIP
+
 A collection of small, composable primitives for building backend systems — without becoming a platform.
 
 Subspace is a set of narrowly scoped libraries that solve common infrastructure problems (caching, queues, locks, retries, telemetry, secrets, etc.) with explicit semantics, honest guarantees, and minimal coupling.

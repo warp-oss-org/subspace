@@ -6,6 +6,7 @@
     { "path": "./packages/lock" },
     { "path": "./packages/clock" },
     { "path": "./packages/email" },
-    { "path": "./packages/config" }
+    { "path": "./packages/config" },
+    { "path": "./packages/errors" }
   ]
 }
