@@ -2,7 +2,6 @@
 
 [![codecov](https://codecov.io/gh/warp-oss-org/subspace/branch/main/graph/badge.svg)](https://codecov.io/gh/warp-oss-org/subspace)
 
-
 WIP
 
 A collection of small, composable primitives for building backend systems — without becoming a platform.
