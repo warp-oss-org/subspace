@@ -25,4 +25,10 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm -r run build
       - run: pnpm test:up
-      - run: pnpm test
+      - run: pnpm test:coverage
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info
+          fail_ci_if_error: false
