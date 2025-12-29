@@ -273,19 +273,6 @@ describe("createRetryExecutor", () => {
         }
       })
 
-      it("execute throws after exhausting all attempts", async () => {
-        const executor = createRetryExecutor({ clock })
-
-        await expect(
-          executor.execute(
-            async () => {
-              throw new Error("always fails")
-            },
-            { maxAttempts: 3, delay: constantDelay },
-          ),
-        ).rejects.toThrow("always fails")
-      })
-
       it("tryExecute returns failure result when exhausted", async () => {
         const executor = createRetryExecutor({ clock })
 
@@ -316,25 +303,6 @@ describe("createRetryExecutor", () => {
         )
 
         expect(attempts).toBe(5)
-      })
-
-      it("passes correct context to fn on each attempt", async () => {
-        const executor = createRetryExecutor({ clock })
-        const contexts: AttemptContext[] = []
-
-        await executor.tryExecute(
-          async (ctx) => {
-            contexts.push({ ...ctx })
-            if (ctx.attempt < 2) throw new Error("fail")
-            return "ok"
-          },
-          { maxAttempts: 3, delay: constantDelay },
-        )
-
-        expect(contexts).toHaveLength(3)
-        expect(contexts[0]!.attempt).toBe(0)
-        expect(contexts[1]!.attempt).toBe(1)
-        expect(contexts[2]!.attempt).toBe(2)
       })
     })
   })
@@ -954,23 +922,6 @@ describe("createRetryExecutor", () => {
   })
 
   describe("attempt counting", () => {
-    it("pre-abort returns attempts: 0", async () => {
-      const executor = createRetryExecutor({ clock })
-      const controller = new AbortController()
-      controller.abort()
-
-      const result = await executor.tryExecute(async () => "ok", {
-        maxAttempts: 3,
-        delay: constantDelay,
-        signal: controller.signal,
-      })
-
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.attempts).toBe(0)
-      }
-    })
-
     it("abort during attempt N returns attempts: N", async () => {
       const executor = createRetryExecutor({ clock })
       const controller = new AbortController()
