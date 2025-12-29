@@ -13,7 +13,14 @@ export default defineConfig({
       enabled: true,
       provider: "v8",
       reporter: ["text", "html", "lcov"],
-      exclude: ["**/*tests*/**", "**/*.test.*", "**/*.spec.*"],
+      include: ["src/**/*.{ts,tsx}"],
+      exclude: [
+        "**/*tests*/**",
+        "**/*.test.*",
+        "**/*.spec.*",
+        "**/dist/**",
+        "**/node_modules/**",
+      ],
     },
   },
 })
