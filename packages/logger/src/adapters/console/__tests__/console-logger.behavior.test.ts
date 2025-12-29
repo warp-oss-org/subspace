@@ -238,7 +238,7 @@ describe("ConsoleLogger behavior", () => {
 
     logger.info("test-message", {
       timestamp: 123,
-      level: 456,
+      level: 111222333,
       message: "SHOULD_NOT_APPEAR",
     } as any)
 
@@ -247,7 +247,7 @@ describe("ConsoleLogger behavior", () => {
     expect(lines).toHaveLength(1)
     expect(line).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)
     expect(line).toContain("INFO")
-    expect(line).not.toContain("456")
+    expect(line).not.toContain("111222333")
     expect(line).toContain("test-message")
     expect(line).not.toContain("SHOULD_NOT_APPEAR")
   })
