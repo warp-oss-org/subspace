@@ -30,6 +30,5 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          slug: warp-oss-org/subspace
           files: ./coverage/lcov.info
           fail_ci_if_error: false
