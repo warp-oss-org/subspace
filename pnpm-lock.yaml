@@ -42,6 +42,8 @@ importers:
         specifier: ^3.1.0
         version: 3.1.0(typescript@5.9.3)(vitest@4.0.16)
 
+  packages/backoff: {}
+
   packages/cache:
     dependencies:
       redis:
@@ -101,6 +103,12 @@ importers:
       pino-std-serializers:
         specifier: ^7.0.0
         version: 7.0.0
+
+  packages/retry:
+    dependencies:
+      '@subspace/clock':
+        specifier: workspace:*
+        version: link:../clock
 
   packages/singleflight: {}
 
