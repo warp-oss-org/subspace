@@ -23,7 +23,8 @@ export type LogEvent = {
 
 export type LogMeta<TContext extends LogContext = LogContext> = Partial<TContext> &
   Partial<LogOutcome> &
-  Partial<LogEvent>
+  Partial<LogEvent> &
+  Record<string, unknown>
 
 /**
  * A partial overlay applied to an existing log context.

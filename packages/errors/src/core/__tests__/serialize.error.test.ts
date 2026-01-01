@@ -13,7 +13,7 @@ describe("serializeError", () => {
   describe("BaseError instances", () => {
     it("serializes all fields", () => {
       const err = new BaseError("test error", {
-        code: "TEST",
+        code: "test ",
         context: { userId: "123" },
         isRetryable: true,
         isOperational: false,
@@ -23,7 +23,7 @@ describe("serializeError", () => {
 
       expect(serialized).toEqual({
         name: "BaseError",
-        code: "TEST",
+        code: "test ",
         message: "test error",
         context: { userId: "123" },
         isOperational: false,
@@ -32,7 +32,7 @@ describe("serializeError", () => {
     })
 
     it("excludes stack by default", () => {
-      const err = new BaseError("test", { code: "TEST" })
+      const err = new BaseError("test", { code: "test" })
 
       const serialized = serializeError(err)
 
@@ -40,7 +40,7 @@ describe("serializeError", () => {
     })
 
     it("includes stack when requested", () => {
-      const err = new BaseError("test", { code: "TEST" })
+      const err = new BaseError("test", { code: "test" })
 
       const serialized = serializeError(err, { includeStack: true })
 
@@ -50,20 +50,20 @@ describe("serializeError", () => {
 
     it("serializes cause chain recursively", () => {
       const root = new Error("root cause")
-      const middle = new BaseError("middle", { code: "MID", cause: root })
-      const outer = new BaseError("outer", { code: "OUTER", cause: middle })
+      const middle = new BaseError("middle", { code: "mid", cause: root })
+      const outer = new BaseError("outer", { code: "outer", cause: middle })
 
       const serialized = serializeError(outer)
 
       expect(serialized.cause).toBeDefined()
-      expect(serialized.cause?.code).toBe("MID")
+      expect(serialized.cause?.code).toBe("mid")
       expect(serialized.cause?.cause).toBeDefined()
       expect(serialized.cause?.cause?.code).toBe("UNKNOWN")
       expect(serialized.cause?.cause?.message).toBe("root cause")
     })
 
     it("omits cause property when undefined", () => {
-      const err = new BaseError("no cause", { code: "TEST" })
+      const err = new BaseError("no cause", { code: "test" })
 
       const serialized = serializeError(err)
 
@@ -71,7 +71,7 @@ describe("serializeError", () => {
     })
 
     it("omits stack property when not requested", () => {
-      const err = new BaseError("test", { code: "TEST" })
+      const err = new BaseError("test", { code: "test" })
 
       const serialized = serializeError(err)
 
@@ -79,7 +79,7 @@ describe("serializeError", () => {
     })
 
     it("omits stack property when stack is empty", () => {
-      const err = new BaseError("test", { code: "TEST" })
+      const err = new BaseError("test", { code: "test" })
 
       err.stack = ""
 

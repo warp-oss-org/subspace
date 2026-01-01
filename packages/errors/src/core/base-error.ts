@@ -1,4 +1,4 @@
-import type { AppError, ErrorContext, SerializedError } from "../ports/error"
+import type { AppError, ErrorCode, ErrorContext, SerializedError } from "../ports/error"
 
 export type BaseErrorOptions<C extends string = string> = Readonly<{
   code: C
@@ -8,7 +8,10 @@ export type BaseErrorOptions<C extends string = string> = Readonly<{
   isOperational?: boolean
 }>
 
-export class BaseError<C extends string = string> extends Error implements AppError {
+export class BaseError<C extends ErrorCode = ErrorCode>
+  extends Error
+  implements AppError
+{
   readonly code: C
   readonly context: ErrorContext
   readonly isRetryable: boolean

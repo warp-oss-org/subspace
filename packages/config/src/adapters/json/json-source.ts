@@ -1,4 +1,3 @@
-// adapters/json/json-source.ts
 import fs from "node:fs/promises"
 import path from "node:path"
 import type { ConfigSource } from "../../ports/source"

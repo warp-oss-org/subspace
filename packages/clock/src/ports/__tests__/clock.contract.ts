@@ -1,4 +1,3 @@
-// clock.contract.ts
 import { describe, expect, it } from "vitest"
 import type { Clock } from "../clock"
 

@@ -12,15 +12,15 @@ describe("createError", () => {
   })
 
   it("creates BaseError with code and message", () => {
-    const err = createError("MY_ERROR", "Something happened")
+    const err = createError("my_error", "Something happened")
 
     expect(err).toBeInstanceOf(BaseError)
-    expect(err.code).toBe("MY_ERROR")
+    expect(err.code).toBe("my_error")
     expect(err.message).toBe("Something happened")
   })
 
   it("accepts optional context", () => {
-    const err = createError("USER_ERROR", "Not found", {
+    const err = createError("user_error", "Not found", {
       context: { userId: "123", action: "lookup" },
     })
 
@@ -29,32 +29,32 @@ describe("createError", () => {
 
   it("accepts optional cause", () => {
     const cause = new Error("Original failure")
-    const err = createError("WRAPPED", "Wrapper", { cause })
+    const err = createError("wrapped", "Wrapper", { cause })
 
     expect(err.cause).toBe(cause)
   })
 
   it("accepts optional isRetryable", () => {
-    const retryable = createError("TIMEOUT", "Timed out", { isRetryable: true })
-    const notRetryable = createError("INVALID", "Bad input", { isRetryable: false })
+    const retryable = createError("timeout", "Timed out", { isRetryable: true })
+    const notRetryable = createError("invalid", "Bad input", { isRetryable: false })
 
     expect(retryable.isRetryable).toBe(true)
     expect(notRetryable.isRetryable).toBe(false)
   })
 
   it("accepts optional isOperational", () => {
-    const operational = createError("VALIDATION", "Bad input", { isOperational: true })
-    const notOperational = createError("INVARIANT", "Bug", { isOperational: false })
+    const operational = createError("validation", "Bad input", { isOperational: true })
+    const notOperational = createError("invariant", "Bug", { isOperational: false })
 
     expect(operational.isOperational).toBe(true)
     expect(notOperational.isOperational).toBe(false)
   })
 
   it("preserves generic code type", () => {
-    type MyCode = "FOO" | "BAR"
-    const err = createError<MyCode>("FOO", "Test")
+    type MyCode = "foo" | "bar"
+    const err = createError<MyCode>("foo", "Test")
 
     const code: MyCode = err.code
-    expect(code).toBe("FOO")
+    expect(code).toBe("foo")
   })
 })

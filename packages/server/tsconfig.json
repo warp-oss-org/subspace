@@ -1,0 +1,10 @@
+{
+  "extends": "../../tooling/tsconfig/base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "composite": true
+  },
+  "references": [{ "path": "../logger" }, { "path": "../config" }, { "path": "../clock" }], 
+  "include": ["src/**/*.ts"]
+  
+}

@@ -95,3 +95,11 @@ export class PinoLogger<TContext extends LogContext = LogContext>
     return new PinoLogger<TContext & U>({ base: this.logger }, this.opts, context)
   }
 }
+
+export function createPinoLogger<TContext extends LogContext = LogContext>(
+  deps: PinoLoggerDeps = {},
+  opts: Partial<LoggerOptions> = {},
+  context: LogContextPatch = {},
+): Logger<TContext> {
+  return new PinoLogger<TContext>(deps, opts, context)
+}

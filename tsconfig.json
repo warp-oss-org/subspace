@@ -10,6 +10,7 @@
     { "path": "./packages/errors" },
     { "path": "./packages/singleflight" },
     { "path": "./packages/backoff" },
-    { "path": "./packages/retry" }
+    { "path": "./packages/retry" },
+    { "path": "./packages/server" }
   ]
 }

@@ -26,7 +26,7 @@ describe("errorChain", () => {
 
     it("handles mixed Error and BaseError", () => {
       const root = new Error("standard")
-      const middle = new BaseError("base", { code: "MID", cause: root })
+      const middle = new BaseError("base", { code: "mid", cause: root })
       const outer = new Error("outer", { cause: middle })
 
       const chain = errorChain(outer)

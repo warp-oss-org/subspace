@@ -1,0 +1,66 @@
+import { SystemClock } from "@subspace/clock"
+import type { Logger } from "@subspace/logger"
+import { PinoLogger } from "../../../logger/src/adapters/pino/pino-logger"
+import type { ServerConfig, ServerOptions } from "../config"
+import { createServer } from "../server"
+
+export async function run(): Promise<void> {
+  const clock = new SystemClock()
+  const logger: Logger = new PinoLogger(
+    {},
+    { level: "debug", prettify: true },
+    { service: "smoke-server" },
+  )
+
+  const config: ServerConfig = {
+    port: 4663,
+    errorHandling: { kind: "mappings", config: { mappings: {} } },
+    requestId: { enabled: true, header: "x-request-id", fallbackToTraceparent: false },
+    requestLogging: { enabled: true, level: "info" },
+    clientIp: { enabled: true, trustedProxies: 0 },
+  }
+
+  const options: ServerOptions = {
+    routes: (app) => {
+      app.get("/", (c) => {
+        const requestId = c.get("requestId") ?? "unknown"
+        const ip = c.get("clientIp") ?? c.get("remoteIp") ?? "unknown"
+        const reqLogger = c.get("logger") ?? logger
+
+        reqLogger.info("hello route hit", { requestId, ip })
+
+        return c.json({ ok: true, requestId, ip })
+      })
+    },
+
+    beforeStart: [
+      {
+        name: "startup:smoke",
+        fn: async () => {
+          logger.info("startup hook: ok")
+        },
+      },
+    ],
+    beforeStop: [
+      {
+        name: "stop:smoke",
+        fn: async () => {
+          logger.info("stop hook: ok")
+        },
+      },
+    ],
+  }
+
+  const server = createServer({ config, logger, clock }, options).setupProcessHandlers()
+
+  const running = await server.start()
+
+  logger.info("smoke server started", running.address)
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  run().catch((err) => {
+    console.error(err)
+    process.exitCode = 1
+  })
+}

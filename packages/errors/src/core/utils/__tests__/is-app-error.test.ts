@@ -4,15 +4,15 @@ import { isAppError } from "../is-app-error"
 describe("isAppError", () => {
   describe("returns true", () => {
     it("for BaseError instance", () => {
-      const err = new BaseError("test", { code: "TEST" })
+      const err = new BaseError("test", { code: "test" })
 
       expect(isAppError(err)).toBe(true)
     })
 
     it("for subclass of BaseError", () => {
-      class CustomError extends BaseError<"CUSTOM"> {
+      class CustomError extends BaseError<"custom"> {
         constructor(message: string) {
-          super(message, { code: "CUSTOM" })
+          super(message, { code: "custom" })
         }
       }
       const err = new CustomError("test")

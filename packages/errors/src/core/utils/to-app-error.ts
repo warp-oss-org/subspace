@@ -1,4 +1,4 @@
-import type { AppError } from "../../ports/error"
+import type { AppError, ErrorCode } from "../../ports/error"
 import { BaseError } from "../base-error"
 
 /**
@@ -9,9 +9,9 @@ import { BaseError } from "../base-error"
  * - Non-Error values are wrapped with isOperational: false (likely a bug)
  *
  * @param err - The caught value
- * @param fallbackCode - Code to use if not already an AppError. Default: "UNKNOWN"
+ * @param fallbackCode - Code to use if not already an AppError. Default: "unknown"
  */
-export function toAppError(err: unknown, fallbackCode: string = "UNKNOWN"): AppError {
+export function toAppError(err: unknown, fallbackCode: ErrorCode = "unknown"): AppError {
   if (err instanceof BaseError) {
     return err
   }

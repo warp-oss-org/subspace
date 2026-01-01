@@ -1,3 +1,4 @@
+import type { ErrorCode } from "../../ports/error"
 import { BaseError, type BaseErrorOptions } from "../base-error"
 
 /**
@@ -10,7 +11,7 @@ import { BaseError, type BaseErrorOptions } from "../base-error"
  * })
  * ```
  */
-export function createError<C extends string>(
+export function createError<C extends ErrorCode>(
   code: C,
   message: string,
   options?: Omit<BaseErrorOptions<C>, "code">,

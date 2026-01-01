@@ -13,7 +13,7 @@ describe("toAppError", () => {
 
   describe("BaseError input", () => {
     it("returns same instance unchanged", () => {
-      const err = new BaseError("original", { code: "ORIG", context: { id: 1 } })
+      const err = new BaseError("original", { code: "orig", context: { id: 1 } })
       const result = toAppError(err)
 
       expect(result).toBe(err)
@@ -46,14 +46,14 @@ describe("toAppError", () => {
       const err = new Error("standard")
       const result = toAppError(err)
 
-      expect(result.code).toBe("UNKNOWN")
+      expect(result.code).toBe("unknown")
     })
 
     it("uses custom fallback code when provided", () => {
       const err = new Error("db failed")
-      const result = toAppError(err, "DB_ERROR")
+      const result = toAppError(err, "db_error")
 
-      expect(result.code).toBe("DB_ERROR")
+      expect(result.code).toBe("db_error")
     })
 
     it("sets isOperational to false", () => {

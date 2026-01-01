@@ -1,0 +1,22 @@
+{
+  "name": "@subspace/server",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev:run": "tsx src/dev/run.ts",
+    "test": "vitest run",
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.7",
+    "@subspace/clock": "workspace:*",
+    "@subspace/config": "workspace:*",
+    "@subspace/errors": "workspace:*",
+    "@subspace/logger": "workspace:*",
+    "hono": "^4.11.3",
+    "zod": "^4.2.1"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0"
+  }
+}

@@ -1,3 +1,5 @@
+export type ErrorCode = Lowercase<string>
+
 /**
  * Contextual metadata attached to errors.
  * Use this to carry structured data (IDs, inputs, etc.) without string munging.
@@ -6,7 +8,7 @@ export type ErrorContext = Readonly<Record<string, unknown>>
 
 export interface AppError extends Error {
   /** Error code for programmatic handling */
-  readonly code: string
+  readonly code: ErrorCode
 
   /** Structured metadata for debugging */
   readonly context: ErrorContext
