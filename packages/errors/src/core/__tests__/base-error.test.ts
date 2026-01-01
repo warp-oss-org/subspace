@@ -132,7 +132,7 @@ describe("BaseError", () => {
 
       expect(json).toEqual({
         name: "BaseError",
-        code: "TEST",
+        code: "test",
         message: "test error",
         context: { id: 123 },
         isOperational: true,

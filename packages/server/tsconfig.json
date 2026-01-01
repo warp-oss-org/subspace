@@ -4,7 +4,10 @@
     "outDir": "./dist",
     "composite": true
   },
-  "references": [{ "path": "../logger" }, { "path": "../config" }, { "path": "../clock" }], 
+  "references": [
+    { "path": "../logger" },
+    { "path": "../config" },
+    { "path": "../clock" }
+  ],
   "include": ["src/**/*.ts"]
-  
 }

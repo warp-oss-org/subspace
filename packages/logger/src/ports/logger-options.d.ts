@@ -1,4 +1,4 @@
-import type { LogLevelName } from "./log-level";
+import type { LogLevelName } from "./log-level"
 /**
  * Configuration options for a Logger instance.
  *
@@ -11,21 +11,21 @@ import type { LogLevelName } from "./log-level";
  * but are free to choose how they are implemented internally.
  */
 export type LoggerOptions = {
-    /**
-     * Minimum log level to emit.
-     * Any log entries below this level are ignored.
-     *
-     * Example: "info" will suppress "trace" and "debug" logs.
-     */
-    level: LogLevelName;
-    /**
-     * Whether to pretty-print log output for human readability.
-     *
-     * @remarks
-     * - Intended for local development and debugging.
-     * - Should be disabled in production where structured (JSON) logs
-     *   are preferred for ingestion by log processors.
-     */
-    prettify?: boolean;
-};
+  /**
+   * Minimum log level to emit.
+   * Any log entries below this level are ignored.
+   *
+   * Example: "info" will suppress "trace" and "debug" logs.
+   */
+  level: LogLevelName
+  /**
+   * Whether to pretty-print log output for human readability.
+   *
+   * @remarks
+   * - Intended for local development and debugging.
+   * - Should be disabled in production where structured (JSON) logs
+   *   are preferred for ingestion by log processors.
+   */
+  prettify?: boolean
+}
 //# sourceMappingURL=logger-options.d.ts.map
