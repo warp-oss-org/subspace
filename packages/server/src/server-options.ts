@@ -1,15 +1,20 @@
 import { randomUUID } from "node:crypto"
 import type { Clock, Milliseconds } from "@subspace/clock"
 import type { Logger, LogLevelName } from "@subspace/logger"
-import type { ErrorHandler } from "./errors/error-handler"
+import type { Application, Middleware } from "./create-server"
+import type { ErrorHandler } from "./errors/create-error-handler"
 import type { ErrorMappingsConfig } from "./errors/errors"
 import type { LifecycleHook } from "./lifecycle/lifecycle"
-import type { Application, Middleware } from "./server"
 
 export type PathString = `/${string}`
 
 export interface DisabledConfig {
   enabled: false
+}
+
+export interface ServerDependencies {
+  logger: Logger
+  clock: Clock
 }
 
 export interface EnabledRequestIdConfig {
@@ -46,7 +51,7 @@ export interface EnabledRequestLoggingConfig {
 
   /**
    * Paths to ignore for request logging.
-   * @default ["/health", "/ready"] if health checks are enabled
+   * @default [livenessPath, readinessPath] if health checks are enabled, otherwise []
    */
   ignorePaths?: PathString[]
 }
@@ -89,7 +94,7 @@ export interface ClientIpConfig {
   enabled?: boolean
 
   /**
-   * If set, we trust X-Forwarded-For and compute the client IP assuming this many
+   * If set, trust X-Forwarded-For and compute the client IP assuming this many
    * proxies at the end of the chain are trusted.
    *
    * Example XFF: "client, proxy1, proxy2"
@@ -108,7 +113,7 @@ export type RequestIdConfig = DisabledConfig | EnabledRequestIdConfig
 export type RequestLoggingConfig = DisabledConfig | EnabledRequestLoggingConfig
 export type HealthConfig = DisabledConfig | EnabledHealthConfig
 
-export interface ServerConfig {
+export interface ServerOptions {
   port: number
 
   /**
@@ -119,8 +124,7 @@ export interface ServerConfig {
 
   /**
    * Timeout for server startup in milliseconds.
-   *
-   * @default undefined (no timeout)
+   * @default 2_147_483_647 (max timer value, effectively no timeout)
    */
   startupTimeoutMs?: Milliseconds
 
@@ -140,27 +144,25 @@ export interface ServerConfig {
    * - If disabled, no IP is attached to the request context
    * - If enabled without `trustedProxies`, uses the direct remote address
    * - If `trustedProxies` is set, uses X-Forwarded-For accordingly
+   *
+   * @default { enabled: true }
    */
   clientIp?: ClientIpConfig
 
   errorHandling: ErrorHandling
-}
 
-export interface ServerDependencies {
-  config: ServerConfig
-  logger: Logger
-  clock: Clock
-}
-
-export interface ServerOptions {
   routes: (app: Application) => void
+
   middleware?: {
     pre?: Middleware[]
     post?: Middleware[]
   }
+
   beforeStart?: LifecycleHook[]
   beforeStop?: LifecycleHook[]
 }
+
+// --- Resolved types ---
 
 export type ResolvedRequestIdConfig = DisabledConfig | Required<EnabledRequestIdConfig>
 
@@ -170,35 +172,51 @@ export type ResolvedRequestLoggingConfig =
 
 export type ResolvedHealthConfig = DisabledConfig | Required<EnabledHealthConfig>
 
-export type ResolvedClientIpConfig = {
+export interface ResolvedClientIpConfig {
   enabled: boolean
   trustedProxies?: number
 }
 
-export type ResolvedServerConfig = Required<
-  Omit<ServerConfig, "requestId" | "requestLogging" | "health" | "clientIp">
-> & {
+export interface ResolvedMiddleware {
+  pre: Middleware[]
+  post: Middleware[]
+}
+
+export type ResolvedServerOptions = {
+  port: number
+  host: string
+  startupTimeoutMs: Milliseconds
+  shutdownTimeoutMs: Milliseconds
   requestId: ResolvedRequestIdConfig
   requestLogging: ResolvedRequestLoggingConfig
   health: ResolvedHealthConfig
   clientIp: ResolvedClientIpConfig
+  errorHandling: ErrorHandling
+
+  routes: (app: Application) => void
+  middleware: ResolvedMiddleware
+  beforeStart: LifecycleHook[]
+  beforeStop: LifecycleHook[]
 }
+
+// --- Defaults ---
+
+const MAX_TIMER_MS = 2_147_483_647 as Milliseconds
 
 interface ServerDefaults {
   host: string
-  shutdownTimeoutMs: Milliseconds
   startupTimeoutMs: Milliseconds
+  shutdownTimeoutMs: Milliseconds
   requestId: Required<EnabledRequestIdConfig>
   requestLogging: { enabled: true; level: LogLevelName }
   health: Required<EnabledHealthConfig>
-  clientIp: ResolvedClientIpConfig
+  clientIp: { enabled: boolean }
 }
 
-const MAX_TIMER_MS = 2_147_483_647
 export const DEFAULTS: ServerDefaults = {
   host: "0.0.0.0",
-  shutdownTimeoutMs: 10_000,
   startupTimeoutMs: MAX_TIMER_MS,
+  shutdownTimeoutMs: 10_000 as Milliseconds,
   requestId: {
     enabled: true,
     header: "x-request-id",
@@ -214,81 +232,93 @@ export const DEFAULTS: ServerDefaults = {
     livenessPath: "/health",
     readinessPath: "/ready",
     readinessChecks: [],
-    checkTimeoutMs: 5_000,
+    checkTimeoutMs: 5_000 as Milliseconds,
   },
   clientIp: {
     enabled: true,
   },
 }
 
-export function resolveConfig(config: ServerConfig): ResolvedServerConfig {
-  const health: ResolvedHealthConfig = resolveHealthConfig(config)
-  const requestId: ResolvedRequestIdConfig = resolveRequestIdConfig(config)
-  const clientIp: ResolvedClientIpConfig = resolveClientIpConfig(config)
-  const requestLogging: ResolvedRequestLoggingConfig = resolveRequestLoggingConfig(
-    config,
-    health,
-  )
+// --- Resolution ---
+
+export function resolveOptions(options: ServerOptions): ResolvedServerOptions {
+  const health = resolveHealthConfig(options)
+  const requestId = resolveRequestIdConfig(options)
+  const clientIp = resolveClientIpConfig(options)
+  const requestLogging = resolveRequestLoggingConfig(options, health)
 
   return {
-    port: config.port,
-    host: config.host ?? DEFAULTS.host,
-    startupTimeoutMs: config.startupTimeoutMs ?? DEFAULTS.startupTimeoutMs,
-    shutdownTimeoutMs: config.shutdownTimeoutMs ?? DEFAULTS.shutdownTimeoutMs,
+    port: options.port,
+    host: options.host ?? DEFAULTS.host,
+    startupTimeoutMs: options.startupTimeoutMs ?? DEFAULTS.startupTimeoutMs,
+    shutdownTimeoutMs: options.shutdownTimeoutMs ?? DEFAULTS.shutdownTimeoutMs,
     requestId,
     requestLogging,
     health,
     clientIp,
-    errorHandling: config.errorHandling,
+    errorHandling: options.errorHandling,
+    routes: options.routes,
+    middleware: {
+      pre: options.middleware?.pre ?? [],
+      post: options.middleware?.post ?? [],
+    },
+    beforeStart: options.beforeStart ?? [],
+    beforeStop: options.beforeStop ?? [],
   }
 }
 
-function resolveClientIpConfig(config: ServerConfig) {
-  const trustedProxiesRaw = config.clientIp?.trustedProxies
+function resolveHealthConfig(options: ServerOptions): ResolvedHealthConfig {
+  if (options.health?.enabled === false) {
+    return { enabled: false }
+  }
+
+  return {
+    ...DEFAULTS.health,
+    ...options.health,
+    enabled: true,
+  }
+}
+
+function resolveRequestIdConfig(options: ServerOptions): ResolvedRequestIdConfig {
+  if (options.requestId?.enabled === false) {
+    return { enabled: false }
+  }
+
+  return {
+    ...DEFAULTS.requestId,
+    ...options.requestId,
+    enabled: true,
+  }
+}
+
+function resolveRequestLoggingConfig(
+  options: ServerOptions,
+  health: ResolvedHealthConfig,
+): ResolvedRequestLoggingConfig {
+  if (options.requestLogging?.enabled === false) {
+    return { enabled: false }
+  }
+
+  return {
+    enabled: true,
+    level: options.requestLogging?.level ?? DEFAULTS.requestLogging.level,
+    ignorePaths:
+      options.requestLogging?.ignorePaths ??
+      (health.enabled ? [health.livenessPath, health.readinessPath] : []),
+  }
+}
+
+function resolveClientIpConfig(options: ServerOptions): ResolvedClientIpConfig {
+  const enabled = options.clientIp?.enabled ?? DEFAULTS.clientIp.enabled
+  const trustedProxiesRaw = options.clientIp?.trustedProxies
+
   const trustedProxies =
     typeof trustedProxiesRaw === "number"
       ? Math.max(0, Math.floor(trustedProxiesRaw))
       : undefined
 
-  const clientIp: ResolvedClientIpConfig = {
-    enabled: config.clientIp?.enabled ?? DEFAULTS.clientIp.enabled,
+  return {
+    enabled,
     ...(trustedProxies !== undefined && { trustedProxies }),
   }
-
-  return clientIp
-}
-
-function resolveRequestLoggingConfig(
-  config: ServerConfig,
-  health: ResolvedHealthConfig,
-): ResolvedRequestLoggingConfig {
-  return config.requestLogging?.enabled === false
-    ? { enabled: false }
-    : {
-        enabled: true,
-        level: config.requestLogging?.level ?? DEFAULTS.requestLogging.level,
-        ignorePaths:
-          config.requestLogging?.ignorePaths ??
-          (health.enabled ? [health.livenessPath, health.readinessPath] : []),
-      }
-}
-
-function resolveRequestIdConfig(config: ServerConfig): ResolvedRequestIdConfig {
-  return config.requestId?.enabled === false
-    ? { enabled: false }
-    : {
-        ...DEFAULTS.requestId,
-        ...config.requestId,
-        enabled: true,
-      }
-}
-
-function resolveHealthConfig(config: ServerConfig): ResolvedHealthConfig {
-  return config.health?.enabled === false
-    ? { enabled: false }
-    : {
-        ...DEFAULTS.health,
-        ...config.health,
-        enabled: true,
-      }
 }

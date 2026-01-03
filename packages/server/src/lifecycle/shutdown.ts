@@ -1,5 +1,5 @@
-import type { Clock, UnixMs } from "@subspace/clock"
-import type { Logger } from "@subspace/logger"
+import type { UnixMs } from "@subspace/clock"
+import type { ServerDependencies } from "../server-options"
 import type { HookFailure, LifecycleHook } from "./lifecycle"
 import { runHooks } from "./run-hooks"
 
@@ -9,8 +9,7 @@ export interface Closeable {
 
 export type ShutdownContext = {
   server: Closeable
-  clock: Clock
-  logger: Logger
+  deps: ServerDependencies
   deadlineMs: UnixMs
   stopHooks: LifecycleHook[]
 }
@@ -34,15 +33,15 @@ export type StopResult = {
 }
 
 export async function shutdown(ctx: ShutdownContext): Promise<StopResult> {
-  ctx.logger.warn("Shutting down gracefully...")
+  ctx.deps.logger.warn("Shutting down gracefully...")
 
   const hooks: LifecycleHook[] = [createCloseServerHook(ctx.server), ...ctx.stopHooks]
 
   const { failures, timedOut } = await runHooks(
     {
       phase: "shutdown",
-      clock: ctx.clock,
-      logger: ctx.logger,
+      clock: ctx.deps.clock,
+      logger: ctx.deps.logger,
       deadlineMs: ctx.deadlineMs,
     },
     hooks,
@@ -51,10 +50,12 @@ export async function shutdown(ctx: ShutdownContext): Promise<StopResult> {
 
   const ok = failures.length === 0 && !timedOut
 
-  ctx.logger.info("Shutdown complete")
+  ctx.deps.logger.info("Shutdown complete")
 
   return { ok, failures, timedOut }
 }
+
+export type ShutdownFn = typeof shutdown
 
 function createCloseServerHook(server: Closeable): LifecycleHook {
   return {

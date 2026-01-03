@@ -1,5 +1,5 @@
 import type { Seconds } from "@subspace/clock"
-import type { Middleware } from "../server"
+import type { Middleware } from "../create-server"
 
 export interface HstsConfig {
   /** @default 31536000 seconds (1 year) */

@@ -9,6 +9,7 @@ export default defineConfig({
     restoreMocks: true,
     mockReset: true,
     exclude: ["**/dist/**", "**/node_modules/**"],
+    setupFiles: ["./packages/server/vitest.setup.ts"],
     coverage: {
       enabled: true,
       provider: "v8",

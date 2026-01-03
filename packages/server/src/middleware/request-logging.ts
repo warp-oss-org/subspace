@@ -1,7 +1,8 @@
 import type { Logger } from "@subspace/logger"
 import { routePath } from "hono/route"
-import type { EnabledRequestLoggingConfig, PathString } from "../config"
-import type { Middleware } from "../server"
+import type { Middleware } from "../create-server"
+import type { EnabledRequestLoggingConfig, PathString } from "../server-options"
+import { isNonEmptyString } from "./utils/is-non-empty-string"
 
 /**
  * Logs incoming requests and outgoing responses.
@@ -35,8 +36,8 @@ export function requestLoggingMiddleware(
       const remoteIp = c.get("remoteIp")
       const userAgent = c.req.header("user-agent")
 
-      const route = routePath(c) ?? path
       const method = c.req.method
+      const route = isNonEmptyString(routePath(c)) ? routePath(c) : c.req.path
 
       const meta = {
         requestId,

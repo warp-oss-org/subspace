@@ -1,8 +1,8 @@
 import { SystemClock } from "@subspace/clock"
 import type { Logger } from "@subspace/logger"
 import { PinoLogger } from "../../../logger/src/adapters/pino/pino-logger"
-import type { ServerConfig, ServerOptions } from "../config"
-import { createServer } from "../server"
+import { createServer } from "../create-server"
+import type { ServerOptions } from "../server-options"
 
 export async function run(): Promise<void> {
   const clock = new SystemClock()
@@ -12,15 +12,13 @@ export async function run(): Promise<void> {
     { service: "smoke-server" },
   )
 
-  const config: ServerConfig = {
+  const options: ServerOptions = {
     port: 4663,
     errorHandling: { kind: "mappings", config: { mappings: {} } },
     requestId: { enabled: true, header: "x-request-id", fallbackToTraceparent: false },
     requestLogging: { enabled: true, level: "info" },
     clientIp: { enabled: true, trustedProxies: 0 },
-  }
 
-  const options: ServerOptions = {
     routes: (app) => {
       app.get("/", (c) => {
         const requestId = c.get("requestId") ?? "unknown"
@@ -51,9 +49,9 @@ export async function run(): Promise<void> {
     ],
   }
 
-  const server = createServer({ config, logger, clock }, options).setupProcessHandlers()
+  const server = createServer({ logger, clock }, options)
 
-  const running = await server.start()
+  const running = await server.setupProcessHandlers().start()
 
   logger.info("smoke server started", running.address)
 }

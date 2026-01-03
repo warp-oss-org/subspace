@@ -30,3 +30,5 @@ export async function startup(ctx: StartupContext): Promise<StartResult> {
 
   return { ok, failures, timedOut }
 }
+
+export type StartupFn = typeof startup

@@ -1,10 +1,19 @@
 import type { Logger } from "@subspace/logger"
-import type { Hono, Context as HonoContext, MiddlewareHandler } from "hono"
-import { resolveConfig, type ServerDependencies, type ServerOptions } from "./config"
-import type { RunningServer } from "./lifecycle/running"
-import type { StopResult } from "./lifecycle/shutdown"
+import { Hono, type Context as HonoContext, type MiddlewareHandler } from "hono"
+import { createErrorHandler } from "./errors/create-error-handler"
+import { buildApp } from "./lifecycle/build-app"
+import { createStopper, type ServerHandle } from "./lifecycle/create-stopper"
+import { listen } from "./lifecycle/listen"
+import { type StopResult, shutdown } from "./lifecycle/shutdown"
 import { type SignalHandler, setupProcessHandlers } from "./lifecycle/signals"
-import { type ServerState, startServer } from "./lifecycle/start"
+import { type ServerState, startServer } from "./lifecycle/start-server"
+import { startup } from "./lifecycle/startup"
+import { createDefaultMiddleware } from "./middleware/defaults"
+import {
+  resolveOptions,
+  type ServerDependencies,
+  type ServerOptions,
+} from "./server-options"
 
 export type Application = Hono
 export type Context = HonoContext
@@ -12,21 +21,33 @@ export type Middleware = MiddlewareHandler
 
 export interface Server {
   setupProcessHandlers(): this
-  start(): Promise<RunningServer>
+  start(): Promise<ServerHandle>
 }
 
 export interface Closeable {
   close: (callback?: (err?: Error | null) => void) => void
 }
 
-export function createServer(deps: ServerDependencies, options: ServerOptions): Server {
-  const config = resolveConfig(deps.config)
+export type ServerInstance = {
+  app: Application
+  server: Closeable
+  address: { host: string; port: number }
+}
 
-  const { logger, clock } = deps
+export function createApp(): Application {
+  return new Hono()
+}
+
+export type CreateAppFn = typeof createApp
+
+export function createServer(deps: ServerDependencies, options: ServerOptions): Server {
+  const resolvedOptions = resolveOptions(options)
+
+  const { logger } = deps
 
   let ready = false
   let state: ServerState = "idle"
-  let runningServer: RunningServer | undefined
+  let runningServer: ServerHandle | undefined
   let signalHandler: SignalHandler | undefined
 
   const server: Server = {
@@ -43,11 +64,23 @@ export function createServer(deps: ServerDependencies, options: ServerOptions): 
 
     start() {
       return startServer({
+        collabs: {
+          onStartup: startup,
+          onShutdown: shutdown,
+
+          listen,
+
+          createApp: () => new Hono(),
+
+          createStopper,
+          createErrorHandler,
+
+          buildApp,
+          createDefaultMiddleware,
+        },
+
         deps,
-        options,
-        config,
-        logger,
-        clock,
+        options: resolvedOptions,
 
         getState: () => state,
         setState: (s) => {

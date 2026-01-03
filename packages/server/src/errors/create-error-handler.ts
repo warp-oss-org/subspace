@@ -2,25 +2,26 @@ import type { ErrorCode } from "@subspace/errors"
 import type { Logger } from "@subspace/logger"
 import type { ErrorHandler as HonoErrorHandler } from "hono"
 import { routePath } from "hono/route"
-import type { ResolvedServerConfig } from "../config"
 import type { StatusCode } from "../http/status-codes"
-import type { Application } from "../server"
+import { isNonEmptyString } from "../middleware/utils/is-non-empty-string"
+import type { ResolvedServerOptions } from "../server-options"
 import { createErrorFormatter, type ErrorMappingsConfig } from "./errors"
 
 export type ErrorHandler = HonoErrorHandler
 
-export function applyErrorHandler(
-  app: Application,
-  config: ResolvedServerConfig,
+export function createErrorHandler(
+  config: ResolvedServerOptions,
   logger: Logger,
-): void {
+): ErrorHandler {
   const handler =
     config.errorHandling.kind === "handler"
       ? config.errorHandling.errorHandler
       : buildErrorHandler(config.errorHandling.config, logger)
 
-  app.onError(handler)
+  return handler
 }
+
+export type CreateErrorHandlerFn = typeof createErrorHandler
 
 function buildErrorHandler(mappings: ErrorMappingsConfig, logger: Logger): ErrorHandler {
   const formatter = createErrorFormatter(mappings)
@@ -29,10 +30,12 @@ function buildErrorHandler(mappings: ErrorMappingsConfig, logger: Logger): Error
     const requestId = c.get("requestId") ?? "unknown"
     const response = formatter(err, requestId)
 
+    const route = isNonEmptyString(routePath(c)) ? routePath(c) : c.req.path
+
     logError(logger, err, {
       requestId,
       method: c.req.method,
-      route: routePath(c) ?? c.req.path,
+      route,
       status: response.error.status,
       code: response.error.code,
     })
@@ -52,7 +55,7 @@ type ErrorLogMeta = {
 /**
  * Centralized error logging policy:
  * - 5xx => error with `err`
- * - 4xx => warn without `err`, debug with `err`
+ * - 4xx => info without `err`, debug with `err`
  */
 function logError(logger: Logger, err: unknown, meta: ErrorLogMeta): void {
   const base = { ...meta, op: `${meta.method} ${meta.route}` }
@@ -62,6 +65,6 @@ function logError(logger: Logger, err: unknown, meta: ErrorLogMeta): void {
     return
   }
 
-  logger.warn("Request failed", base)
+  logger.info("Request failed", base)
   logger.debug("Request failed details", { ...base, err })
 }

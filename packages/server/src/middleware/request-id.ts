@@ -1,6 +1,6 @@
 import type { Context } from "hono"
-import type { EnabledRequestIdConfig } from "../config"
-import type { Middleware } from "../server"
+import type { Middleware } from "../create-server"
+import type { EnabledRequestIdConfig } from "../server-options"
 import { isNonEmptyString } from "./utils/is-non-empty-string"
 import { setHeaderIfMissing } from "./utils/set-header-if-missing"
 

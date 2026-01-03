@@ -1,4 +1,4 @@
-import type { Middleware } from "../server"
+import type { Middleware } from "../create-server"
 import { setHeaderIfMissing } from "./utils/set-header-if-missing"
 
 export type FrameOptions = "DENY" | "SAMEORIGIN"
@@ -103,12 +103,12 @@ export interface SecurityHeadersConfig {
   /**
    * Explicitly set CSP (defaults to OWASP’s baseline policy).
    */
-  contentSecurityPolicy?: boolean | string
+  contentSecurityPolicy?: boolean | string[]
 
   /**
    * Explicitly set Permissions-Policy (defaults to OWASP’s baseline policy).
    */
-  permissionsPolicy?: boolean | string
+  permissionsPolicy?: boolean | string[]
 }
 
 type SecureHeadersDefaults = {
@@ -122,22 +122,21 @@ type SecureHeadersDefaults = {
   crossOriginResourcePolicy: CrossOriginResourcePolicy
   cacheControl: string
   dnsPrefetchControl: "off" | "on"
-  contentSecurityPolicy: string
-  permissionsPolicy: string
+  contentSecurityPolicy: string[]
+  permissionsPolicy: string[]
 }
 
 const DEFAULTS: SecureHeadersDefaults = {
   contentTypeOptions: "nosniff",
   frameOptions: "DENY",
   xssProtection: true,
-  referrerPolicy: "no-referrer",
+  referrerPolicy: "strict-origin-when-cross-origin",
   permittedCrossDomainPolicies: "none",
   crossOriginOpenerPolicy: "same-origin",
   crossOriginEmbedderPolicy: "require-corp",
   crossOriginResourcePolicy: "same-origin",
   cacheControl: "no-store, max-age=0",
   dnsPrefetchControl: "off",
-
   contentSecurityPolicy: [
     "default-src 'self'",
     "form-action 'self'",
@@ -145,8 +144,7 @@ const DEFAULTS: SecureHeadersDefaults = {
     "object-src 'none'",
     "frame-ancestors 'none'",
     "upgrade-insecure-requests",
-  ].join("; "),
-
+  ],
   permissionsPolicy: [
     "accelerometer=()",
     "autoplay=()",
@@ -177,7 +175,16 @@ const DEFAULTS: SecureHeadersDefaults = {
     "interest-cohort=()",
     "serial=()",
     "unload=()",
-  ].join("; "),
+  ],
+}
+function resolveBooleanOrStringArray(
+  value: boolean | string[] | undefined,
+  defaultValue: string[],
+): string | null {
+  if (value === false) return null
+  if (value === true || value === undefined) return defaultValue.join("; ")
+  if (Array.isArray(value) && value.length > 0) return value.join("; ")
+  return null
 }
 
 function resolveFrameOptions(
@@ -265,14 +272,14 @@ export function securityHeadersMiddleware(
     },
     {
       key: "Content-Security-Policy",
-      value: resolveBooleanOrStringLoose(
+      value: resolveBooleanOrStringArray(
         opts.contentSecurityPolicy,
         DEFAULTS.contentSecurityPolicy,
       ),
     },
     {
       key: "Permissions-Policy",
-      value: resolveBooleanOrStringLoose(
+      value: resolveBooleanOrStringArray(
         opts.permissionsPolicy,
         DEFAULTS.permissionsPolicy,
       ),

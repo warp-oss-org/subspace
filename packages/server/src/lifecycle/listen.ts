@@ -1,12 +1,11 @@
 import { serve } from "@hono/node-server"
 import type { Logger } from "@subspace/logger"
-import type { Hono } from "hono"
-import type { ResolvedServerConfig } from "../config"
-import type { Closeable } from "../server"
+import type { Application, Closeable } from "../create-server"
+import type { ResolvedServerOptions } from "../server-options"
 
-export function bindServer(
-  app: Hono,
-  config: ResolvedServerConfig,
+export function listen(
+  app: Application,
+  config: ResolvedServerOptions,
   logger: Logger,
 ): Closeable {
   const server = serve({
@@ -19,3 +18,5 @@ export function bindServer(
 
   return server
 }
+
+export type ListenFn = typeof listen

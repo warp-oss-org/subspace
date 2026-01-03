@@ -1,6 +1,6 @@
 import type { Milliseconds } from "@subspace/clock"
-import type { ReadinessCheck, ResolvedHealthConfig } from "../config"
-import type { Application } from "../server"
+import type { Application } from "../create-server"
+import type { ReadinessCheck, ResolvedHealthConfig } from "../server-options"
 
 const NO_CACHE_HEADERS = {
   "Cache-Control": "no-store, no-cache, must-revalidate",
