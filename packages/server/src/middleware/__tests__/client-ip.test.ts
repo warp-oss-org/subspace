@@ -1,4 +1,4 @@
-import { clientIpMiddleware } from "../client-ip"
+import { clientIpMiddleware, ipFromXForwardedFor } from "../client-ip"
 import { mockContext } from "./mocks/context-mock"
 
 describe("clientIpMiddleware", () => {
@@ -172,5 +172,38 @@ describe("clientIpMiddleware", () => {
     expect(next).toHaveBeenCalledOnce()
     expect(c.get("clientIp")).toBe("198.51.100.20")
     expect(c.get("remoteIp")).toBe("10.0.0.9")
+  })
+
+  it("uses socket remoteAddress as clientIp when trustedProxies is 0", async () => {
+    const next = vi.fn(async () => {})
+    const c = mockContext({ socketRemoteAddress: "203.0.113.10" })
+
+    await clientIpMiddleware(0)(c, next)
+
+    expect(next).toHaveBeenCalledOnce()
+    expect(c.get("remoteIp")).toBe("203.0.113.10")
+    expect(c.get("clientIp")).toBe("203.0.113.10")
+  })
+
+  it("treats whitespace-only socket remoteAddress as missing", async () => {
+    const next = vi.fn(async () => {})
+    const c = mockContext({ socketRemoteAddress: "   " })
+
+    await clientIpMiddleware()(c, next)
+
+    expect(next).toHaveBeenCalledOnce()
+    expect(c.get("remoteIp")).toBeUndefined()
+    expect(c.get("clientIp")).toBeUndefined()
+  })
+})
+
+describe("ipFromXForwardedFor", () => {
+  it("returns undefined when trustedProxies is 0 or less", () => {
+    expect(ipFromXForwardedFor("1.1.1.1, 2.2.2.2", 0)).toBeUndefined()
+    expect(ipFromXForwardedFor("1.1.1.1, 2.2.2.2", -1)).toBeUndefined()
+  })
+
+  it("returns undefined when X-Forwarded-For contains no usable entries", () => {
+    expect(ipFromXForwardedFor(" ,  ,   ", 1)).toBeUndefined()
   })
 })
