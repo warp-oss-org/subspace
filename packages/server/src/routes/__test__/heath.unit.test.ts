@@ -155,4 +155,217 @@ describe("registerHealthRoutes (unit)", () => {
       { headers: { "Cache-Control": "no-store, no-cache, must-revalidate" } },
     )
   })
+
+  it("returns 503 when a readiness check returns false", async () => {
+    const { app, routes } = createMockApp()
+
+    const checkFn = vi.fn(async () => false)
+    const checks: ReadinessCheck[] = [{ name: "check.false", fn: checkFn }]
+
+    const config: ResolvedHealthConfig = {
+      enabled: true,
+      livenessPath: "/health",
+      readinessPath: "/ready",
+      readinessChecks: checks,
+      checkTimeoutMs: 5_000,
+    }
+
+    registerHealthRoutes(app, config, () => true)
+
+    const handler = routes.get("/ready")
+    expect(handler).toBeTypeOf("function")
+
+    const c = createMockContext()
+    await handler?.(c)
+
+    expect(checkFn).toHaveBeenCalledTimes(1)
+
+    expect(c.json).toHaveBeenCalledExactlyOnceWith(
+      { ok: false, reason: "check.false" },
+      {
+        status: 503,
+        headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },
+      },
+    )
+  })
+
+  it("returns 503 when a readiness check resolves after its timeout", async () => {
+    const { app, routes } = createMockApp()
+
+    const checkFn = vi.fn(async () => {
+      await new Promise((r) => setTimeout(r, 10))
+      return true
+    })
+
+    const checks: ReadinessCheck[] = [
+      { name: "check.late", timeoutMs: 2 as any, fn: checkFn },
+    ]
+
+    const config: ResolvedHealthConfig = {
+      enabled: true,
+      livenessPath: "/health",
+      readinessPath: "/ready",
+      readinessChecks: checks,
+      checkTimeoutMs: 5_000,
+    }
+
+    registerHealthRoutes(app, config, () => true)
+
+    const handler = routes.get("/ready")
+    expect(handler).toBeTypeOf("function")
+
+    const c = createMockContext()
+    await handler?.(c)
+
+    expect(checkFn).toHaveBeenCalledTimes(1)
+
+    expect(c.json).toHaveBeenCalledExactlyOnceWith(
+      { ok: false, reason: "check.late:timeout" },
+      {
+        status: 503,
+        headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },
+      },
+    )
+  })
+
+  it("returns 503 when a readiness check throws after its timeout", async () => {
+    const { app, routes } = createMockApp()
+
+    const checkFn = vi.fn(async () => {
+      await new Promise((r) => setTimeout(r, 10))
+      throw new Error("boom")
+    })
+
+    const checks: ReadinessCheck[] = [
+      { name: "check.throw-late", timeoutMs: 2 as any, fn: checkFn },
+    ]
+
+    const config: ResolvedHealthConfig = {
+      enabled: true,
+      livenessPath: "/health",
+      readinessPath: "/ready",
+      readinessChecks: checks,
+      checkTimeoutMs: 5_000,
+    }
+
+    registerHealthRoutes(app, config, () => true)
+
+    const handler = routes.get("/ready")
+    expect(handler).toBeTypeOf("function")
+
+    const c = createMockContext()
+    await handler?.(c)
+
+    expect(checkFn).toHaveBeenCalledTimes(1)
+
+    expect(c.json).toHaveBeenCalledExactlyOnceWith(
+      { ok: false, reason: "check.throw-late:timeout" },
+      {
+        status: 503,
+        headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },
+      },
+    )
+  })
+
+  it("returns 503 with :error when a readiness check throws before timeout", async () => {
+    const { app, routes } = createMockApp()
+
+    const checkFn = vi.fn(async () => {
+      throw new Error("boom")
+    })
+
+    const checks: ReadinessCheck[] = [
+      { name: "check.throw-fast", timeoutMs: 50 as any, fn: checkFn },
+    ]
+
+    const config: ResolvedHealthConfig = {
+      enabled: true,
+      livenessPath: "/health",
+      readinessPath: "/ready",
+      readinessChecks: checks,
+      checkTimeoutMs: 5_000,
+    }
+
+    registerHealthRoutes(app, config, () => true)
+
+    const handler = routes.get("/ready")
+    expect(handler).toBeTypeOf("function")
+
+    const c = createMockContext()
+    await handler?.(c)
+
+    expect(checkFn).toHaveBeenCalledTimes(1)
+
+    expect(c.json).toHaveBeenCalledExactlyOnceWith(
+      { ok: false, reason: "check.throw-fast:error" },
+      {
+        status: 503,
+        headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },
+      },
+    )
+  })
+
+  it("readiness handler returns ok:true when ready and all checks pass", async () => {
+    const { app, routes } = createMockApp()
+
+    const checkFn = vi.fn(async () => true)
+    const checks: ReadinessCheck[] = [{ name: "check.ok", fn: checkFn }]
+
+    const config: ResolvedHealthConfig = {
+      enabled: true,
+      livenessPath: "/health",
+      readinessPath: "/ready",
+      readinessChecks: checks,
+      checkTimeoutMs: 5_000,
+    }
+
+    registerHealthRoutes(app, config, () => true)
+
+    const handler = routes.get("/ready")
+    expect(handler).toBeTypeOf("function")
+
+    const c = createMockContext()
+    await handler?.(c)
+
+    expect(checkFn).toHaveBeenCalledTimes(1)
+    expect(c.json).toHaveBeenCalledExactlyOnceWith(
+      { ok: true },
+      { headers: { "Cache-Control": "no-store, no-cache, must-revalidate" } },
+    )
+  })
+
+  it("uses config.checkTimeoutMs when a readiness check does not provide timeoutMs", async () => {
+    const { app, routes } = createMockApp()
+
+    const checkFn = vi.fn(async () => {
+      await new Promise((r) => setTimeout(r, 10))
+      return true
+    })
+    const checks: ReadinessCheck[] = [{ name: "check.default-timeout", fn: checkFn }]
+
+    const config: ResolvedHealthConfig = {
+      enabled: true,
+      livenessPath: "/health",
+      readinessPath: "/ready",
+      readinessChecks: checks,
+      checkTimeoutMs: 2 as any,
+    }
+
+    registerHealthRoutes(app, config, () => true)
+
+    const handler = routes.get("/ready")
+    expect(handler).toBeTypeOf("function")
+
+    const c = createMockContext()
+    await handler?.(c)
+
+    expect(checkFn).toHaveBeenCalledTimes(1)
+    expect(c.json).toHaveBeenCalledExactlyOnceWith(
+      { ok: false, reason: "check.default-timeout:timeout" },
+      {
+        status: 503,
+        headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },
+      },
+    )
+  })
 })

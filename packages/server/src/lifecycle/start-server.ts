@@ -1,6 +1,6 @@
 import type { Application, CreateAppFn } from "../create-server"
 import type { CreateErrorHandlerFn } from "../errors/create-error-handler"
-import type { CreateDefaultMiddlewareFn } from "../middleware/defaults"
+import type { CreateDefaultMiddlewareFn } from "../middleware/create-default-middleware"
 import type { ResolvedServerOptions, ServerDependencies } from "../server-options"
 import type { BuildAppFn } from "./build-app"
 import type { CreateStopperFn, ServerHandle } from "./create-stopper"

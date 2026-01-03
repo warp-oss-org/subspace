@@ -8,7 +8,7 @@ import { type StopResult, shutdown } from "./lifecycle/shutdown"
 import { type SignalHandler, setupProcessHandlers } from "./lifecycle/signals"
 import { type ServerState, startServer } from "./lifecycle/start-server"
 import { startup } from "./lifecycle/startup"
-import { createDefaultMiddleware } from "./middleware/defaults"
+import { createDefaultMiddleware } from "./middleware/create-default-middleware"
 import {
   resolveOptions,
   type ServerDependencies,
