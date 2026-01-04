@@ -1,6 +1,6 @@
 import { createRedisTestClient } from "../../../../tests/utils/create-redis-test-client"
 import { deleteKeysByPrefix } from "../../../../tests/utils/delete-keys-by-prefix"
-import { keys } from "../../../../tests/utils/kv-test-helpers"
+import { bytes, keys } from "../../../../tests/utils/kv-test-helpers"
 import { RedisBytesKeyValueStoreCas } from "../../redis-bytes-kv-cas"
 import type { RedisBytesClient } from "../../redis-client"
 
@@ -181,6 +181,110 @@ describe("RedisBytesKeyValueStoreCas (behavior)", () => {
       const versionKeyResult = await store.get(`${key}:v`)
 
       expect(versionKeyResult.kind).toBe("not_found")
+    })
+  })
+
+  describe("internal metadata keys are ignored", () => {
+    it("set does not write when key ends with :v", async () => {
+      const key = `${keys.one()}:v`
+
+      await store.set(key, bytes.a())
+
+      const rawKeys = await client.keys(`${keyspacePrefix}*`)
+      const redisKeys = rawKeys.map((k) => (Buffer.isBuffer(k) ? k.toString("utf8") : k))
+
+      expect(redisKeys).toStrictEqual([])
+    })
+
+    it("delete is a no-op when key ends with :v", async () => {
+      const key = keys.one()
+
+      await store.set(key, bytes.a())
+      await store.delete(`${key}:v`)
+
+      const res = await store.get(key)
+
+      expect(res.kind).toBe("found")
+    })
+
+    it("has is false for :v keys", async () => {
+      const key = keys.one()
+
+      await store.set(key, bytes.a())
+
+      const res = await store.has(`${key}:v`)
+
+      expect(res).toBe(false)
+    })
+
+    it("getMany returns not_found for :v keys", async () => {
+      const key = keys.one()
+
+      await store.set(key, bytes.a())
+
+      const res = await store.getMany([`${key}:v`, key])
+
+      expect(res.get(`${key}:v`)).toStrictEqual({ kind: "not_found" })
+      expect(res.get(key)?.kind).toBe("found")
+    })
+
+    it("setMany ignores entries whose keys end with :v", async () => {
+      const a = keys.one()
+      const b = `${keys.two()}:v`
+
+      await store.setMany([
+        [a, bytes.a()],
+        [b, bytes.b()],
+      ])
+
+      const aRes = await store.get(a)
+      const bRes = await store.get(b)
+
+      expect(aRes.kind).toBe("found")
+      expect(bRes).toStrictEqual({ kind: "not_found" })
+    })
+
+    it("deleteMany ignores keys that end with :v", async () => {
+      const key = keys.one()
+
+      await store.set(key, bytes.a())
+      await store.deleteMany([`${key}:v`])
+
+      const res = await store.get(key)
+
+      expect(res.kind).toBe("found")
+    })
+  })
+
+  describe("version TTL alignment", () => {
+    it("write without TTL preserves existing TTL and keeps version TTL aligned", async () => {
+      const key = keys.one()
+      const ttlMs = 250
+
+      await store.set(key, bytes.a(), {
+        ttl: { kind: "milliseconds", milliseconds: ttlMs },
+      })
+      await store.set(key, bytes.b())
+
+      const valueTtl = await client.pTTL(`${keyspacePrefix}${key}`)
+      const versionTtl = await client.pTTL(`${keyspacePrefix}${key}:v`)
+
+      expect(valueTtl).toBeGreaterThan(0)
+      expect(versionTtl).toBeGreaterThan(0)
+      expect(Math.abs(valueTtl - versionTtl)).toBeLessThan(75)
+    })
+
+    it("write without TTL on persistent key keeps version key persistent", async () => {
+      const key = keys.one()
+
+      await store.set(key, bytes.a())
+      await store.set(key, bytes.b())
+
+      const valueTtl = await client.pTTL(`${keyspacePrefix}${key}`)
+      const versionTtl = await client.pTTL(`${keyspacePrefix}${key}:v`)
+
+      expect(valueTtl).toBe(-1)
+      expect(versionTtl).toBe(-1)
     })
   })
 })

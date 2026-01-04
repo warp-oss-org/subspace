@@ -149,6 +149,8 @@ export class RedisBytesKeyValueStoreCas implements BytesKeyValueStoreCas {
       allKeys.push(fullKey, this.versionKey(fullKey))
     }
 
+    if (allKeys.length === 0) return
+
     await this.deps.client.del(allKeys)
   }
 
@@ -170,7 +172,7 @@ export class RedisBytesKeyValueStoreCas implements BytesKeyValueStoreCas {
     return {
       kind: "found",
       value: new Uint8Array(buffer),
-      version: this.asString(versionRaw),
+      version: this.asString(versionRaw as Buffer),
     }
   }
 
@@ -185,10 +187,10 @@ export class RedisBytesKeyValueStoreCas implements BytesKeyValueStoreCas {
     const buffer = this.toBuffer(value)
     const ttlMs = opts?.ttl ? String(opts.ttl.milliseconds) : ""
 
-    const raw = await this.deps.client.eval(this.setIfVersionScript(), {
+    const raw = (await this.deps.client.eval(this.setIfVersionScript(), {
       keys: [fullKey, vKey],
       arguments: [expectedVersion, buffer, ttlMs],
-    })
+    })) as Buffer
 
     const result = this.asString(raw)
 
@@ -292,12 +294,8 @@ export class RedisBytesKeyValueStoreCas implements BytesKeyValueStoreCas {
     return key.endsWith(":v")
   }
 
-  private asString(value: unknown): string {
-    if (typeof value === "string") return value
-    if (typeof value === "number") return String(value)
-    if (Buffer.isBuffer(value)) return value.toString("utf8")
-
-    return String(value)
+  private asString(buffer: Buffer): string {
+    return buffer.toString("utf8")
   }
 
   private toBuffer(value: Uint8Array): Buffer {
