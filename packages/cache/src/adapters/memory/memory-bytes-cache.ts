@@ -102,9 +102,17 @@ export class MemoryBytesCache implements BytesCache {
         value,
         expiresAtMs: this.toExpiresAtMs(opts.ttl),
       })
-    } else {
-      this.deps.store.set(key, { value })
+      return
     }
+
+    const existing = this.deps.store.get(key)
+
+    if (existing?.expiresAtMs !== undefined) {
+      this.deps.store.set(key, { value, expiresAtMs: existing.expiresAtMs })
+      return
+    }
+
+    this.deps.store.set(key, { value })
   }
 
   private toExpiresAtMs(ttl: CacheTtl): Milliseconds {

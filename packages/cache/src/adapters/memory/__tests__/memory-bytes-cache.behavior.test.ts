@@ -37,7 +37,7 @@ describe("MemoryBytesCache", () => {
       expect(res).toStrictEqual({ kind: "miss" })
     })
 
-    it("writing without TTL clears any existing TTL (no expiry afterwards)", async () => {
+    it("writing without TTL preserves any existing TTL (still expires)", async () => {
       const clock = new ManualTestClock(new Date("2020-01-01T00:00:00.000Z"))
       cache = new MemoryBytesCache(
         { clock, store: new LruMemoryMap() },
@@ -57,7 +57,7 @@ describe("MemoryBytesCache", () => {
       clock.advanceMs(expirationInMs + 1)
 
       const res = await cache.get(keys.one())
-      expect(res).toStrictEqual({ kind: "hit", value: bytes.b() })
+      expect(res).toStrictEqual({ kind: "miss" })
     })
 
     it("until-date in the past results in immediate miss", async () => {

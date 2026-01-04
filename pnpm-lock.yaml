@@ -82,6 +82,15 @@ importers:
 
   packages/errors: {}
 
+  packages/kv:
+    dependencies:
+      '@subspace/clock':
+        specifier: workspace:*
+        version: link:../clock
+      redis:
+        specifier: ^5.10.0
+        version: 5.10.0
+
   packages/lock:
     dependencies:
       pg:

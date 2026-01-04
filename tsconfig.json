@@ -11,6 +11,7 @@
     { "path": "./packages/singleflight" },
     { "path": "./packages/backoff" },
     { "path": "./packages/retry" },
-    { "path": "./packages/server" }
+    { "path": "./packages/server" },
+    { "path": "./packages/kv" }
   ]
 }

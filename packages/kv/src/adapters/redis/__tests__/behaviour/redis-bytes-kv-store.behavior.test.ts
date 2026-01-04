@@ -1,14 +1,13 @@
-import { keys } from "../../../tests/utils/cache-test-helpers"
-import { createRedisTestClient } from "../../../tests/utils/create-redis-test-client"
-import { deleteKeysByPrefix } from "../../../tests/utils/delete-keys-by-prefix"
-import { RedisBytesCache } from "../redis-bytes-cache"
-import type { RedisBytesClient } from "../redis-client"
+import { createRedisTestClient } from "../../../../tests/utils/create-redis-test-client"
+import { deleteKeysByPrefix } from "../../../../tests/utils/delete-keys-by-prefix"
+import { keys } from "../../../../tests/utils/kv-test-helpers"
+import { RedisBytesKeyValueStore } from "../../redis-bytes-kv-store"
+import type { RedisBytesClient } from "../../redis-client"
 
-describe("RedisBytesCache (behavior)", () => {
+describe("RedisBytesKeyValueStore (behavior)", () => {
   let keyspacePrefix: string
   let client: RedisBytesClient
-
-  let cache: RedisBytesCache
+  let store: RedisBytesKeyValueStore
 
   beforeAll(async () => {
     const redisTestClient = createRedisTestClient()
@@ -18,7 +17,7 @@ describe("RedisBytesCache (behavior)", () => {
 
     await client.connect()
 
-    cache = new RedisBytesCache(client, { keyspacePrefix, batchSize: 2 })
+    store = new RedisBytesKeyValueStore(client, { keyspacePrefix, batchSize: 2 })
   })
 
   afterEach(async () => {
@@ -33,11 +32,11 @@ describe("RedisBytesCache (behavior)", () => {
     it("respects batchSize for getMany", async () => {
       const allKeys = [keys.one(), keys.two(), keys.three(), keys.four(), keys.five()]
 
-      await cache.setMany(allKeys.map((k) => [k, new Uint8Array([1])]))
+      await store.setMany(allKeys.map((k) => [k, new Uint8Array([1])]))
 
       const spy = vi.spyOn(client, "mGet")
 
-      await cache.getMany(allKeys)
+      await store.getMany(allKeys)
 
       expect(spy).toHaveBeenCalledTimes(3)
       expect(spy.mock.calls.map(([arg]) => arg.length)).toStrictEqual([2, 2, 1])
@@ -54,31 +53,31 @@ describe("RedisBytesCache (behavior)", () => {
 
       const multiSpy = vi.spyOn(client, "multi")
 
-      await cache.setMany(entries)
+      await store.setMany(entries)
 
       expect(multiSpy).toHaveBeenCalledTimes(3)
     })
 
-    it("respects batchSize for invalidateMany", async () => {
+    it("respects batchSize for deleteMany", async () => {
       const allKeys = [keys.one(), keys.two(), keys.three(), keys.four(), keys.five()]
 
-      await cache.setMany(allKeys.map((k) => [k, new Uint8Array([1])]))
+      await store.setMany(allKeys.map((k) => [k, new Uint8Array([1])]))
 
       const delSpy = vi.spyOn(client, "del")
 
-      await cache.invalidateMany(allKeys)
+      await store.deleteMany(allKeys)
 
       expect(delSpy).toHaveBeenCalledTimes(3)
     })
   })
 
   describe("keyspace isolation", () => {
-    it("two caches with different keyspacePrefix do not interfere", async () => {
-      const cacheA = new RedisBytesCache(client, {
+    it("two stores with different keyspacePrefix do not interfere", async () => {
+      const storeA = new RedisBytesKeyValueStore(client, {
         batchSize: 2,
         keyspacePrefix: `${keyspacePrefix}-A`,
       })
-      const cacheB = new RedisBytesCache(client, {
+      const storeB = new RedisBytesKeyValueStore(client, {
         batchSize: 2,
         keyspacePrefix: `${keyspacePrefix}-B`,
       })
@@ -87,22 +86,22 @@ describe("RedisBytesCache (behavior)", () => {
       const valueA = new Uint8Array([1])
       const valueB = new Uint8Array([2])
 
-      await cacheA.set(key, valueA)
-      await cacheB.set(key, valueB)
+      await storeA.set(key, valueA)
+      await storeB.set(key, valueB)
 
-      const fetchedA = await cacheA.get(key)
-      const fetchedB = await cacheB.get(key)
+      const fetchedA = await storeA.get(key)
+      const fetchedB = await storeB.get(key)
 
-      expect(fetchedA).toEqual({ kind: "hit", value: valueA })
-      expect(fetchedB).toEqual({ kind: "hit", value: valueB })
+      expect(fetchedA).toEqual({ kind: "found", value: valueA })
+      expect(fetchedB).toEqual({ kind: "found", value: valueB })
     })
 
-    it("two caches with same keyspacePrefix interfere as expected", async () => {
-      const cacheA = new RedisBytesCache(client, {
+    it("two stores with same keyspacePrefix share keys", async () => {
+      const storeA = new RedisBytesKeyValueStore(client, {
         batchSize: 2,
         keyspacePrefix: `${keyspacePrefix}-C`,
       })
-      const cacheB = new RedisBytesCache(client, {
+      const storeB = new RedisBytesKeyValueStore(client, {
         batchSize: 2,
         keyspacePrefix: `${keyspacePrefix}-C`,
       })
@@ -111,14 +110,14 @@ describe("RedisBytesCache (behavior)", () => {
       const valueA = new Uint8Array([1])
       const valueB = new Uint8Array([2])
 
-      await cacheA.set(key, valueA)
-      await cacheB.set(key, valueB)
+      await storeA.set(key, valueA)
+      await storeB.set(key, valueB)
 
-      const fetchedA = await cacheA.get(key)
-      const fetchedB = await cacheB.get(key)
+      const fetchedA = await storeA.get(key)
+      const fetchedB = await storeB.get(key)
 
-      expect(fetchedA).toEqual({ kind: "hit", value: valueB })
-      expect(fetchedB).toEqual({ kind: "hit", value: valueB })
+      expect(fetchedA).toEqual({ kind: "found", value: valueB })
+      expect(fetchedB).toEqual({ kind: "found", value: valueB })
     })
   })
 })

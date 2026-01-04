@@ -1,15 +1,15 @@
-import type { BytesCache } from "../../ports/bytes-cache"
-import type { CacheEntry } from "../../ports/cache-entry"
-import type { CacheKey } from "../../ports/cache-key"
-import type { CacheSetOptions, CacheTtl } from "../../ports/cache-options"
-import type { CacheResult } from "../../ports/cache-result"
+import type { BytesKeyValueStore } from "../../ports/bytes-kv-store"
 import type { KeyspacePrefix } from "../../ports/keyspace-prefix"
+import type { KvKey } from "../../ports/kv-key"
+import type { KvSetOptions, KvTtl } from "../../ports/kv-options"
+import type { KvResult } from "../../ports/kv-result"
+import type { KvEntry } from "../../ports/kv-value"
 import type { RedisBytesClient, RedisTtl } from "./redis-client"
 
-export type RedisCacheOptions = {
+export type RedisKvStoreOptions = {
   /**
    * Maximum number of keys processed in a single Redis operation when using
-   * bulk methods (`getMany`, `setMany`, `invalidateMany`).
+   * bulk methods (`getMany`, `setMany`, `deleteMany`).
    *
    * Large bulk requests are automatically split into batches of this size
    * to avoid oversized Redis commands and uneven load spikes.
@@ -21,23 +21,19 @@ export type RedisCacheOptions = {
   keyspacePrefix: KeyspacePrefix
 }
 
-export class RedisBytesCache implements BytesCache {
+export class RedisBytesKeyValueStore implements BytesKeyValueStore {
   public constructor(
     private readonly client: RedisBytesClient,
-    private readonly opts: RedisCacheOptions,
+    private readonly opts: RedisKvStoreOptions,
   ) {}
 
-  async get(key: CacheKey): Promise<CacheResult<Uint8Array>> {
+  async get(key: KvKey): Promise<KvResult<Uint8Array>> {
     const buffer = await this.client.get(this.fullKey(key))
 
-    return this.createCacheResult(buffer)
+    return this.createKvResult(buffer)
   }
 
-  async set(
-    key: CacheKey,
-    value: Uint8Array,
-    opts?: Partial<CacheSetOptions>,
-  ): Promise<void> {
+  async set(key: KvKey, value: Uint8Array, opts?: Partial<KvSetOptions>): Promise<void> {
     const fullKey = this.fullKey(key)
     const buffer = this.toBuffer(value)
 
@@ -48,23 +44,27 @@ export class RedisBytesCache implements BytesCache {
     }
   }
 
-  async invalidate(key: CacheKey): Promise<void> {
+  async delete(key: KvKey): Promise<void> {
     await this.client.del(this.fullKey(key))
   }
 
-  async getMany(
-    keys: readonly CacheKey[],
-  ): Promise<Map<CacheKey, CacheResult<Uint8Array>>> {
+  async has(key: KvKey): Promise<boolean> {
+    const exists = await this.client.exists(this.fullKey(key))
+
+    return exists === 1
+  }
+
+  async getMany(keys: readonly KvKey[]): Promise<Map<KvKey, KvResult<Uint8Array>>> {
     if (keys.length === 0) return new Map()
 
-    const out = new Map<CacheKey, CacheResult<Uint8Array>>()
+    const out = new Map<KvKey, KvResult<Uint8Array>>()
 
     for (const batch of this.chunks(keys, this.opts.batchSize)) {
       const fullKeys = batch.map((k) => this.fullKey(k))
       const buffers = await this.client.mGet(fullKeys)
 
       for (const [i, key] of batch.entries()) {
-        out.set(key, this.createCacheResult(buffers[i] ?? null))
+        out.set(key, this.createKvResult(buffers[i] ?? null))
       }
     }
 
@@ -72,8 +72,8 @@ export class RedisBytesCache implements BytesCache {
   }
 
   async setMany(
-    entries: readonly CacheEntry<Uint8Array>[],
-    opts?: Partial<CacheSetOptions>,
+    entries: readonly KvEntry<Uint8Array>[],
+    opts?: Partial<KvSetOptions>,
   ): Promise<void> {
     if (entries.length === 0) return
 
@@ -92,13 +92,11 @@ export class RedisBytesCache implements BytesCache {
     }
   }
 
-  async invalidateMany(keys: readonly CacheKey[]): Promise<void> {
+  async deleteMany(keys: readonly KvKey[]): Promise<void> {
     if (keys.length === 0) return
 
-    const fullKeys = keys.map((k) => this.fullKey(k))
-
-    for (const batch of this.chunks(fullKeys, this.opts.batchSize)) {
-      await this.client.del(batch)
+    for (const batch of this.chunks(keys, this.opts.batchSize)) {
+      await this.client.del(batch.map((k) => this.fullKey(k)))
     }
   }
 
@@ -108,27 +106,21 @@ export class RedisBytesCache implements BytesCache {
     }
   }
 
-  private createCacheResult(buffer: Buffer | null): CacheResult<Uint8Array> {
-    if (buffer === null) return { kind: "miss" }
-
-    return { kind: "hit", value: new Uint8Array(buffer) }
+  private toRedisTtl(ttl: KvTtl): RedisTtl {
+    return { PX: ttl.milliseconds }
   }
 
   private toBuffer(value: Uint8Array): Buffer {
     return Buffer.from(value.buffer, value.byteOffset, value.byteLength)
   }
 
-  private toRedisTtl(ttl: CacheTtl): RedisTtl {
-    if (ttl.kind === "seconds") return { EX: ttl.seconds }
-    if (ttl.kind === "milliseconds") return { PX: ttl.milliseconds }
+  private createKvResult(buffer: Buffer | null): KvResult<Uint8Array> {
+    if (buffer === null) return { kind: "not_found" }
 
-    const ms = ttl.expiresAt.getTime()
-    const sec = Math.floor(ms / 1000)
-
-    return { EXAT: sec }
+    return { kind: "found", value: new Uint8Array(buffer) }
   }
 
-  private fullKey(k: CacheKey): string {
+  private fullKey(k: KvKey): string {
     return `${this.opts.keyspacePrefix}${k}`
   }
 }

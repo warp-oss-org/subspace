@@ -529,7 +529,7 @@ export function describeCacheContract(
         expect(res2).toStrictEqual({ kind: "miss" })
       })
 
-      it("TTL overwrite: updating a key without TTL clears TTL", async () => {
+      it("TTL overwrite: updating a key without TTL preserves existing TTL", async () => {
         const key = keys.one()
         const value = bytes.a()
         const ttlMilliseconds = 60
@@ -540,11 +540,16 @@ export function describeCacheContract(
 
         await cache.set(key, value)
 
-        await sleep(ttlMilliseconds + jitterMs)
+        await sleep(Math.max(0, ttlMilliseconds - 20))
 
-        const res = await cache.get(key)
+        const before = await cache.get(key)
 
-        expect(res).toStrictEqual({ kind: "hit", value })
+        await sleep(40 + jitterMs)
+
+        const after = await cache.get(key)
+
+        expect(before).toStrictEqual({ kind: "hit", value })
+        expect(after).toStrictEqual({ kind: "miss" })
       })
 
       it("invalidate works regardless of TTL state", async () => {

@@ -1,6 +1,11 @@
 import { createClient, RESP_TYPES } from "redis"
 
-export type RedisTtl = { EX?: number; PX?: number; EXAT?: number; PXAT?: number }
+export type RedisTtl =
+  | { EX: number }
+  | { PX: number }
+  | { EXAT: number }
+  | { PXAT: number }
+  | { KEEPTTL: true }
 
 export type RedisBytesClient = {
   get(key: string): Promise<Buffer | null>
@@ -10,8 +15,10 @@ export type RedisBytesClient = {
   connect(): Promise<void>
   isOpen: boolean
 
-  keys(pattern: string): Promise<string[]>
+  keys(pattern: string): Promise<Buffer[]>
   unlink(...keys: string[]): Promise<number>
+
+  pTTL(key: string): Promise<number>
 
   set(key: string, value: Uint8Array | Buffer, opts?: RedisTtl): Promise<unknown>
 

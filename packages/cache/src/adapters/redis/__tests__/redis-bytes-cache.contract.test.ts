@@ -17,12 +17,12 @@ describe("RedisBytesCache (contract)", () => {
     await client.connect()
   })
 
-  afterAll(async () => {
-    await client.quit()
+  afterEach(async () => {
+    await deleteKeysByPrefix(client, keyspacePrefix)
   })
 
-  beforeEach(async () => {
-    await deleteKeysByPrefix(client, keyspacePrefix)
+  afterAll(async () => {
+    await client.quit()
   })
 
   describeCacheContract("RedisBytesCache", () => {
