@@ -1,0 +1,13 @@
+{
+  "name": "@subspace/id",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "nanoid": "^5.1.6",
+    "uuid": "^13.0.0"
+  }
+}

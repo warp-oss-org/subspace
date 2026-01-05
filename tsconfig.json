@@ -12,6 +12,7 @@
     { "path": "./packages/backoff" },
     { "path": "./packages/retry" },
     { "path": "./packages/server" },
-    { "path": "./packages/kv" }
+    { "path": "./packages/kv" },
+    { "path": "./packages/id" }
   ]
 }
