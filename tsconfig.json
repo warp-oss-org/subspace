@@ -13,6 +13,7 @@
     { "path": "./packages/retry" },
     { "path": "./packages/server" },
     { "path": "./packages/kv" },
-    { "path": "./packages/id" }
+    { "path": "./packages/id" },
+    { "path": "./packages/storage" }
   ]
 }

@@ -1,0 +1,18 @@
+{
+  "name": "@subspace/storage",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:up": "docker compose -f docker-compose.test.yml up -d --wait",
+    "test:down": "docker compose -f docker-compose.test.yml down",
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.962.0",
+    "@aws-sdk/lib-storage": "^3.962.0",
+    "@aws-sdk/s3-request-presigner": "^3.962.0",
+    "@google-cloud/storage": "^7.18.0",
+    "@subspace/clock": "workspace:*"
+  }
+}
