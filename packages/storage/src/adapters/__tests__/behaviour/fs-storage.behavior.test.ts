@@ -87,6 +87,40 @@ describe("FsStorageAdapter behavior", () => {
     })
   })
 
+  describe("key validation", () => {
+    it("rejects keys starting with '/'", async () => {
+      const ref = { bucket: "test", key: "/starts-with-slash" }
+      await expect(storage.put(ref, Buffer.from("x"))).rejects.toThrow(
+        "Storage key must not start with '/'",
+      )
+    })
+
+    it("rejects keys containing backslashes", async () => {
+      const ref = { bucket: "test", key: "contains\\backslash" }
+      await expect(storage.put(ref, Buffer.from("x"))).rejects.toThrow(
+        "Storage key must not contain backslashes",
+      )
+    })
+
+    it("rejects keys with empty segments", async () => {
+      const ref = { bucket: "test", key: "a//b" }
+      await expect(storage.put(ref, Buffer.from("x"))).rejects.toThrow(
+        "Storage key must not be empty or contain empty segments",
+      )
+    })
+
+    it("rejects keys containing '.' or '..' segments", async () => {
+      const ref1 = { bucket: "test", key: "a/./b" }
+      const ref2 = { bucket: "test", key: "a/../b" }
+      await expect(storage.put(ref1, Buffer.from("x"))).rejects.toThrow(
+        "Storage key must not contain '.' or '..' segments",
+      )
+      await expect(storage.put(ref2, Buffer.from("x"))).rejects.toThrow(
+        "Storage key must not contain '.' or '..' segments",
+      )
+    })
+  })
+
   describe("error handling", () => {
     it("throws on permission denied", async () => {
       const readOnlyDir = path.join(tempDir, "readonly")
