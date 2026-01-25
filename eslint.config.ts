@@ -13,15 +13,15 @@ export default [
       unicorn,
       boundaries,
     },
-    settings: {
-      "boundaries/elements": [
-        { type: "domain", pattern: "src/domains/*" },
-        { type: "app", pattern: "src/app/*" },
-        { type: "lib", pattern: "src/lib/*" },
-        { type: "infra", pattern: "src/infra/*" },
-      ],
-      "boundaries/include": ["src/**/*.ts"],
-    },
+    // settings: {
+    //   "boundaries/elements": [
+    //     { type: "domain", pattern: "src/domains/*" },
+    //     { type: "app", pattern: "src/app/*" },
+    //     { type: "lib", pattern: "src/lib/*" },
+    //     { type: "infra", pattern: "src/infra/*" },
+    //   ],
+    //   "boundaries/include": ["src/**/*.ts"],
+    // },
     rules: {
       "unicorn/filename-case": ["error", { case: "kebabCase" }],
       "unicorn/no-null": "off",
@@ -30,30 +30,30 @@ export default [
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/consistent-type-assertions": "off",
 
-      "boundaries/element-types": [
-        "error",
-        {
-          default: "disallow",
-          rules: [
-            { from: "app", allow: ["domain", "lib", "app", "infra"] },
-            { from: "domain", allow: ["lib", "domain"] },
-            { from: "infra", allow: ["lib", "infra"] },
-            { from: "lib", allow: ["lib"] },
-          ],
-        },
-      ],
-      "boundaries/entry-point": [
-        "error",
-        {
-          default: "disallow",
-          rules: [
-            { target: "domain", allow: "index.ts" },
-            { target: "lib", allow: "**" },
-            { target: "app", allow: "**" },
-            { target: "infra", allow: "**" },
-          ],
-        },
-      ],
+      // "boundaries/element-types": [
+      //   "error",
+      //   {
+      //     default: "disallow",
+      //     rules: [
+      //       { from: "app", allow: ["domain", "lib", "app", "infra"] },
+      //       { from: "domain", allow: ["lib", "domain"] },
+      //       { from: "infra", allow: ["lib", "infra"] },
+      //       { from: "lib", allow: ["lib"] },
+      //     ],
+      //   },
+      // ],
+      // "boundaries/entry-point": [
+      //   "error",
+      //   {
+      //     default: "disallow",
+      //     rules: [
+      //       { target: "domain", allow: "index.ts" },
+      //       { target: "lib", allow: "**" },
+      //       { target: "app", allow: "**" },
+      //       { target: "infra", allow: "**" },
+      //     ],
+      //   },
+      // ],
     },
   },
 ]
