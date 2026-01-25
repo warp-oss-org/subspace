@@ -89,6 +89,6 @@ export class RedisBytesKeyValueStoreConditional implements BytesKeyValueStoreCon
   }
 
   private fullKey(k: KvKey): string {
-    return `${this.opts.keyspacePrefix}${k}`
+    return `${this.opts.keyspacePrefix}:${k}`
   }
 }

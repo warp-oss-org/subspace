@@ -31,7 +31,7 @@ export async function run(): Promise<void> {
       })
     },
 
-    beforeStart: [
+    startHooks: [
       {
         name: "startup:smoke",
         fn: async () => {
@@ -39,7 +39,7 @@ export async function run(): Promise<void> {
         },
       },
     ],
-    beforeStop: [
+    stopHooks: [
       {
         name: "stop:smoke",
         fn: async () => {

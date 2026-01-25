@@ -17,7 +17,7 @@ describe("RedisBytesKeyValueStore (behavior)", () => {
 
     await client.connect()
 
-    store = new RedisBytesKeyValueStore(client, { keyspacePrefix, batchSize: 2 })
+    store = new RedisBytesKeyValueStore({ client }, { keyspacePrefix, batchSize: 2 })
   })
 
   afterEach(async () => {
@@ -73,14 +73,20 @@ describe("RedisBytesKeyValueStore (behavior)", () => {
 
   describe("keyspace isolation", () => {
     it("two stores with different keyspacePrefix do not interfere", async () => {
-      const storeA = new RedisBytesKeyValueStore(client, {
-        batchSize: 2,
-        keyspacePrefix: `${keyspacePrefix}-A`,
-      })
-      const storeB = new RedisBytesKeyValueStore(client, {
-        batchSize: 2,
-        keyspacePrefix: `${keyspacePrefix}-B`,
-      })
+      const storeA = new RedisBytesKeyValueStore(
+        { client },
+        {
+          batchSize: 2,
+          keyspacePrefix: `${keyspacePrefix}-A`,
+        },
+      )
+      const storeB = new RedisBytesKeyValueStore(
+        { client },
+        {
+          batchSize: 2,
+          keyspacePrefix: `${keyspacePrefix}-B`,
+        },
+      )
 
       const key = keys.one()
       const valueA = new Uint8Array([1])
@@ -97,14 +103,20 @@ describe("RedisBytesKeyValueStore (behavior)", () => {
     })
 
     it("two stores with same keyspacePrefix share keys", async () => {
-      const storeA = new RedisBytesKeyValueStore(client, {
-        batchSize: 2,
-        keyspacePrefix: `${keyspacePrefix}-C`,
-      })
-      const storeB = new RedisBytesKeyValueStore(client, {
-        batchSize: 2,
-        keyspacePrefix: `${keyspacePrefix}-C`,
-      })
+      const storeA = new RedisBytesKeyValueStore(
+        { client },
+        {
+          batchSize: 2,
+          keyspacePrefix: `${keyspacePrefix}-C`,
+        },
+      )
+      const storeB = new RedisBytesKeyValueStore(
+        { client },
+        {
+          batchSize: 2,
+          keyspacePrefix: `${keyspacePrefix}-C`,
+        },
+      )
 
       const key = keys.one()
       const valueA = new Uint8Array([1])

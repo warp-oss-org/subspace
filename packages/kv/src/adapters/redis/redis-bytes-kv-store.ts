@@ -21,14 +21,18 @@ export type RedisKvStoreOptions = {
   keyspacePrefix: KeyspacePrefix
 }
 
+export type RedisBytesKvCasDeps = {
+  client: RedisBytesClient
+}
+
 export class RedisBytesKeyValueStore implements BytesKeyValueStore {
   public constructor(
-    private readonly client: RedisBytesClient,
+    private readonly deps: RedisBytesKvCasDeps,
     private readonly opts: RedisKvStoreOptions,
   ) {}
 
   async get(key: KvKey): Promise<KvResult<Uint8Array>> {
-    const buffer = await this.client.get(this.fullKey(key))
+    const buffer = await this.deps.client.get(this.fullKey(key))
 
     return this.createKvResult(buffer)
   }
@@ -38,19 +42,18 @@ export class RedisBytesKeyValueStore implements BytesKeyValueStore {
     const buffer = this.toBuffer(value)
 
     if (opts?.ttl) {
-      await this.client.set(fullKey, buffer, this.toRedisTtl(opts.ttl))
+      await this.deps.client.set(fullKey, buffer, this.toRedisTtl(opts.ttl))
     } else {
-      await this.client.set(fullKey, buffer, { KEEPTTL: true })
+      await this.deps.client.set(fullKey, buffer, { KEEPTTL: true })
     }
   }
 
   async delete(key: KvKey): Promise<void> {
-    await this.client.del(this.fullKey(key))
+    await this.deps.client.del(this.fullKey(key))
   }
 
   async has(key: KvKey): Promise<boolean> {
-    const exists = await this.client.exists(this.fullKey(key))
-
+    const exists = await this.deps.client.exists(this.fullKey(key))
     return exists === 1
   }
 
@@ -61,7 +64,7 @@ export class RedisBytesKeyValueStore implements BytesKeyValueStore {
 
     for (const batch of this.chunks(keys, this.opts.batchSize)) {
       const fullKeys = batch.map((k) => this.fullKey(k))
-      const buffers = await this.client.mGet(fullKeys)
+      const buffers = await this.deps.client.mGet(fullKeys)
 
       for (const [i, key] of batch.entries()) {
         out.set(key, this.createKvResult(buffers[i] ?? null))
@@ -80,7 +83,7 @@ export class RedisBytesKeyValueStore implements BytesKeyValueStore {
     const ttl: RedisTtl = opts?.ttl ? this.toRedisTtl(opts.ttl) : { KEEPTTL: true }
 
     for (const batch of this.chunks(entries, this.opts.batchSize)) {
-      const tx = this.client.multi()
+      const tx = this.deps.client.multi()
 
       for (const [key, value] of batch) {
         const fullKey = this.fullKey(key)
@@ -96,7 +99,7 @@ export class RedisBytesKeyValueStore implements BytesKeyValueStore {
     if (keys.length === 0) return
 
     for (const batch of this.chunks(keys, this.opts.batchSize)) {
-      await this.client.del(batch.map((k) => this.fullKey(k)))
+      await this.deps.client.del(batch.map((k) => this.fullKey(k)))
     }
   }
 
@@ -121,6 +124,6 @@ export class RedisBytesKeyValueStore implements BytesKeyValueStore {
   }
 
   private fullKey(k: KvKey): string {
-    return `${this.opts.keyspacePrefix}${k}`
+    return `${this.opts.keyspacePrefix}:${k}`
   }
 }

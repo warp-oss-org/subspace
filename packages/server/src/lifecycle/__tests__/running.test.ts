@@ -2,9 +2,10 @@ import { type Clock, FakeClock } from "@subspace/clock"
 import type { Logger } from "@subspace/logger"
 import type { Mock } from "vitest"
 import { mock } from "vitest-mock-extended"
+import { createApp } from "../../create-server"
 import type { ResolvedServerOptions, ServerDependencies } from "../../server-options"
 import { createStopper } from "../create-stopper"
-import type { LifecycleHook } from "../lifecycle"
+import type { LifecycleHook } from "../lifecycle-hook"
 import type { Closeable } from "../shutdown"
 
 function createDeps(overrides: Partial<ServerDependencies> = {}): ServerDependencies {
@@ -31,10 +32,12 @@ function createOptions(
     health: { enabled: false } as any,
     clientIp: { enabled: false } as any,
 
+    createApp,
+
     middleware: { pre: [], post: [] },
     routes: () => {},
-    beforeStart: [],
-    beforeStop: [],
+    startHooks: [],
+    stopHooks: [],
 
     errorHandling: { kind: "mappings", config: { mappings: {} } },
     ...overrides,

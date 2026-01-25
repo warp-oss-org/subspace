@@ -1,36 +1,6 @@
 import type { Delay, DelayPolicy } from "../ports/delay-policy"
 import type { JitterStrategy } from "../ports/jitter-strategy"
 
-export interface CreateBackoffOptions {
-  delay: DelayPolicy
-  jitter?: JitterStrategy
-  /** Floor for delay. Must be finite, non-negative. */
-  min: Delay
-  /** Ceiling for delay. Must be finite, non-negative, >= min. */
-  max: Delay
-}
-
-/**
- * Creates a DelayPolicy with clamping and sanitization.
- * Guarantees finite, non-negative, clamped output.
- */
-export function createBackoff(options: CreateBackoffOptions): DelayPolicy {
-  const { delay, jitter, min, max } = options
-
-  const { minMs, maxMs } = validateBounds(min, max)
-
-  return {
-    getDelay(attempt: number): Delay {
-      const raw = delay.getDelay(attempt)
-      const jittered = jitter ? jitter.apply(raw) : raw
-      const sanitized = sanitize(jittered.milliseconds, minMs)
-      const clamped = clamp(sanitized, minMs, maxMs)
-
-      return { milliseconds: Math.floor(clamped) }
-    },
-  }
-}
-
 function sanitize(ms: number, fallback: number): number {
   return Number.isFinite(ms) && ms >= 0 ? ms : fallback
 }
@@ -58,4 +28,40 @@ function validateBounds(min: Delay, max: Delay): { minMs: number; maxMs: number 
   }
 
   return { minMs, maxMs }
+}
+
+export type CreateBackoffOptions = {
+  delay: DelayPolicy
+  jitter?: JitterStrategy
+
+  /** Floor for delay. Must be finite, non-negative. */
+  min: Delay
+
+  /** Ceiling for delay. Must be finite, non-negative, >= min. */
+  max: Delay
+}
+
+export type CreateBackoffFn = (options: CreateBackoffOptions) => DelayPolicy
+
+/**
+ * Creates a DelayPolicy with clamping and sanitization.
+ * Guarantees finite, non-negative, clamped output.
+ */
+export const createBackoff: CreateBackoffFn = (
+  options: CreateBackoffOptions,
+): DelayPolicy => {
+  const { delay, jitter, min, max } = options
+
+  const { minMs, maxMs } = validateBounds(min, max)
+
+  return {
+    getDelay(attempt: number): Delay {
+      const raw = delay.getDelay(attempt)
+      const jittered = jitter ? jitter.apply(raw) : raw
+      const sanitized = sanitize(jittered.milliseconds, minMs)
+      const clamped = clamp(sanitized, minMs, maxMs)
+
+      return { milliseconds: Math.floor(clamped) }
+    },
+  }
 }

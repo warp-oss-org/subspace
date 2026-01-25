@@ -7,16 +7,17 @@ describe("Config", () => {
 
   const config = new Config(data, provenance, providedKeys)
 
-  describe("get", () => {
-    it("returns value by key", () => {
-      expect(config.get("PORT")).toBe(3000)
-      expect(config.get("HOST")).toBe("localhost")
+  describe("value", () => {
+    it("exposes the validated config object", () => {
+      expect(config.value.PORT).toBe(3000)
+      expect(config.value.HOST).toBe("localhost")
+      expect(config.value.DEBUG).toBe(false)
     })
 
-    it("returns correct type for each key", () => {
-      const port: number = config.get("PORT")
-      const debug: boolean = config.get("DEBUG")
-      const host: string = config.get("HOST")
+    it("preserves correct types for each key", () => {
+      const port: number = config.value.PORT
+      const debug: boolean = config.value.DEBUG
+      const host: string = config.value.HOST
 
       expect(typeof port).toBe("number")
       expect(typeof debug).toBe("boolean")
@@ -71,7 +72,7 @@ describe("Config", () => {
 
   describe("extras", () => {
     it("returns keys in sources but not in schema", () => {
-      const extras = config.extras()
+      const extras = config.unknownKeys()
 
       expect(extras).toContain("STALE_KEY")
     })
@@ -83,14 +84,14 @@ describe("Config", () => {
         new Set(["PORT", "HOST", "DEBUG"]),
       )
 
-      expect(noExtrasConfig.extras()).toEqual([])
+      expect(noExtrasConfig.unknownKeys()).toEqual([])
     })
   })
 
   describe("immutability", () => {
     it("data is frozen", () => {
       expect(() => {
-        ;(config as any).data.PORT = 9999
+        ;(config as any).value.PORT = 9999
       }).toThrow()
     })
   })

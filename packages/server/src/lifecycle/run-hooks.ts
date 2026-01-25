@@ -1,6 +1,6 @@
 import type { Clock, UnixMs } from "@subspace/clock"
 import type { Logger } from "@subspace/logger"
-import type { HookFailure, LifecycleHook } from "./lifecycle"
+import type { HookFailure, LifecycleHook } from "./lifecycle-hook"
 
 export type HookPhase = "startup" | "shutdown"
 

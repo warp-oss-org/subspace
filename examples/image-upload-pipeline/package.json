@@ -1,0 +1,30 @@
+{
+  "name": "@subspace/image-upload-pipeline",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "NODE_ENV=development tsx --watch src/bin/server.ts",
+    "dev:up": "docker compose -f docker-compose.dev.yml up -d --wait",
+    "dev:down": "docker compose -f docker-compose.dev.yml down",
+    "test:up": "docker compose -f docker-compose.test.yml up -d --wait",
+    "test:down": "docker compose -f docker-compose.test.yml down",
+    "test": "vitest run",
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@subspace/backoff": "workspace:*",
+    "@subspace/clock": "workspace:*",
+    "@subspace/config": "workspace:*",
+    "@subspace/errors": "workspace:*",
+    "@subspace/id": "workspace:*",
+    "@subspace/kv": "workspace:*",
+    "@subspace/lock": "workspace:*",
+    "@subspace/logger": "workspace:*",
+    "@subspace/retry": "workspace:*",
+    "@subspace/server": "workspace:*",
+    "@subspace/storage": "workspace:*",
+    "sharp": "^0.34.5",
+    "superjson": "^2.2.6",
+    "zod": "^4.3.5"
+  }
+}

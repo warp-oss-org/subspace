@@ -1,10 +1,11 @@
 import fs from "node:fs/promises"
 import os from "node:os"
 import path from "node:path"
-import { z } from "zod"
+import { z } from "zod/mini"
 import { DotenvSource } from "../../adapters/dotenv/dotenv-source"
 import { EnvSource } from "../../adapters/env/env-source"
 import { JsonSource } from "../../adapters/json/json-source"
+import { ObjectSource } from "../../adapters/object/object-source"
 import { loadConfig } from "../load"
 
 describe("loadConfig e2e", () => {
@@ -30,8 +31,8 @@ describe("loadConfig e2e", () => {
         sources: [new EnvSource({ env: { PORT: "3000", HOST: "localhost" } })],
       })
 
-      expect(config.get("PORT")).toBe(3000)
-      expect(config.get("HOST")).toBe("localhost")
+      expect(config.value.PORT).toBe(3000)
+      expect(config.value.HOST).toBe("localhost")
     })
 
     it("loads from dotenv source", async () => {
@@ -47,8 +48,8 @@ describe("loadConfig e2e", () => {
         sources: [new DotenvSource({ file: ".env", required: true, cwd })],
       })
 
-      expect(config.get("PORT")).toBe(3000)
-      expect(config.get("HOST")).toBe("localhost")
+      expect(config.value.PORT).toBe(3000)
+      expect(config.value.HOST).toBe("localhost")
     })
 
     it("loads from json source", async () => {
@@ -67,8 +68,8 @@ describe("loadConfig e2e", () => {
         sources: [new JsonSource({ file: "config.json", required: true, cwd })],
       })
 
-      expect(config.get("PORT")).toBe(3000)
-      expect(config.get("HOST")).toBe("localhost")
+      expect(config.value.PORT).toBe(3000)
+      expect(config.value.HOST).toBe("localhost")
     })
   })
 
@@ -89,8 +90,8 @@ describe("loadConfig e2e", () => {
         ],
       })
 
-      expect(config.get("PORT")).toBe(3000)
-      expect(config.get("HOST")).toBe("localhost")
+      expect(config.value.PORT).toBe(3000)
+      expect(config.value.HOST).toBe("localhost")
     })
 
     it("combines dotenv defaults with env overrides", async () => {
@@ -109,8 +110,8 @@ describe("loadConfig e2e", () => {
         ],
       })
 
-      expect(config.get("PORT")).toBe(3000)
-      expect(config.get("HOST")).toBe("0.0.0.0")
+      expect(config.value.PORT).toBe(3000)
+      expect(config.value.HOST).toBe("0.0.0.0")
     })
 
     it("combines json base with dotenv environment with env runtime", async () => {
@@ -135,9 +136,35 @@ describe("loadConfig e2e", () => {
         ],
       })
 
-      expect(config.get("PORT")).toBe(3000)
-      expect(config.get("HOST")).toBe("localhost")
-      expect(config.get("DEBUG")).toBe(false)
+      expect(config.value.PORT).toBe(3000)
+      expect(config.value.HOST).toBe("localhost")
+      expect(config.value.DEBUG).toBe(false)
+    })
+
+    it("combines json base with object overrides", async () => {
+      await fs.writeFile(
+        path.join(cwd, "config.json"),
+        JSON.stringify({ PORT: 8080, HOST: "0.0.0.0", DEBUG: false }),
+      )
+
+      const schema = z.object({
+        PORT: z.coerce.number(),
+        HOST: z.string(),
+        DEBUG: z.coerce.boolean(),
+      })
+
+      const config = await loadConfig({
+        schema,
+        sources: [
+          new JsonSource({ file: "config.json", required: true, cwd }),
+          new ObjectSource({ HOST: "localhost" }),
+          new EnvSource({ env: { PORT: "3000" } }),
+        ],
+      })
+
+      expect(config.value.PORT).toBe(3000)
+      expect(config.value.HOST).toBe("localhost")
+      expect(config.value.DEBUG).toBe(false)
     })
 
     it("skips missing optional sources without error", async () => {
@@ -153,7 +180,7 @@ describe("loadConfig e2e", () => {
         ],
       })
 
-      expect(config.get("PORT")).toBe(3000)
+      expect(config.value.PORT).toBe(3000)
     })
 
     it("undefined values do not override defined values", async () => {
@@ -171,7 +198,7 @@ describe("loadConfig e2e", () => {
         ],
       })
 
-      expect(config.get("PORT")).toBe(3000)
+      expect(config.value.PORT).toBe(3000)
     })
   })
 
@@ -189,7 +216,7 @@ describe("loadConfig e2e", () => {
         ],
       })
 
-      expect(config.get("PORT")).toBe(3000)
+      expect(config.value.PORT).toBe(3000)
     })
 
     it("env overrides dotenv", async () => {
@@ -207,7 +234,7 @@ describe("loadConfig e2e", () => {
         ],
       })
 
-      expect(config.get("PORT")).toBe(3000)
+      expect(config.value.PORT).toBe(3000)
     })
 
     it("dotenv overrides json", async () => {
@@ -226,7 +253,7 @@ describe("loadConfig e2e", () => {
         ],
       })
 
-      expect(config.get("PORT")).toBe(3000)
+      expect(config.value.PORT).toBe(3000)
     })
 
     it("last source wins for same key", async () => {
@@ -247,7 +274,7 @@ describe("loadConfig e2e", () => {
         ],
       })
 
-      expect(config.get("PORT")).toBe(3000)
+      expect(config.value.PORT).toBe(3000)
     })
 
     it("three source chain: json < dotenv < env", async () => {
@@ -272,9 +299,25 @@ describe("loadConfig e2e", () => {
         ],
       })
 
-      expect(config.get("A")).toBe("json")
-      expect(config.get("B")).toBe("dotenv")
-      expect(config.get("C")).toBe("env")
+      expect(config.value.A).toBe("json")
+      expect(config.value.B).toBe("dotenv")
+      expect(config.value.C).toBe("env")
+    })
+
+    it("object overrides earlier sources when later in the chain", async () => {
+      const schema = z.object({
+        PORT: z.coerce.number(),
+      })
+
+      const config = await loadConfig({
+        schema,
+        sources: [
+          new EnvSource({ env: { PORT: "8080" } }),
+          new ObjectSource({ PORT: "3000" }),
+        ],
+      })
+
+      expect(config.value.PORT).toBe(3000)
     })
   })
 
@@ -289,8 +332,8 @@ describe("loadConfig e2e", () => {
         sources: [new EnvSource({ env: { PORT: "3000" } })],
       })
 
-      expect(config.get("PORT")).toBe(3000)
-      expect(typeof config.get("PORT")).toBe("number")
+      expect(config.value.PORT).toBe(3000)
+      expect(typeof config.value.PORT).toBe("number")
     })
 
     it("coerces string to boolean", async () => {
@@ -303,14 +346,14 @@ describe("loadConfig e2e", () => {
         sources: [new EnvSource({ env: { DEBUG: "true" } })],
       })
 
-      expect(config.get("DEBUG")).toBe(true)
-      expect(typeof config.get("DEBUG")).toBe("boolean")
+      expect(config.value.DEBUG).toBe(true)
+      expect(typeof config.value.DEBUG).toBe("boolean")
     })
 
     it("applies default values", async () => {
       const schema = z.object({
-        PORT: z.coerce.number().default(3000),
-        HOST: z.string().default("localhost"),
+        PORT: z._default(z.coerce.number(), 3000),
+        HOST: z._default(z.string(), "localhost"),
       })
 
       const config = await loadConfig({
@@ -318,8 +361,8 @@ describe("loadConfig e2e", () => {
         sources: [new EnvSource({ env: {} })],
       })
 
-      expect(config.get("PORT")).toBe(3000)
-      expect(config.get("HOST")).toBe("localhost")
+      expect(config.value.PORT).toBe(3000)
+      expect(config.value.HOST).toBe("localhost")
     })
 
     it("throws on missing required field", async () => {
@@ -373,7 +416,7 @@ describe("loadConfig e2e", () => {
 
     it("reports 'default' for schema defaults", async () => {
       const schema = z.object({
-        PORT: z.coerce.number().default(3000),
+        PORT: z._default(z.coerce.number(), 3000),
       })
 
       const config = await loadConfig({
@@ -415,49 +458,7 @@ describe("loadConfig e2e", () => {
         sources: [new EnvSource({ env: { PORT: "3000", STALE_KEY: "unused" } })],
       })
 
-      expect(config.extras()).toContain("STALE_KEY")
-    })
-  })
-
-  describe("config access", () => {
-    it("get() returns typed value", async () => {
-      const schema = z.object({
-        PORT: z.coerce.number(),
-        HOST: z.string(),
-        DEBUG: z.coerce.boolean(),
-      })
-
-      const config = await loadConfig({
-        schema,
-        sources: [
-          new EnvSource({ env: { PORT: "3000", HOST: "localhost", DEBUG: "true" } }),
-        ],
-      })
-
-      const port: number = config.get("PORT")
-      const host: string = config.get("HOST")
-      const debug: boolean = config.get("DEBUG")
-
-      expect(port).toBe(3000)
-      expect(host).toBe("localhost")
-      expect(debug).toBe(true)
-    })
-
-    it("keys() returns all config keys", async () => {
-      const schema = z.object({
-        PORT: z.coerce.number(),
-        HOST: z.string(),
-      })
-
-      const config = await loadConfig({
-        schema,
-        sources: [new EnvSource({ env: { PORT: "3000", HOST: "localhost" } })],
-      })
-
-      const keys = config.keys()
-      expect(keys).toContain("PORT")
-      expect(keys).toContain("HOST")
-      expect(keys).toHaveLength(2)
+      expect(config.unknownKeys()).toContain("STALE_KEY")
     })
   })
 
@@ -483,10 +484,10 @@ describe("loadConfig e2e", () => {
         ],
       })
 
-      expect(config.get("PORT")).toBe(3000)
-      expect(config.get("HOST")).toBe("localhost")
-      expect(config.extras()).not.toContain("OTHER_KEY")
-      expect(config.extras()).not.toContain("PATH")
+      expect(config.value.PORT).toBe(3000)
+      expect(config.value.HOST).toBe("localhost")
+      expect(config.unknownKeys()).not.toContain("OTHER_KEY")
+      expect(config.unknownKeys()).not.toContain("PATH")
     })
 
     it("strips prefix from keys", async () => {
@@ -504,7 +505,7 @@ describe("loadConfig e2e", () => {
         ],
       })
 
-      expect(config.get("DATABASE_URL")).toBe("postgres://localhost")
+      expect(config.value.DATABASE_URL).toBe("postgres://localhost")
     })
   })
 
@@ -523,7 +524,7 @@ describe("loadConfig e2e", () => {
           sources: [new EnvSource({})],
         })
 
-        expect(config.get("TEST_E2E_PORT")).toBe(9999)
+        expect(config.value.TEST_E2E_PORT).toBe(9999)
       } finally {
         if (original === undefined) {
           delete process.env.TEST_E2E_PORT
@@ -531,6 +532,198 @@ describe("loadConfig e2e", () => {
           process.env.TEST_E2E_PORT = original
         }
       }
+    })
+  })
+
+  describe("expandEnv", () => {
+    it("expands __ keys from EnvSource into nested config when enabled", async () => {
+      const schema = z.object({
+        server: z.object({ port: z.coerce.number() }),
+      })
+      const config = await loadConfig({
+        schema,
+        expandEnv: true,
+        sources: [new EnvSource({ env: { SERVER__PORT: "3000" } })],
+      })
+
+      expect(config.value.server.port).toBe(3000)
+    })
+
+    it("expands __ keys from DotenvSource into nested config when enabled", async () => {
+      await fs.writeFile(path.join(cwd, ".env"), "SERVER__PORT=3000")
+      const schema = z.object({
+        server: z.object({ port: z.coerce.number() }),
+      })
+      const config = await loadConfig({
+        schema,
+        expandEnv: true,
+        sources: [new DotenvSource({ file: ".env", required: true, cwd })],
+      })
+
+      expect(config.value.server.port).toBe(3000)
+    })
+
+    it("does not treat single _ as a nesting delimiter", async () => {
+      const schema = z.object({ server: z.object({ port: z.coerce.number() }) })
+      await expect(
+        loadConfig({
+          schema,
+          expandEnv: true,
+          sources: [new EnvSource({ env: { SERVER_PORT: "3000" } })],
+        }),
+      ).rejects.toThrow()
+    })
+
+    it("handles multiple layers of nesting", async () => {
+      const schema = z.object({
+        server: z.object({
+          http: z.object({
+            port: z.coerce.number(),
+          }),
+        }),
+      })
+      const config = await loadConfig({
+        schema,
+        expandEnv: true,
+        sources: [new EnvSource({ env: { SERVER__HTTP__PORT: "3000" } })],
+      })
+
+      expect(config.value.server.http.port).toBe(3000)
+    })
+
+    it("expansion composes with prefix stripping", async () => {
+      const schema = z.object({ server: z.object({ port: z.coerce.number() }) })
+      const config = await loadConfig({
+        schema,
+        expandEnv: true,
+        sources: [new EnvSource({ prefix: "APP_", env: { APP_SERVER__PORT: "3000" } })],
+      })
+
+      expect(config.value.server.port).toBe(3000)
+    })
+
+    it("env expansion overrides json base when both present", async () => {
+      await fs.writeFile(
+        path.join(cwd, "config.json"),
+        JSON.stringify({ server: { port: 8080 } }),
+      )
+      const schema = z.object({ server: z.object({ port: z.coerce.number() }) })
+      const config = await loadConfig({
+        schema,
+        expandEnv: true,
+        sources: [
+          new JsonSource({ file: "config.json", required: true, cwd }),
+          new EnvSource({ env: { SERVER__PORT: "3000" } }),
+        ],
+      })
+
+      expect(config.value.server.port).toBe(3000)
+    })
+
+    it("does not expand __ keys when disabled", async () => {
+      const schema = z.object({
+        server: z.object({ port: z.coerce.number() }),
+      })
+
+      await expect(
+        loadConfig({
+          schema,
+          expandEnv: false,
+          sources: [new EnvSource({ env: { SERVER__PORT: "3000" } })],
+        }),
+      ).rejects.toThrow()
+    })
+
+    it("treats __ keys as literal when expansion is disabled", async () => {
+      const schema = z.object({
+        SERVER__PORT: z.coerce.number(),
+      })
+      const config = await loadConfig({
+        schema,
+        expandEnv: false,
+        sources: [new EnvSource({ env: { SERVER__PORT: "3000" } })],
+      })
+
+      expect(config.value.SERVER__PORT).toBe(3000)
+    })
+
+    it("does not expand keys with empty segments", async () => {
+      const schema = z.object({ server: z.object({ port: z.coerce.number() }) })
+      const cases = [
+        { env: { SERVER____PORT: "3000" } },
+        { env: { __SERVER__PORT: "3000" } },
+        { env: { SERVER__PORT__: "3000" } },
+      ]
+
+      for (const env of cases) {
+        await expect(
+          loadConfig({
+            schema,
+            expandEnv: true,
+            sources: [new EnvSource(env)],
+          }),
+        ).rejects.toThrow()
+      }
+    })
+
+    it("expands sibling keys without clobbering", async () => {
+      const schema = z.object({
+        server: z.object({
+          port: z.coerce.number(),
+          host: z.string(),
+        }),
+      })
+      const config = await loadConfig({
+        schema,
+        expandEnv: true,
+        sources: [
+          new EnvSource({ env: { SERVER__PORT: "3000", SERVER__HOST: "localhost" } }),
+        ],
+      })
+
+      expect(config.value.server.port).toBe(3000)
+      expect(config.value.server.host).toBe("localhost")
+    })
+
+    it("expansion only applies to env-like sources", async () => {
+      const schema = z.object({ server: z.object({ port: z.coerce.number() }) })
+      const jsonPath = path.join(cwd, "config.json")
+      await fs.writeFile(jsonPath, JSON.stringify({ SERVER__PORT: "3000" }))
+
+      await expect(
+        loadConfig({
+          schema,
+          expandEnv: true,
+          sources: [new JsonSource({ file: "config.json", required: true, cwd })],
+        }),
+      ).rejects.toThrow()
+    })
+
+    it("handles scalar-to-object collisions by overwriting with nested object", async () => {
+      const schema = z.object({
+        server: z.object({
+          port: z.coerce.number(),
+        }),
+      })
+      const config = await loadConfig({
+        schema,
+        expandEnv: true,
+        sources: [
+          new EnvSource({ env: { SERVER: "wat" } }),
+          new EnvSource({ env: { SERVER__PORT: "3000" } }),
+        ],
+      })
+      expect(config.value.server.port).toBe(3000)
+    })
+
+    it("provenance marks expanded top-level key as env source", async () => {
+      const schema = z.object({ server: z.object({ port: z.coerce.number() }) })
+      const config = await loadConfig({
+        schema,
+        expandEnv: true,
+        sources: [new EnvSource({ env: { SERVER__PORT: "3000" } })],
+      })
+      expect(config.explain("server")).toBe("env")
     })
   })
 })

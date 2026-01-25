@@ -1,10 +1,10 @@
 import { randomUUID } from "node:crypto"
 import type { Clock, Milliseconds } from "@subspace/clock"
 import type { Logger, LogLevelName } from "@subspace/logger"
-import type { Application, Middleware } from "./create-server"
+import { type Application, createApp, type Middleware } from "./create-server"
 import type { ErrorHandler } from "./errors/create-error-handler"
 import type { ErrorMappingsConfig } from "./errors/errors"
-import type { LifecycleHook } from "./lifecycle/lifecycle"
+import type { LifecycleHook } from "./lifecycle/lifecycle-hook"
 
 export type PathString = `/${string}`
 
@@ -151,6 +151,8 @@ export interface ServerOptions {
 
   errorHandling: ErrorHandling
 
+  createApp?: () => Application
+
   routes: (app: Application) => void
 
   middleware?: {
@@ -158,8 +160,8 @@ export interface ServerOptions {
     post?: Middleware[]
   }
 
-  beforeStart?: LifecycleHook[]
-  beforeStop?: LifecycleHook[]
+  startHooks?: LifecycleHook[]
+  stopHooks?: LifecycleHook[]
 }
 
 // --- Resolved types ---
@@ -193,10 +195,11 @@ export type ResolvedServerOptions = {
   clientIp: ResolvedClientIpConfig
   errorHandling: ErrorHandling
 
+  createApp: () => Application
   routes: (app: Application) => void
   middleware: ResolvedMiddleware
-  beforeStart: LifecycleHook[]
-  beforeStop: LifecycleHook[]
+  startHooks: LifecycleHook[]
+  stopHooks: LifecycleHook[]
 }
 
 // --- Defaults ---
@@ -258,12 +261,13 @@ export function resolveOptions(options: ServerOptions): ResolvedServerOptions {
     clientIp,
     errorHandling: options.errorHandling,
     routes: options.routes,
+    createApp: options.createApp ?? createApp,
     middleware: {
       pre: options.middleware?.pre ?? [],
       post: options.middleware?.post ?? [],
     },
-    beforeStart: options.beforeStart ?? [],
-    beforeStop: options.beforeStop ?? [],
+    startHooks: options.startHooks ?? [],
+    stopHooks: options.stopHooks ?? [],
   }
 }
 

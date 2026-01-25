@@ -57,7 +57,7 @@ export async function startServer(ctx: StartServerContext): Promise<ServerHandle
       clock: ctx.deps.clock,
       logger: ctx.deps.logger,
       deadlineMs: ctx.deps.clock.nowMs() + ctx.options.startupTimeoutMs,
-      startHooks: ctx.options.beforeStart,
+      startHooks: ctx.options.startHooks,
     })
 
     const app = ctx.collabs.buildApp({
@@ -78,7 +78,7 @@ export async function startServer(ctx: StartServerContext): Promise<ServerHandle
       deps: ctx.deps,
       server,
       options: ctx.options,
-      stopHooks: ctx.options.beforeStop,
+      stopHooks: ctx.options.stopHooks,
       setReady: ctx.setReady,
       shutdown: ctx.collabs.onShutdown,
       onStop: () => ctx.getSignalHandler()?.unregister(),

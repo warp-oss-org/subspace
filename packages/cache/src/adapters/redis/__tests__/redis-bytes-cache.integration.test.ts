@@ -47,13 +47,13 @@ describe("RedisBytesCache (integration)", () => {
 
       const redisKeys = await getKeysByPrefix(client, keyspacePrefix)
 
-      expect(redisKeys).toContain(`${keyspacePrefix}${key}`)
+      expect(redisKeys).toContain(`${keyspacePrefix}:${key}`)
       expect(redisKeys).not.toContain(key)
 
       const unprefixed = await client.get(key)
       expect(unprefixed).toBeNull()
 
-      const prefixed = await client.get(`${keyspacePrefix}${key}`)
+      const prefixed = await client.get(`${keyspacePrefix}:${key}`)
       expect(prefixed).not.toBeNull()
     })
 
@@ -65,14 +65,14 @@ describe("RedisBytesCache (integration)", () => {
 
       const doublePrefixedKeys = await getKeysByPrefix(
         client,
-        `${keyspacePrefix}${keyspacePrefix}`,
+        `${keyspacePrefix}:${keyspacePrefix}`,
       )
 
       expect(doublePrefixedKeys).toStrictEqual([])
 
       const redisKeys = await getKeysByPrefix(client, keyspacePrefix)
 
-      expect(redisKeys).toContain(`${keyspacePrefix}${key}`)
+      expect(redisKeys).toContain(`${keyspacePrefix}:${key}`)
     })
   })
 
@@ -86,7 +86,7 @@ describe("RedisBytesCache (integration)", () => {
         ttl: { kind: "milliseconds", milliseconds: ttlMs },
       })
 
-      const fullKey = `${keyspacePrefix}${key}`
+      const fullKey = `${keyspacePrefix}:${key}`
 
       const remaining = await client.pTTL(fullKey)
 
@@ -106,7 +106,7 @@ describe("RedisBytesCache (integration)", () => {
       const res = await cache.get(key)
       expect(res).toStrictEqual({ kind: "miss" })
 
-      const fullKey = `${keyspacePrefix}${key}`
+      const fullKey = `${keyspacePrefix}:${key}`
       const stored = await client.get(fullKey)
 
       expect(stored).toBeNull()
@@ -123,7 +123,7 @@ describe("RedisBytesCache (integration)", () => {
 
       await cache.set(key, value)
 
-      const fullKey = `${keyspacePrefix}${key}`
+      const fullKey = `${keyspacePrefix}:${key}`
 
       const remaining = await client.pTTL(fullKey)
       expect(remaining).toBeGreaterThan(0)

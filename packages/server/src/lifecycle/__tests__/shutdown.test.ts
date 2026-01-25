@@ -3,7 +3,7 @@ import { FakeClock } from "@subspace/clock"
 import type { Logger } from "@subspace/logger"
 import { mock } from "vitest-mock-extended"
 import type { Mock } from "../../tests/mock"
-import type { LifecycleHook } from "../lifecycle"
+import type { LifecycleHook } from "../lifecycle-hook"
 import { type ShutdownContext, shutdown } from "../shutdown"
 
 describe("shutdown", () => {
@@ -30,7 +30,11 @@ describe("shutdown", () => {
       await shutdown(baseCtx())
 
       expect(logger.warn).toHaveBeenCalledWith("Shutting down gracefully...")
-      expect(logger.info).toHaveBeenCalledWith("Shutdown complete")
+      expect(logger.info).toHaveBeenCalledWith("Shutdown complete", {
+        failures: 0,
+        ok: true,
+        timedOut: false,
+      })
     })
 
     it("runs server.close before consumer stop hooks", async () => {

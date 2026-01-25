@@ -14,7 +14,7 @@ export function listen(
     hostname: config.host,
   })
 
-  logger.info(`Server listening on ${config.host}:${config.port}`)
+  logger.info(`Server listening on http://${config.host}:${config.port}`)
 
   return server
 }

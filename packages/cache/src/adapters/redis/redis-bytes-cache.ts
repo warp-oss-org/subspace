@@ -129,6 +129,6 @@ export class RedisBytesCache implements BytesCache {
   }
 
   private fullKey(k: CacheKey): string {
-    return `${this.opts.keyspacePrefix}${k}`
+    return `${this.opts.keyspacePrefix}:${k}`
   }
 }

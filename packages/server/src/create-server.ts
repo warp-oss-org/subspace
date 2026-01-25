@@ -1,5 +1,10 @@
 import type { Logger } from "@subspace/logger"
-import { Hono, type Context as HonoContext, type MiddlewareHandler } from "hono"
+import {
+  type Handler,
+  Hono,
+  type Context as HonoContext,
+  type MiddlewareHandler,
+} from "hono"
 import { createErrorHandler } from "./errors/create-error-handler"
 import { buildApp } from "./lifecycle/build-app"
 import { createStopper, type ServerHandle } from "./lifecycle/create-stopper"
@@ -18,8 +23,10 @@ import {
 export type Application = Hono
 export type Context = HonoContext
 export type Middleware = MiddlewareHandler
+export type RequestHandler = Handler
 
 export interface Server {
+  app: Application
   setupProcessHandlers(): this
   start(): Promise<ServerHandle>
 }
@@ -44,6 +51,7 @@ export function createServer(deps: ServerDependencies, options: ServerOptions): 
   const resolvedOptions = resolveOptions(options)
 
   const { logger } = deps
+  const app = resolvedOptions.createApp()
 
   let ready = false
   let state: ServerState = "idle"
@@ -51,6 +59,7 @@ export function createServer(deps: ServerDependencies, options: ServerOptions): 
   let signalHandler: SignalHandler | undefined
 
   const server: Server = {
+    app,
     setupProcessHandlers() {
       if (signalHandler) return server
 
@@ -70,7 +79,7 @@ export function createServer(deps: ServerDependencies, options: ServerOptions): 
 
           listen,
 
-          createApp: () => new Hono(),
+          createApp: () => app,
 
           createStopper,
           createErrorHandler,

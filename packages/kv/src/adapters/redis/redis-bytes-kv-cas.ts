@@ -307,6 +307,8 @@ export class RedisBytesKeyValueStoreCas implements BytesKeyValueStoreCas {
   }
 
   private fullKey(k: KvKey): string {
-    return `${this.opts.keyspacePrefix}${k}`
+    const prefix = this.opts.keyspacePrefix
+
+    return `${prefix}:${k}`
   }
 }

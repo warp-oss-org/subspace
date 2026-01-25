@@ -3,7 +3,7 @@ import type { Logger } from "@subspace/logger"
 import { mock } from "vitest-mock-extended"
 import type { Mock } from "../../tests/mock"
 import { sleep } from "../../tests/sleep"
-import type { LifecycleHook } from "../lifecycle"
+import type { LifecycleHook } from "../lifecycle-hook"
 import { runHooks } from "../run-hooks"
 
 describe("runHooks", () => {

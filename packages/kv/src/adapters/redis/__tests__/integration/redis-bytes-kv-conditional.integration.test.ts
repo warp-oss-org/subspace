@@ -30,10 +30,13 @@ describe("RedisBytesKeyValueStoreConditional (integration)", () => {
     let baseStore: RedisBytesKeyValueStore
     let store: RedisBytesKeyValueStoreConditional
     beforeAll(() => {
-      baseStore = new RedisBytesKeyValueStore(client, {
-        keyspacePrefix,
-        batchSize: 1000,
-      })
+      baseStore = new RedisBytesKeyValueStore(
+        { client },
+        {
+          keyspacePrefix,
+          batchSize: 1000,
+        },
+      )
 
       store = new RedisBytesKeyValueStoreConditional(
         { client, baseStore },

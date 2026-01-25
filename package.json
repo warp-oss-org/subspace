@@ -2,7 +2,7 @@
   "name": "@subspace/root",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@10.28.0",
+  "packageManager": "pnpm@10.28.1",
   "engines": {
     "node": ">=22"
   },
@@ -14,6 +14,8 @@
     "lint": "pnpm lint:eslint && pnpm lint:biome",
     "typecheck": "tsc -b -v",
     "test": "vitest run",
+    "dev:up": "pnpm -r --if-present run dev:up",
+    "dev:down": "pnpm -r --if-present run dev:down",
     "test:ui": "vitest --ui",
     "test:up": "pnpm -r --if-present run test:up",
     "test:down": "pnpm -r --if-present run test:down",
@@ -23,11 +25,12 @@
     "clean": "pnpm -r run clean"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.3.10",
+    "@biomejs/biome": "^2.3.11",
     "@types/node": "^22.19.3",
     "@vitest/coverage-v8": "^4.0.16",
     "@vitest/ui": "^4.0.16",
     "eslint": "^9.39.2",
+    "eslint-plugin-boundaries": "^5.3.1",
     "eslint-plugin-unicorn": "^62.0.0",
     "jiti": "^2.6.1",
     "typescript": "^5.9.3",

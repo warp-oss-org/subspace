@@ -94,6 +94,6 @@ export class RedisLock implements Lock {
   }
 
   private formatKey(key: LockKey): string {
-    return `${this.prefix}${key}`
+    return `${this.prefix}:${key}`
   }
 }

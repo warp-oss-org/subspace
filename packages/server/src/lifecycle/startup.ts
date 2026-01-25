@@ -1,6 +1,6 @@
 import type { Clock, UnixMs } from "@subspace/clock"
 import type { Logger } from "@subspace/logger"
-import type { HookFailure, LifecycleHook } from "./lifecycle"
+import type { HookFailure, LifecycleHook } from "./lifecycle-hook"
 import { runHooks } from "./run-hooks"
 
 export type StartupContext = {
@@ -27,6 +27,8 @@ export async function startup(ctx: StartupContext): Promise<StartResult> {
   )
 
   const ok = failures.length === 0 && !timedOut
+
+  ctx.logger.debug("Startup hooks complete", { ok, failures: failures.length, timedOut })
 
   return { ok, failures, timedOut }
 }

@@ -279,30 +279,30 @@ describe("resolveOptions", () => {
   })
 
   describe("lifecycle hooks", () => {
-    it("defaults beforeStart to [] when not provided", () => {
+    it("defaults startHooks to [] when not provided", () => {
       const resolved = resolveOptions(baseConfig())
 
-      expect(resolved.beforeStart).toEqual([])
+      expect(resolved.startHooks).toEqual([])
     })
 
-    it("defaults beforeStop to [] when not provided", () => {
+    it("defaults stopHooks to [] when not provided", () => {
       const resolved = resolveOptions(baseConfig())
 
-      expect(resolved.beforeStop).toEqual([])
+      expect(resolved.stopHooks).toEqual([])
     })
 
-    it("uses provided beforeStart when set", () => {
-      const beforeStart = [{ name: "hook1", fn: vi.fn() }]
-      const resolved = resolveOptions(baseConfig({ beforeStart }))
+    it("uses provided startHooks when set", () => {
+      const startHooks = [{ name: "hook1", fn: vi.fn() }]
+      const resolved = resolveOptions(baseConfig({ startHooks }))
 
-      expect(resolved.beforeStart).toBe(beforeStart)
+      expect(resolved.startHooks).toBe(startHooks)
     })
 
-    it("uses provided beforeStop when set", () => {
-      const beforeStop = [{ name: "hook1", fn: vi.fn() }]
-      const resolved = resolveOptions(baseConfig({ beforeStop }))
+    it("uses provided stopHooks when set", () => {
+      const stopHooks = [{ name: "hook1", fn: vi.fn() }]
+      const resolved = resolveOptions(baseConfig({ stopHooks }))
 
-      expect(resolved.beforeStop).toBe(beforeStop)
+      expect(resolved.stopHooks).toBe(stopHooks)
     })
   })
 

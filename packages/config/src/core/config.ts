@@ -9,8 +9,8 @@ export class Config<T extends Record<string, unknown>> implements IConfig<T> {
     Object.freeze(this.data)
   }
 
-  get<K extends keyof T & string>(key: K): T[K] {
-    return this.data[key]
+  get value(): T {
+    return this.data
   }
 
   keys(): (keyof T & string)[] {
@@ -27,7 +27,7 @@ export class Config<T extends Record<string, unknown>> implements IConfig<T> {
     return [...new Set(sources)]
   }
 
-  extras(): string[] {
+  unknownKeys(): string[] {
     const used = new Set(this.keys().map(String))
 
     return [...this.mergedKeys].filter((k) => !used.has(k))

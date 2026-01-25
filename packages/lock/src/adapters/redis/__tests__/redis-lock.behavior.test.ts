@@ -20,7 +20,7 @@ describe("RedisLock behavior", () => {
     it("release does not delete the key if token mismatches", async () => {
       const key = "mismatch-release"
       const prefix = "behavior:token:"
-      const redisKey = `${prefix}${key}`
+      const redisKey = `${prefix}:${key}`
 
       const lock = new RedisLock(
         {
@@ -55,7 +55,7 @@ describe("RedisLock behavior", () => {
     it("extend returns false if token mismatches", async () => {
       const key = "mismatch-extend"
       const prefix = "behavior:token:"
-      const redisKey = `${prefix}${key}`
+      const redisKey = `${prefix}:${key}`
 
       const lock = new RedisLock(
         {
@@ -112,7 +112,7 @@ describe("RedisLock behavior", () => {
       expect(lease).not.toBeNull()
 
       const res = await client.eval("return redis.call('GET', KEYS[1])", {
-        keys: [`${prefix}${key}`],
+        keys: [`${prefix}:${key}`],
         arguments: [],
       })
 

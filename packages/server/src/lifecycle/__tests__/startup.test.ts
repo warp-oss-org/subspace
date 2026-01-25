@@ -2,7 +2,7 @@ import { FakeClock } from "@subspace/clock"
 import type { Logger } from "@subspace/logger"
 import { mock } from "vitest-mock-extended"
 
-import type { LifecycleHook } from "../lifecycle"
+import type { LifecycleHook } from "../lifecycle-hook"
 import { startup } from "../startup"
 
 describe("startup", () => {

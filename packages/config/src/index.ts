@@ -1,3 +1,6 @@
+export { DotenvSource, type DotenvSourceOptions } from "./adapters/dotenv/dotenv-source"
+export { EnvSource } from "./adapters/env/env-source"
+export { JsonSource } from "./adapters/json/json-source"
 export { loadConfig } from "./core/load"
-export type * from "./ports/config"
-export type * from "./ports/source"
+export type { IConfig } from "./ports/config"
+export type { ConfigSource } from "./ports/source"

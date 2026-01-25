@@ -21,7 +21,7 @@ describe("RedisLock integration", () => {
   it("token mismatch: stolen lock cannot be released by original holder", async () => {
     const prefix = "integration:token:"
     const key = "stolen-release"
-    const redisKey = `${prefix}${key}`
+    const redisKey = `${prefix}:${key}`
 
     const lock = new RedisLock(
       {
@@ -62,7 +62,7 @@ describe("RedisLock integration", () => {
   it("token mismatch: extend fails if another client stole the lock", async () => {
     const prefix = "integration:token:"
     const key = "stolen-extend"
-    const redisKey = `${prefix}${key}`
+    const redisKey = `${prefix}:${key}`
 
     const lock = new RedisLock(
       {
@@ -96,7 +96,7 @@ describe("RedisLock integration", () => {
   it("TTL is enforced server-side (not just client watchdog)", async () => {
     const prefix = "integration:ttl:"
     const key = "server-ttl"
-    const redisKey = `${prefix}${key}`
+    const redisKey = `${prefix}:${key}`
 
     const lock = new RedisLock(
       {

@@ -1,0 +1,21 @@
+{
+  "extends": "../../tooling/tsconfig/base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "composite": true
+  },
+  "references": [
+    { "path": "../../packages/clock" },
+    { "path": "../../packages/errors" },
+    { "path": "../../packages/id" },
+    { "path": "../../packages/lock" },
+    { "path": "../../packages/logger" },
+    { "path": "../../packages/kv" },
+    { "path": "../../packages/retry" },
+    { "path": "../../packages/backoff" },
+    { "path": "../../packages/storage" },
+    { "path": "../../packages/server" },
+    { "path": "../../packages/config" }
+  ],
+  "include": ["src/**/*.ts"]
+}

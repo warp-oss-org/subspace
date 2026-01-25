@@ -19,23 +19,8 @@
  * ```
  */
 export interface IConfig<T extends Record<string, unknown>> {
-  /**
-   * Retrieves a configuration value by key.
-   *
-   * @typeParam K - The key type, constrained to keys of T.
-   * @param key - The configuration key to retrieve.
-   * @returns The typed configuration value.
-   */
-  get<K extends keyof T & string>(key: K): T[K]
-
-  /**
-   * Returns all configuration keys.
-   *
-   * Useful for debugging without exposing values.
-   *
-   * @returns Array of configuration keys.
-   */
-  keys(): Array<keyof T & string>
+  /** Full validated config object */
+  readonly value: T
 
   /**
    * Explains which source provided the final value for a key.
@@ -60,5 +45,5 @@ export interface IConfig<T extends Record<string, unknown>> {
    *
    * @returns Array of unrecognized keys.
    */
-  extras(): string[]
+  unknownKeys(): string[]
 }

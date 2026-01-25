@@ -1,6 +1,6 @@
 import type { UnixMs } from "@subspace/clock"
 import type { ServerDependencies } from "../server-options"
-import type { HookFailure, LifecycleHook } from "./lifecycle"
+import type { HookFailure, LifecycleHook } from "./lifecycle-hook"
 import { runHooks } from "./run-hooks"
 
 export interface Closeable {
@@ -50,7 +50,7 @@ export async function shutdown(ctx: ShutdownContext): Promise<StopResult> {
 
   const ok = failures.length === 0 && !timedOut
 
-  ctx.deps.logger.info("Shutdown complete")
+  ctx.deps.logger.info("Shutdown complete", { ok, failures: failures.length, timedOut })
 
   return { ok, failures, timedOut }
 }

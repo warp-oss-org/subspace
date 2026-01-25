@@ -64,8 +64,9 @@ describe("startServer", () => {
       errorHandling: { kind: "mappings", config: { mappings: {} } },
       routes: vi.fn(),
       middleware: { pre: [], post: [] },
-      beforeStart: [],
-      beforeStop: [],
+      createApp: () => app,
+      startHooks: [],
+      stopHooks: [],
     } as ResolvedServerOptions
 
     state = "idle"
@@ -298,7 +299,7 @@ describe("startServer", () => {
     it("wires stop hooks into the running server", async () => {
       const stopHooks = [{ name: "test", fn: vi.fn() }]
 
-      options.beforeStop = stopHooks
+      options.stopHooks = stopHooks
 
       await startServer(createCtx())
 

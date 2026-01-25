@@ -60,7 +60,7 @@ describe("RedisBytesKeyValueStoreCas (behavior)", () => {
 
       await store.setIfVersion(key, value2, versioned.version)
 
-      const pttl = await client.pTTL(`${keyspacePrefix}${key}`)
+      const pttl = await client.pTTL(`${keyspacePrefix}:${key}`)
 
       expect(pttl).toBeGreaterThan(0)
       expect(pttl).toBeLessThanOrEqual(ttlMs)
@@ -78,7 +78,7 @@ describe("RedisBytesKeyValueStoreCas (behavior)", () => {
       const result = await store.getVersioned(key)
       expect(result.kind).toBe("not_found")
 
-      const versionKey = `${keyspacePrefix}${key}:v`
+      const versionKey = `${keyspacePrefix}:${key}:v`
       const versionExists = await client.exists(versionKey)
       expect(versionExists).toBe(0)
     })
@@ -144,7 +144,7 @@ describe("RedisBytesKeyValueStoreCas (behavior)", () => {
       const result = await store.getVersioned(key)
       expect(result.kind).toBe("not_found")
 
-      const versionKey = `${keyspacePrefix}${key}:v`
+      const versionKey = `${keyspacePrefix}:${key}:v`
       const versionExists = await client.exists(versionKey)
       expect(versionExists).toBe(0)
     })
@@ -164,8 +164,8 @@ describe("RedisBytesKeyValueStoreCas (behavior)", () => {
       expect(result1.kind).toBe("not_found")
       expect(result2.kind).toBe("not_found")
 
-      const v1Exists = await client.exists(`${keyspacePrefix}${key1}:v`)
-      const v2Exists = await client.exists(`${keyspacePrefix}${key2}:v`)
+      const v1Exists = await client.exists(`${keyspacePrefix}:${key1}:v`)
+      const v2Exists = await client.exists(`${keyspacePrefix}:${key2}:v`)
 
       expect(v1Exists).toBe(0)
       expect(v2Exists).toBe(0)
@@ -266,8 +266,8 @@ describe("RedisBytesKeyValueStoreCas (behavior)", () => {
       })
       await store.set(key, bytes.b())
 
-      const valueTtl = await client.pTTL(`${keyspacePrefix}${key}`)
-      const versionTtl = await client.pTTL(`${keyspacePrefix}${key}:v`)
+      const valueTtl = await client.pTTL(`${keyspacePrefix}:${key}`)
+      const versionTtl = await client.pTTL(`${keyspacePrefix}:${key}:v`)
 
       expect(valueTtl).toBeGreaterThan(0)
       expect(versionTtl).toBeGreaterThan(0)
@@ -280,8 +280,8 @@ describe("RedisBytesKeyValueStoreCas (behavior)", () => {
       await store.set(key, bytes.a())
       await store.set(key, bytes.b())
 
-      const valueTtl = await client.pTTL(`${keyspacePrefix}${key}`)
-      const versionTtl = await client.pTTL(`${keyspacePrefix}${key}:v`)
+      const valueTtl = await client.pTTL(`${keyspacePrefix}:${key}`)
+      const versionTtl = await client.pTTL(`${keyspacePrefix}:${key}:v`)
 
       expect(valueTtl).toBe(-1)
       expect(versionTtl).toBe(-1)

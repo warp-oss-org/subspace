@@ -1,5 +1,3 @@
-import { createClient, RESP_TYPES } from "redis"
-
 export type RedisTtl =
   | { EX: number }
   | { PX: number }
@@ -59,10 +57,4 @@ export type RedisBytesClient = {
     script: string,
     opts: { keys: string[]; arguments: (string | Buffer)[] },
   ): Promise<unknown>
-}
-
-export function createRedisBytesClient(url: string): RedisBytesClient {
-  return createClient({ url }).withTypeMapping({
-    [RESP_TYPES.BLOB_STRING]: Buffer,
-  }) as unknown as RedisBytesClient
 }

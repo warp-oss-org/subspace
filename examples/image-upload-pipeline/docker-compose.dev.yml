@@ -1,0 +1,28 @@
+services:
+  redis:
+    image: redis:8
+    container_name: subspace_image-upload-pipeline_redis_dev
+    ports:
+      - "16383:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 1s
+      timeout: 2s
+      retries: 30
+
+  s3:
+    image: localstack/localstack:4.12.0
+    container_name: subspace_image-upload-pipeline_s3_dev
+    ports:
+      - "4570:4566"
+    environment:
+      SERVICES: s3
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_EC2_METADATA_DISABLED: "true"
+    healthcheck:
+      test: [ "CMD", "curl", "-sf", "http://localhost:4566/_localstack/health" ]
+      interval: 1s
+      timeout: 2s
+      retries: 30

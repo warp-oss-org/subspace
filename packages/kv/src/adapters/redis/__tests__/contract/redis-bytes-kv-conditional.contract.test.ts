@@ -27,10 +27,13 @@ describe("RedisBytesKeyValueStoreConditional (contract)", () => {
   })
 
   describeKvConditionalContract("RedisBytesKeyValueStoreConditional", () => {
-    const baseStore = new RedisBytesKeyValueStore(client, {
-      keyspacePrefix,
-      batchSize: 1000,
-    })
+    const baseStore = new RedisBytesKeyValueStore(
+      { client },
+      {
+        keyspacePrefix,
+        batchSize: 1000,
+      },
+    )
 
     return new RedisBytesKeyValueStoreConditional(
       { client, baseStore },

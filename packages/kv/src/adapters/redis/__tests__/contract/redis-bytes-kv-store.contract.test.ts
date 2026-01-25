@@ -26,6 +26,6 @@ describe("RedisBytesKeyValueStore (contract)", () => {
   })
 
   describeKvStoreContract("RedisBytesKeyValueStore", () => {
-    return new RedisBytesKeyValueStore(client, { keyspacePrefix, batchSize: 1000 })
+    return new RedisBytesKeyValueStore({ client }, { keyspacePrefix, batchSize: 1000 })
   })
 })

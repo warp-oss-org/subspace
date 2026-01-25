@@ -29,10 +29,13 @@ describe("RedisBytesKeyValueStore (integration)", () => {
 
   describe("keyspace wiring", () => {
     it("applies keyspacePrefix to all operations", async () => {
-      const store = new RedisBytesKeyValueStore(client, {
-        keyspacePrefix,
-        batchSize: 1000,
-      })
+      const store = new RedisBytesKeyValueStore(
+        { client },
+        {
+          keyspacePrefix,
+          batchSize: 1000,
+        },
+      )
 
       const key = "a"
       const value = new Uint8Array([1, 2, 3])
@@ -41,7 +44,7 @@ describe("RedisBytesKeyValueStore (integration)", () => {
 
       const redisKeys = await getKeysByPrefix(client, keyspacePrefix)
 
-      expect(redisKeys).toContain(`${keyspacePrefix}${key}`)
+      expect(redisKeys).toContain(`${keyspacePrefix}:${key}`)
       expect(redisKeys).not.toContain(key)
 
       const res = await store.get(key)
@@ -53,10 +56,13 @@ describe("RedisBytesKeyValueStore (integration)", () => {
     })
 
     it("does not double-prefix keys", async () => {
-      const store = new RedisBytesKeyValueStore(client, {
-        keyspacePrefix,
-        batchSize: 1000,
-      })
+      const store = new RedisBytesKeyValueStore(
+        { client },
+        {
+          keyspacePrefix,
+          batchSize: 1000,
+        },
+      )
 
       const key = "b"
       const value = new Uint8Array([4, 5, 6])
@@ -65,17 +71,20 @@ describe("RedisBytesKeyValueStore (integration)", () => {
 
       const redisKeys = await getKeysByPrefix(client, keyspacePrefix)
 
-      expect(redisKeys).toContain(`${keyspacePrefix}${key}`)
-      expect(redisKeys).not.toContain(`${keyspacePrefix}${keyspacePrefix}${key}`)
+      expect(redisKeys).toContain(`${keyspacePrefix}:${key}`)
+      expect(redisKeys).not.toContain(`${keyspacePrefix}:${keyspacePrefix}:${key}`)
     })
   })
 
   describe("TTL integration", () => {
     it("TTL is persisted at Redis level (sanity)", async () => {
-      const store = new RedisBytesKeyValueStore(client, {
-        keyspacePrefix,
-        batchSize: 1000,
-      })
+      const store = new RedisBytesKeyValueStore(
+        { client },
+        {
+          keyspacePrefix,
+          batchSize: 1000,
+        },
+      )
 
       const key = "ttl:one"
       const value = new Uint8Array([7, 8, 9])
@@ -84,7 +93,7 @@ describe("RedisBytesKeyValueStore (integration)", () => {
         ttl: { kind: "milliseconds", milliseconds: 250 },
       })
 
-      const fullKey = `${keyspacePrefix}${key}`
+      const fullKey = `${keyspacePrefix}:${key}`
       const ttlMs = await client.pTTL(fullKey)
 
       expect(ttlMs).toBeGreaterThan(0)
@@ -92,10 +101,13 @@ describe("RedisBytesKeyValueStore (integration)", () => {
     })
 
     it("writing without TTL preserves existing TTL", async () => {
-      const store = new RedisBytesKeyValueStore(client, {
-        keyspacePrefix,
-        batchSize: 1000,
-      })
+      const store = new RedisBytesKeyValueStore(
+        { client },
+        {
+          keyspacePrefix,
+          batchSize: 1000,
+        },
+      )
 
       const key = "ttl:two"
       const value1 = new Uint8Array([1])
@@ -105,7 +117,7 @@ describe("RedisBytesKeyValueStore (integration)", () => {
         ttl: { kind: "milliseconds", milliseconds: 300 },
       })
 
-      const fullKey = `${keyspacePrefix}${key}`
+      const fullKey = `${keyspacePrefix}:${key}`
       const before = await client.pTTL(fullKey)
 
       expect(before).toBeGreaterThan(0)
@@ -126,10 +138,13 @@ describe("RedisBytesKeyValueStore (integration)", () => {
 
   describe("bulk ops", () => {
     it("setMany writes all entries", async () => {
-      const store = new RedisBytesKeyValueStore(client, {
-        keyspacePrefix,
-        batchSize: 500,
-      })
+      const store = new RedisBytesKeyValueStore(
+        { client },
+        {
+          keyspacePrefix,
+          batchSize: 500,
+        },
+      )
 
       const entries: Array<[string, Uint8Array]> = []
       for (let i = 0; i < 1200; i++) {
@@ -153,10 +168,13 @@ describe("RedisBytesKeyValueStore (integration)", () => {
     })
 
     it("deleteMany handles large key counts without throwing", async () => {
-      const store = new RedisBytesKeyValueStore(client, {
-        keyspacePrefix,
-        batchSize: 500,
-      })
+      const store = new RedisBytesKeyValueStore(
+        { client },
+        {
+          keyspacePrefix,
+          batchSize: 500,
+        },
+      )
 
       const keys: string[] = []
       for (let i = 0; i < 1200; i++) {
@@ -176,10 +194,13 @@ describe("RedisBytesKeyValueStore (integration)", () => {
 
   describe("connection lifecycle", () => {
     it("operations fail when client disconnects", async () => {
-      const store = new RedisBytesKeyValueStore(client, {
-        keyspacePrefix,
-        batchSize: 1000,
-      })
+      const store = new RedisBytesKeyValueStore(
+        { client },
+        {
+          keyspacePrefix,
+          batchSize: 1000,
+        },
+      )
 
       const key = "conn:one"
 
@@ -191,10 +212,13 @@ describe("RedisBytesKeyValueStore (integration)", () => {
     })
 
     it("operations work after client reconnects", async () => {
-      const store = new RedisBytesKeyValueStore(client, {
-        keyspacePrefix,
-        batchSize: 1000,
-      })
+      const store = new RedisBytesKeyValueStore(
+        { client },
+        {
+          keyspacePrefix,
+          batchSize: 1000,
+        },
+      )
 
       const key = "conn:two"
       const value = new Uint8Array([9, 9, 9])
@@ -215,10 +239,13 @@ describe("RedisBytesKeyValueStore (integration)", () => {
 
   describe("large data handling", () => {
     it("handles large values", async () => {
-      const store = new RedisBytesKeyValueStore(client, {
-        keyspacePrefix,
-        batchSize: 1000,
-      })
+      const store = new RedisBytesKeyValueStore(
+        { client },
+        {
+          keyspacePrefix,
+          batchSize: 1000,
+        },
+      )
 
       const key = "large:value"
       const value = new Uint8Array(1024 * 1024)
@@ -239,10 +266,13 @@ describe("RedisBytesKeyValueStore (integration)", () => {
     })
 
     it("handles batch operations with many keys (1000+)", async () => {
-      const store = new RedisBytesKeyValueStore(client, {
-        keyspacePrefix,
-        batchSize: 250,
-      })
+      const store = new RedisBytesKeyValueStore(
+        { client },
+        {
+          keyspacePrefix,
+          batchSize: 250,
+        },
+      )
 
       const entries: Array<[string, Uint8Array]> = []
       for (let i = 0; i < 1500; i++) {
