@@ -1,12 +1,21 @@
 import type { LifecycleHook } from "@subspace/server"
-import type { AppConfig } from "../config"
-import type { AppServices } from "../services"
+import type { AppContext } from "../create-context"
 
-export function createStopHooks(
-  _config: AppConfig,
-  _services: AppServices,
-): LifecycleHook[] {
-  return []
+export function createStopHooks(context: AppContext): LifecycleHook[] {
+  return [
+    {
+      name: "stop:redis",
+      fn: async () => {
+        await context.infra.redisClient.quit()
+      },
+    },
+    {
+      name: "stop:upload:worker",
+      fn: async () => {
+        await context.services.uploads.worker.stop()
+      },
+    },
+  ]
 }
 
 export type CreateStopHooksFn = typeof createStopHooks

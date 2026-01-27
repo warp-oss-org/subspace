@@ -1,8 +1,8 @@
 import { SystemClock } from "@subspace/clock"
 import type { Logger } from "@subspace/logger"
 import { PinoLogger } from "../../../logger/src/adapters/pino/pino-logger"
-import { createServer } from "../create-server"
-import type { ServerOptions } from "../server-options"
+import { createServer } from "../server"
+import type { ServerOptions } from "../server/server-options"
 
 export async function run(): Promise<void> {
   const clock = new SystemClock()

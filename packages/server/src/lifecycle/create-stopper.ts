@@ -1,7 +1,6 @@
-import type { Closeable } from "../create-server"
-import type { ResolvedServerOptions, ServerDependencies } from "../server-options"
+import type { ResolvedServerOptions, ServerDependencies } from "../server/server-options"
 import type { LifecycleHook } from "./lifecycle-hook"
-import type { ShutdownFn, StopResult } from "./shutdown"
+import type { Closeable, ShutdownFn, StopResult } from "./shutdown"
 
 export interface ServerHandle {
   stop(): Promise<StopResult>

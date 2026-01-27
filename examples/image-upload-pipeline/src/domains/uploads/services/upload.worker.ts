@@ -4,8 +4,8 @@ import type { Clock, Milliseconds } from "@subspace/clock"
 import { BaseError } from "@subspace/errors"
 import type { IRetryExecutor, RetryConfig } from "@subspace/retry"
 import type { StorageData } from "@subspace/storage"
-import type { JobStoreRedis } from "../infra/job-store.redis"
-import type { UploadMetadataStoreRedis } from "../infra/upload-metadata-store"
+import type { JobStore } from "../infra/job-store"
+import type { UploadMetadataStoreRedis } from "../infra/upload-metadata-store.redis"
 import type { UploadObjectStoreS3 } from "../infra/upload-object-store.s3"
 import type { ImageProcessor, ProcessedImage } from "../model/image.processing.model"
 import type { FinalizeJob } from "../model/job.model"
@@ -14,7 +14,7 @@ import type { PromotedVariant, UploadId } from "../model/upload.model"
 export type UploadWorkerDeps = {
   clock: Clock
   retryExecutor: IRetryExecutor
-  jobStore: JobStoreRedis
+  jobStore: JobStore
   uploadMetadataStore: UploadMetadataStoreRedis
   uploadObjectStore: UploadObjectStoreS3
   imageProcessor: ImageProcessor

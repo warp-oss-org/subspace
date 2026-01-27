@@ -108,7 +108,7 @@ export type AppConfig = {
   }
 
   uploads: {
-    api: { presignExpiresInSeconds: Seconds }
+    api: { presignExpirySeconds: Seconds }
     worker: {
       enabled: boolean
       pollIntervalMs: Milliseconds

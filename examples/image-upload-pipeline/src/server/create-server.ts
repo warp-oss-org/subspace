@@ -5,8 +5,7 @@ import {
   type Server,
 } from "@subspace/server"
 import type { AppContext } from "../app/create-context"
-import { createStartHooks } from "../app/lifecycle/start"
-import { createStopHooks } from "../app/lifecycle/stop"
+import { createStartHooks, createStopHooks } from "../app/lifecycle"
 
 export type BuiltServer = {
   app: Application
@@ -16,8 +15,8 @@ export type BuiltServer = {
 }
 
 export function buildServer(ctx: AppContext): BuiltServer {
-  const startHooks = createStartHooks(ctx.config, ctx.services)
-  const stopHooks = createStopHooks(ctx.config, ctx.services)
+  const startHooks = createStartHooks(ctx)
+  const stopHooks = createStopHooks(ctx)
 
   const server = createServer(
     {

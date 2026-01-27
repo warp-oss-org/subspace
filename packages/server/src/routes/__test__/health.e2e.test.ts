@@ -1,6 +1,6 @@
-import { type Application, createApp } from "../../create-server"
 import { buildApp } from "../../lifecycle/build-app"
-import { resolveOptions, type ServerOptions } from "../../server-options"
+import { type Application, createApp } from "../../server/server"
+import { resolveOptions, type ServerOptions } from "../../server/server-options"
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))

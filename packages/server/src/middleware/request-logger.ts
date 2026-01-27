@@ -1,5 +1,5 @@
 import type { Logger } from "@subspace/logger"
-import type { Middleware } from "../create-server"
+import type { Middleware } from "../server"
 import { isNonEmptyString } from "./utils/is-non-empty-string"
 
 export function requestLoggerMiddleware(baseLogger: Logger): Middleware {

@@ -4,7 +4,7 @@ import type { ErrorHandler as HonoErrorHandler } from "hono"
 import { routePath } from "hono/route"
 import type { StatusCode } from "../http/status-codes"
 import { isNonEmptyString } from "../middleware/utils/is-non-empty-string"
-import type { ResolvedServerOptions } from "../server-options"
+import type { ResolvedServerOptions } from "../server/server-options"
 import { createErrorFormatter, type ErrorMappingsConfig } from "./errors"
 
 export type ErrorHandler = HonoErrorHandler

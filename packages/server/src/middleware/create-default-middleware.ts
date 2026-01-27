@@ -1,6 +1,6 @@
 import type { Logger } from "@subspace/logger"
-import type { Middleware } from "../create-server"
-import type { ResolvedServerOptions } from "../server-options"
+import type { Middleware } from "../server"
+import type { ResolvedServerOptions } from "../server/server-options"
 import { clientIpMiddleware } from "./client-ip"
 import { headerSuppressionMiddleware } from "./header-suppression"
 import { hstsMiddleware } from "./hsts"

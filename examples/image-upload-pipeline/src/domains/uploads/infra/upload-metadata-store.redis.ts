@@ -1,5 +1,7 @@
-import type { KeyValueStoreCasAndConditional, KvWriteResult } from "@subspace/kv"
+import type { KeyValueStoreCasAndConditional } from "@subspace/kv"
 import type {
+  AwaitingUpload,
+  CreateUploadInput,
   MarkFailedInput,
   MarkFinalizedInput,
   MarkProcessingInput,
@@ -10,6 +12,7 @@ import type {
   UploadStoreWritten as UploadMetadataStoreWritten,
   UploadQueued,
   UploadRecord,
+  UploadStoreWriteResult,
 } from "../model/upload.model"
 
 const WRITTEN: UploadMetadataStoreWritten = { kind: "written" }
@@ -48,9 +51,24 @@ export class UploadMetadataStoreRedis {
     return res.kind === "found" ? res.value : null
   }
 
-  async create(record: UploadRecord): Promise<UploadMetadataStoreWriteResult> {
-    const key = this.keyForUpload(record.id)
-    const res: KvWriteResult = await this.deps.uploadKv.setIfNotExists(key, record)
+  async create(input: CreateUploadInput, at: Date): Promise<UploadStoreWriteResult> {
+    const record: AwaitingUpload = {
+      id: input.id,
+      staging: input.staging,
+      status: "awaiting_upload",
+      createdAt: at,
+      updatedAt: at,
+      ...(input.filename !== undefined && { filename: input.filename }),
+      ...(input.contentType !== undefined && { contentType: input.contentType }),
+      ...(input.expectedSizeBytes !== undefined && {
+        expectedSizeBytes: input.expectedSizeBytes,
+      }),
+    }
+
+    const res = await this.deps.uploadKv.setIfNotExists(
+      this.keyForUpload(input.id),
+      record,
+    )
 
     return res.kind === "written" ? WRITTEN : ALREADY
   }
@@ -79,7 +97,7 @@ export class UploadMetadataStoreRedis {
       updatedAt: at,
       ...(input.filename !== undefined && { filename: input.filename }),
       ...(input.contentType !== undefined && { contentType: input.contentType }),
-      ...(input.expectedSize !== undefined && { expectedSize: input.expectedSize }),
+      ...(input.expectedSize !== undefined && { expectedSizeBytes: input.expectedSize }),
     }
 
     const write = await this.deps.uploadKv.setIfVersion(

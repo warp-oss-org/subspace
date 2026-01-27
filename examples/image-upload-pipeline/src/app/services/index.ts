@@ -1,15 +1,13 @@
 import type { SystemClock } from "@subspace/clock"
-import type { RedisBytesClient } from "@subspace/kv"
 import type { Logger } from "@subspace/logger"
 import type { IRetryExecutor } from "@subspace/retry"
-import type { StoragePort } from "@subspace/storage"
 import {
   createUploadServices,
   type UploadServices,
 } from "../../domains/uploads/composition"
 import type { AppConfig } from "../config"
 import { createCoreServices } from "./core"
-import { createInfraServices } from "./infra"
+import type { InfraClients } from "./infra"
 
 export type AppServices = {
   // Core
@@ -17,17 +15,15 @@ export type AppServices = {
   clock: SystemClock
   retryExecutor: IRetryExecutor
 
-  // Infra
-  redisClient: RedisBytesClient
-  objectStorage: StoragePort
-
   // Domains
   uploads: UploadServices
 }
 
-export async function createDefaultServices(config: AppConfig): Promise<AppServices> {
+export async function createDefaultServices(
+  config: AppConfig,
+  infra: InfraClients,
+): Promise<AppServices> {
   const core = createCoreServices(config)
-  const infra = createInfraServices(config, core)
 
   const uploads = createUploadServices(config, core, infra)
 

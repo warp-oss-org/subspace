@@ -1,4 +1,4 @@
-import { DEFAULTS, resolveOptions } from "../server-options"
+import { DEFAULTS, resolveOptions } from ".."
 
 describe("resolveOptions", () => {
   function baseConfig(overrides: any = {}) {

@@ -1,7 +1,7 @@
 import type { Logger } from "@subspace/logger"
 import { routePath } from "hono/route"
-import type { Middleware } from "../create-server"
-import type { EnabledRequestLoggingConfig, PathString } from "../server-options"
+import type { Middleware } from "../server"
+import type { EnabledRequestLoggingConfig, PathString } from "../server/server-options"
 import { isNonEmptyString } from "./utils/is-non-empty-string"
 
 /**

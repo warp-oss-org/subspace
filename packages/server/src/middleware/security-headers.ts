@@ -1,4 +1,4 @@
-import type { Middleware } from "../create-server"
+import type { Middleware } from "../server"
 import { setHeaderIfMissing } from "./utils/set-header-if-missing"
 
 export type FrameOptions = "DENY" | "SAMEORIGIN"

@@ -1,4 +1,4 @@
-import type { Context, Middleware } from "../create-server"
+import type { Context, Middleware } from "../server"
 import { isNonEmptyString } from "./utils/is-non-empty-string"
 
 /**

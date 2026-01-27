@@ -15,7 +15,7 @@ export type JobStoreOptions = {
   leaseDurationMs: Milliseconds
 }
 
-export class JobStoreRedis {
+export class JobStore {
   public constructor(
     private readonly deps: JobStoreDeps,
     private readonly opts: JobStoreOptions,

@@ -1,5 +1,5 @@
-import type { Application } from "../../create-server"
-import type { ReadinessCheck, ResolvedHealthConfig } from "../../server-options"
+import type { Application } from "../../server"
+import type { ReadinessCheck, ResolvedHealthConfig } from "../../server/server-options"
 import { registerHealthRoutes } from "../health"
 
 type GetHandler = (c: any) => any | Promise<any>

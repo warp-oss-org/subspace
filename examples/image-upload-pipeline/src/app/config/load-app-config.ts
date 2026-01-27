@@ -34,7 +34,7 @@ export function mapEnvToConfig(env: EnvConfig): AppConfig {
       trustedProxies: env.CLIENT_IP_TRUSTED_PROXIES,
     },
     uploads: {
-      api: { presignExpiresInSeconds: env.UPLOAD_PRESIGN_TTL },
+      api: { presignExpirySeconds: env.UPLOAD_PRESIGN_TTL },
       worker: {
         enabled: env.UPLOAD_WORKER_ENABLED,
         pollIntervalMs: env.UPLOAD_WORKER_POLL_MS,

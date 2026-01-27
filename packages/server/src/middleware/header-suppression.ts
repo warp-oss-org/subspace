@@ -1,4 +1,4 @@
-import type { Middleware } from "../create-server"
+import type { Middleware } from "../server"
 
 /**
  * Removes headers that leak server implementation details.

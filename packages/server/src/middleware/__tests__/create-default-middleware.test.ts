@@ -1,7 +1,7 @@
 import type { Logger } from "@subspace/logger"
 import type { MockProxy } from "vitest-mock-extended"
 import { mock } from "vitest-mock-extended"
-import type { ResolvedServerOptions } from "../../server-options"
+import type { ResolvedServerOptions } from "../../server/server-options"
 import { createDefaultMiddleware } from "../create-default-middleware"
 
 describe("createDefaultMiddleware (weak sanity checks)", () => {

@@ -4,6 +4,7 @@ import { type CreateStartHooksFn, createStartHooks } from "./lifecycle/start"
 import { type CreateStopHooksFn, createStopHooks } from "./lifecycle/stop"
 import { type RegisterRoutesFn, registerRoutes } from "./routes"
 import { type AppServices, createDefaultServices } from "./services"
+import { createInfraServices, type InfraClients } from "./services/infra"
 
 export type AppContextOptions = {
   env?: NodeJS.ProcessEnv
@@ -13,6 +14,7 @@ export type AppContextOptions = {
 
 export type AppContext = {
   config: AppConfig
+  infra: InfraClients
   services: AppServices
   registerRoutes: RegisterRoutesFn
   createStartHooks: CreateStartHooksFn
@@ -24,11 +26,13 @@ export async function createAppContext(
 ): Promise<AppContext> {
   const config = await loadAppConfig(options.env ?? process.env, options.configOverrides)
 
-  const baseServices = await createDefaultServices(config)
+  const infra = createInfraServices(config)
+  const baseServices = await createDefaultServices(config, infra)
   const services = applyOverrides(baseServices, options.serviceOverrides)
 
   return {
     config,
+    infra,
     services,
     registerRoutes,
     createStartHooks,

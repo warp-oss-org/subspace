@@ -1,4 +1,5 @@
 import type { Readable } from "node:stream"
+import type { Seconds } from "@subspace/clock"
 import { type Brand, prefixed, uuidV4, withGenerator } from "@subspace/id"
 import type { ObjectRef, StorageObject, StorageObjectMetadata } from "@subspace/storage"
 import { z } from "zod/mini"
@@ -41,7 +42,7 @@ export type UploadBase = {
 
   filename?: string
   contentType?: string
-  expectedSize?: number
+  expectedSizeBytes?: number
 
   createdAt: Date
   updatedAt: Date
@@ -51,7 +52,7 @@ export type UploadWithFilename = Omit<UploadBase, "filename"> & {
   filename: string
 }
 
-export type UploadAwaitingUpload = UploadBase & {
+export type AwaitingUpload = UploadBase & {
   status: "awaiting_upload"
 }
 
@@ -80,7 +81,7 @@ export type UploadFailed = UploadBase & {
 }
 
 export type UploadRecord =
-  | UploadAwaitingUpload
+  | AwaitingUpload
   | UploadQueued
   | UploadProcessing
   | UploadFinalized
@@ -96,9 +97,54 @@ export type StagingObjectHead = {
   metadata: StorageObjectMetadata
 }
 
+export type CreateUploadInput = {
+  id: UploadId
+  staging: StorageLocation
+  filename: string
+  contentType?: string
+  expectedSizeBytes?: number
+}
+
+export type CreateUploadResult = {
+  kind: "created"
+  uploadId: UploadId
+  presigned: PresignedUpload
+}
+
+export type CompleteUploadQueued = {
+  kind: "queued"
+  uploadId: UploadId
+}
+
+export type CompleteUploadAlreadyQueued = {
+  kind: "already_queued"
+  uploadId: UploadId
+}
+
+export type CompleteUploadFinalized = {
+  kind: "finalized"
+  uploadId: UploadId
+}
+
+export type CompleteUploadFailed = {
+  kind: "failed"
+  reason: string
+}
+
+export type CompleteUploadNotFound = {
+  kind: "not_found"
+}
+
+export type CompleteUploadResult =
+  | CompleteUploadQueued
+  | CompleteUploadAlreadyQueued
+  | CompleteUploadFinalized
+  | CompleteUploadFailed
+  | CompleteUploadNotFound
+
 export type PresignedUploadInput = UploadObjectRefInput & {
   contentType?: string
-  expiresInSeconds: number
+  expiresInSeconds: Seconds
 }
 
 export type PromoteUploadInput = UploadObjectRefInput & {

@@ -1,9 +1,9 @@
 import net from "node:net"
 import { SystemClock } from "@subspace/clock"
-import { NullLogger } from "../../../logger/src/adapters/null/null-logger"
-import { createServer } from "../create-server"
-import type { ServerHandle } from "../lifecycle/create-stopper"
-import type { ServerDependencies, ServerOptions } from "../server-options"
+import { NullLogger } from "../../../../logger/src/adapters/null/null-logger"
+import type { ServerHandle } from "../../lifecycle/create-stopper"
+import type { ServerDependencies, ServerOptions } from ".."
+import { type Context, createServer } from "../"
 
 export async function getFreePort(): Promise<number> {
   return await new Promise((resolve, reject) => {
@@ -50,7 +50,7 @@ describe("server (e2e smoke)", () => {
       middleware: { pre: [], post: [] },
 
       routes: (app) => {
-        app.get("/__test", (c) => c.json({ ok: true }))
+        app.get("/__test", (c: Context) => c.json({ ok: true }))
       },
     }
 

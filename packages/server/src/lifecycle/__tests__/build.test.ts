@@ -1,6 +1,6 @@
 import { mock } from "vitest-mock-extended"
-import type { Application, Middleware } from "../../create-server"
-import { resolveOptions, type ServerOptions } from "../../server-options"
+import type { Application, Middleware } from "../../server"
+import { resolveOptions, type ServerOptions } from "../../server/server-options"
 import type { Mock } from "../../tests/mock"
 import { buildApp } from "../build-app"
 

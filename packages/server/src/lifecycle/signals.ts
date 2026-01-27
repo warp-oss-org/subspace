@@ -21,43 +21,6 @@ interface StateAccessor {
   set: (updates: Partial<State>) => void
 }
 
-/**
- * Registers process signal handlers for graceful shutdown.
- */
-export function setupProcessHandlers(ctx: SignalHandlerContext): SignalHandler {
-  const fatalTimeoutMs = ctx.fatalTimeoutMs ?? 10_000
-
-  let state: State = { stopping: false }
-
-  const stateAccessor: StateAccessor = {
-    get: () => state,
-    set: (updates) => {
-      state = { ...state, ...updates }
-    },
-  }
-
-  const sigintHandler = () => handleSignal(ctx, stateAccessor, "SIGINT")
-  const sigtermHandler = () => handleSignal(ctx, stateAccessor, "SIGTERM")
-  const uncaughtHandler = (err: Error) =>
-    handleFatal(ctx, stateAccessor, fatalTimeoutMs, "uncaughtException", err)
-  const rejectionHandler = (reason: unknown) =>
-    handleFatal(ctx, stateAccessor, fatalTimeoutMs, "unhandledRejection", reason)
-
-  process.on("SIGINT", sigintHandler)
-  process.on("SIGTERM", sigtermHandler)
-  process.on("uncaughtException", uncaughtHandler)
-  process.on("unhandledRejection", rejectionHandler)
-
-  return {
-    unregister: () => {
-      process.off("SIGINT", sigintHandler)
-      process.off("SIGTERM", sigtermHandler)
-      process.off("uncaughtException", uncaughtHandler)
-      process.off("unhandledRejection", rejectionHandler)
-    },
-  }
-}
-
 function handleSignal(
   ctx: SignalHandlerContext,
   state: StateAccessor,
@@ -151,3 +114,42 @@ async function withForceExit(
     clearTimeout(timer)
   }
 }
+
+/**
+ * Registers process signal handlers for graceful shutdown.
+ */
+export function setupProcessHandlers(ctx: SignalHandlerContext): SignalHandler {
+  const fatalTimeoutMs = ctx.fatalTimeoutMs ?? 10_000
+
+  let state: State = { stopping: false }
+
+  const stateAccessor: StateAccessor = {
+    get: () => state,
+    set: (updates) => {
+      state = { ...state, ...updates }
+    },
+  }
+
+  const sigintHandler = () => handleSignal(ctx, stateAccessor, "SIGINT")
+  const sigtermHandler = () => handleSignal(ctx, stateAccessor, "SIGTERM")
+  const uncaughtHandler = (err: Error) =>
+    handleFatal(ctx, stateAccessor, fatalTimeoutMs, "uncaughtException", err)
+  const rejectionHandler = (reason: unknown) =>
+    handleFatal(ctx, stateAccessor, fatalTimeoutMs, "unhandledRejection", reason)
+
+  process.on("SIGINT", sigintHandler)
+  process.on("SIGTERM", sigtermHandler)
+  process.on("uncaughtException", uncaughtHandler)
+  process.on("unhandledRejection", rejectionHandler)
+
+  return {
+    unregister: () => {
+      process.off("SIGINT", sigintHandler)
+      process.off("SIGTERM", sigtermHandler)
+      process.off("uncaughtException", uncaughtHandler)
+      process.off("unhandledRejection", rejectionHandler)
+    },
+  }
+}
+
+export type SetupProcessHandlersFn = typeof setupProcessHandlers

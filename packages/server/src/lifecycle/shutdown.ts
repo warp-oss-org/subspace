@@ -1,5 +1,5 @@
 import type { UnixMs } from "@subspace/clock"
-import type { ServerDependencies } from "../server-options"
+import type { ServerDependencies } from "../server/server-options"
 import type { HookFailure, LifecycleHook } from "./lifecycle-hook"
 import { runHooks } from "./run-hooks"
 

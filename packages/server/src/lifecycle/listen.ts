@@ -1,7 +1,8 @@
 import { serve } from "@hono/node-server"
 import type { Logger } from "@subspace/logger"
-import type { Application, Closeable } from "../create-server"
-import type { ResolvedServerOptions } from "../server-options"
+import type { Application } from "../server"
+import type { ResolvedServerOptions } from "../server/server-options"
+import type { Closeable } from "./shutdown"
 
 export function listen(
   app: Application,

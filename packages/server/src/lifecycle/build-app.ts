@@ -1,8 +1,8 @@
 import { Hono } from "hono"
-import type { Application, Middleware } from "../create-server"
 import type { ErrorHandler } from "../errors/create-error-handler"
 import { registerHealthRoutes } from "../routes/health"
-import type { ResolvedServerOptions } from "../server-options"
+import type { Application, Middleware } from "../server"
+import type { ResolvedServerOptions } from "../server/server-options"
 
 interface CreateAppContext {
   isReady: () => boolean
