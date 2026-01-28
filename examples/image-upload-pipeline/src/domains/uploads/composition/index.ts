@@ -9,14 +9,14 @@ import type { AppConfig } from "../../../app/config"
 import type { CoreServices } from "../../../app/services/core"
 import type { InfraClients } from "../../../app/services/infra"
 import { createJsonCodec } from "../../../lib/codec"
-import { type JobIndex, JobStore } from "../infra/job-store"
-import { UploadMetadataStoreRedis } from "../infra/upload-metadata-store.redis"
-import { UploadObjectStoreS3 } from "../infra/upload-object-store.s3"
 import type { ImageProcessor } from "../model/image.processing.model"
 import type { FinalizeJob } from "../model/job.model"
 import type { UploadRecord } from "../model/upload.model"
 import { SharpImageProcessor } from "../services/image-processor.sharp"
+import { type JobIndex, JobStore } from "../services/job-store"
 import type { UploadFinalizationWorker } from "../services/upload.worker"
+import { UploadMetadataStore } from "../services/upload-metadata-store"
+import { UploadObjectStore } from "../services/upload-object-store"
 import { UploadOrchestrator } from "../services/upload-orchestrator"
 import { createUploadWorker } from "./worker-factory"
 
@@ -65,14 +65,14 @@ export function createUploadServices(
     keyspacePrefix: config.s3.keyPrefix,
   })
 
-  const metadataStore = new UploadMetadataStoreRedis({ uploadKv: uploadMetaKv })
+  const metadataStore = new UploadMetadataStore({ uploadKv: uploadMetaKv })
 
   const jobStore = new JobStore(
     { jobKv, indexKv },
     { leaseDurationMs: config.uploads.worker.leaseDurationMs },
   )
 
-  const objectStore = new UploadObjectStoreS3(
+  const objectStore = new UploadObjectStore(
     { objectStorage: s3Storage },
     {
       bucket: config.s3.bucket,
@@ -86,23 +86,23 @@ export function createUploadServices(
     preview: config.uploads.images.preview,
   })
 
-  const worker = createUploadWorker(config, core, {
-    jobStore,
-    metadataStore,
-    objectStore,
-    imageProcessor,
-  })
-
   const uploadOrchestrator = new UploadOrchestrator({
     clock: core.clock,
     metadataStore,
     jobStore,
     objectStore,
+    imageProcessor,
     stagingLocation: {
       bucket: config.s3.bucket,
       key: config.uploads.storage.stagingPrefix,
     },
     presignedUrlExpirySeconds: config.uploads.api.presignExpirySeconds,
+  })
+
+  const worker = createUploadWorker(config, core, {
+    jobStore,
+    uploadOrchestrator,
+    imageProcessor,
   })
 
   return {

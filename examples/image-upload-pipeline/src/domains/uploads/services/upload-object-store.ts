@@ -10,20 +10,20 @@ import type {
   UploadPromotionResult,
 } from "../model/upload.model"
 
-export type UploadObjectStoreS3Options = {
+export type UploadObjectStoreOptions = {
   bucket: StorageBucket
   stagingPrefix: StorageKey
   finalPrefix: StorageKey
 }
 
-export type UploadObjectStoreS3Deps = {
+export type UploadObjectStoreDeps = {
   objectStorage: StoragePort
 }
 
-export class UploadObjectStoreS3 {
+export class UploadObjectStore {
   public constructor(
-    private readonly deps: UploadObjectStoreS3Deps,
-    private readonly opts: UploadObjectStoreS3Options,
+    private readonly deps: UploadObjectStoreDeps,
+    private readonly opts: UploadObjectStoreOptions,
   ) {}
 
   async getPresignedUploadUrl(input: PresignedUploadInput): Promise<PresignedUpload> {

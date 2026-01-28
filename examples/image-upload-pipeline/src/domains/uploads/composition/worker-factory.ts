@@ -1,19 +1,17 @@
 import { createBackoff, decorrelatedJitter, exponential } from "@subspace/backoff"
 import type { AppConfig } from "../../../app/config"
 import type { CoreServices } from "../../../app/services/core"
-import type { JobStore } from "../infra/job-store"
-import type { UploadMetadataStoreRedis } from "../infra/upload-metadata-store.redis"
-import type { UploadObjectStoreS3 } from "../infra/upload-object-store.s3"
 import type { SharpImageProcessor } from "../services/image-processor.sharp"
+import type { JobStore } from "../services/job-store"
 import { UploadFinalizationWorker } from "../services/upload.worker"
+import type { UploadOrchestrator } from "../services/upload-orchestrator"
 
 export function createUploadWorker(
   config: AppConfig,
   core: CoreServices,
   deps: {
     jobStore: JobStore
-    metadataStore: UploadMetadataStoreRedis
-    objectStore: UploadObjectStoreS3
+    uploadOrchestrator: UploadOrchestrator
     imageProcessor: SharpImageProcessor
   },
 ): UploadFinalizationWorker {
@@ -43,12 +41,11 @@ export function createUploadWorker(
 
   return new UploadFinalizationWorker(
     {
+      logger: core.logger,
       clock: core.clock,
       retryExecutor: core.retryExecutor,
       jobStore: deps.jobStore,
-      uploadMetadataStore: deps.metadataStore,
-      uploadObjectStore: deps.objectStore,
-      imageProcessor: deps.imageProcessor,
+      orchestrator: deps.uploadOrchestrator,
     },
     {
       concurrency: config.uploads.worker.concurrency,

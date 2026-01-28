@@ -1,7 +1,12 @@
 import type { Readable } from "node:stream"
 import type { Seconds } from "@subspace/clock"
 import { type Brand, prefixed, uuidV4, withGenerator } from "@subspace/id"
-import type { ObjectRef, StorageObject, StorageObjectMetadata } from "@subspace/storage"
+import type {
+  Bytes,
+  ObjectRef,
+  StorageObject,
+  StorageObjectMetadata,
+} from "@subspace/storage"
 import { z } from "zod/mini"
 
 const PREFIX = "upload_"
@@ -142,6 +147,40 @@ export type CompleteUploadResult =
   | CompleteUploadFailed
   | CompleteUploadNotFound
 
+export type FinalizeUploadFinalized = {
+  kind: "finalized"
+  uploadId: UploadId
+}
+
+export type FinalizeUploadAlreadyFinalized = {
+  kind: "already_finalized"
+  uploadId: UploadId
+}
+
+export type FinalizeUploadNotFound = {
+  kind: "not_found"
+  uploadId: UploadId
+}
+
+export type FinalizeUploadFailed = {
+  kind: "failed"
+  uploadId: UploadId
+  reason: string
+}
+
+export type FinalizeUploadRetry = {
+  kind: "retry"
+  uploadId: UploadId
+  reason: string
+}
+
+export type FinalizeUploadResult =
+  | FinalizeUploadFinalized
+  | FinalizeUploadAlreadyFinalized
+  | FinalizeUploadNotFound
+  | FinalizeUploadFailed
+  | FinalizeUploadRetry
+
 export type PresignedUploadInput = UploadObjectRefInput & {
   contentType?: string
   expiresInSeconds: Seconds
@@ -172,8 +211,7 @@ export type MarkProcessingInput = UploadTransitionInput & {
 
 export type PromotedVariant = {
   variant: string
-  bucket: string
-  key: string
+  location: StorageLocation
 }
 
 export type PutFinalObjectInput = {
@@ -185,7 +223,7 @@ export type PutFinalObjectInput = {
 
 export type MarkFinalizedInput = UploadTransitionInput & {
   final: StorageLocation
-  actualSize: number
+  actualSizeBytes: Bytes
   variants: PromotedVariant[]
 }
 
@@ -221,6 +259,34 @@ export type UploadStoreWriteResult =
   | UploadStoreConflict
   | UploadStoreNotFound
   | UploadStoreInvalidTransition
+
+export type LoadUploadForFinalizationLoaded = {
+  kind: "loaded"
+  upload: UploadRecord
+  filename: string
+}
+
+export type LoadUploadForFinalizationNotFound = {
+  kind: "not_found"
+  uploadId: UploadId
+}
+
+export type LoadUploadForFinalizationAlreadyFinalized = {
+  kind: "already_finalized"
+  uploadId: UploadId
+}
+
+export type LoadUploadForFinalizationFailed = {
+  kind: "failed"
+  uploadId: UploadId
+  reason: string
+}
+
+export type LoadUploadForFinalizationResult =
+  | LoadUploadForFinalizationLoaded
+  | LoadUploadForFinalizationNotFound
+  | LoadUploadForFinalizationAlreadyFinalized
+  | LoadUploadForFinalizationFailed
 
 export type PresignedUpload = {
   url: URL

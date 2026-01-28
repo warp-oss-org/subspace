@@ -27,7 +27,19 @@ export function buildServer(ctx: AppContext): BuiltServer {
       host: ctx.config.server.host,
       port: ctx.config.server.port,
 
-      errorHandling: { kind: "mappings", config: { mappings: {} } },
+      errorHandling: {
+        kind: "mappings",
+        config: {
+          mappings: {
+            file_too_large: {
+              status: 413,
+              message: "Upload exceeds maximum allowed size",
+            },
+            upload_not_found: { status: 404, message: "Upload not found" },
+            upload_failed: { status: 409, message: "Upload failed" },
+          },
+        },
+      },
 
       requestId: {
         enabled: ctx.config.requestId.enabled,

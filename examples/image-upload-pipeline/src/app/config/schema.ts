@@ -1,5 +1,6 @@
 import type { Milliseconds, Seconds } from "@subspace/clock"
 import { type LogLevelName, logLevelNames } from "@subspace/logger"
+import type { Bytes } from "@subspace/storage"
 import { z } from "zod/mini"
 
 export const envSchema = z.object({
@@ -26,6 +27,7 @@ export const envSchema = z.object({
   CLIENT_IP_TRUSTED_PROXIES: z._default(z.coerce.number(), 0),
 
   UPLOAD_PRESIGN_TTL: z._default(z.coerce.number(), 300),
+  UPLOAD_MAX_SIZE_BYTES: z._default(z.coerce.number(), 10_000_000),
   UPLOAD_WORKER_ENABLED: z._default(z.coerce.boolean(), true),
   UPLOAD_WORKER_POLL_MS: z._default(z.coerce.number(), 1000),
   UPLOAD_WORKER_LEASE_MS: z._default(z.coerce.number(), 30_000),
@@ -108,7 +110,10 @@ export type AppConfig = {
   }
 
   uploads: {
-    api: { presignExpirySeconds: Seconds }
+    api: {
+      presignExpirySeconds: Seconds
+      maxUploadSizeBytes: Bytes
+    }
     worker: {
       enabled: boolean
       pollIntervalMs: Milliseconds

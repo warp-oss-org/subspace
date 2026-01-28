@@ -1,4 +1,4 @@
-describe("JobStoreRedis", () => {
+describe("JobStore", () => {
   describe("get", () => {
     it.todo("returns null when job does not exist")
     it.todo("returns the job when it exists")

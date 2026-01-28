@@ -12,6 +12,7 @@ export {
 } from "./adapters/create"
 export type { StoragePort } from "./ports/storage"
 export type {
+  Bytes,
   ObjectRef,
   StorageBucket,
   StorageData,

@@ -1,5 +1,5 @@
 import { createAppContext } from "../app/create-context"
-import { buildServer } from "./create-server"
+import { buildServer } from "."
 
 export async function run(): Promise<void> {
   const ctx = await createAppContext()

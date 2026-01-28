@@ -22,7 +22,7 @@ export type UploadMetadataStoreDeps = {
   uploadKv: KeyValueStoreCasAndConditional<UploadRecord>
 }
 
-export class UploadMetadataStoreRedis {
+export class UploadMetadataStore {
   public constructor(private readonly deps: UploadMetadataStoreDeps) {}
 
   private keyForUpload(uploadId: UploadId): string {
@@ -165,7 +165,7 @@ export class UploadMetadataStoreRedis {
       const sameFinalLocation =
         upload.final.bucket === input.final.bucket && upload.final.key === input.final.key
 
-      const sameSize = upload.actualSize === input.actualSize
+      const sameSize = upload.actualSize === input.actualSizeBytes
 
       if (sameFinalLocation && sameSize) return ALREADY
 
@@ -183,7 +183,7 @@ export class UploadMetadataStoreRedis {
       ...upload,
       status: "finalized",
       final: input.final,
-      actualSize: input.actualSize,
+      actualSize: input.actualSizeBytes,
       finalizedAt: at,
       updatedAt: at,
     }

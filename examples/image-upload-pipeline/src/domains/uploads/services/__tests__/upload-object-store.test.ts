@@ -1,4 +1,4 @@
-describe("UploadObjectStoreS3", () => {
+describe("UploadObjectStore", () => {
   describe("getPresignedUploadUrl", () => {
     it.todo("returns a presigned URL for uploading")
     it.todo("returns the staging object ref")

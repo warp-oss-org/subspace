@@ -1,4 +1,4 @@
-describe("UploadMetadataStoreRedis", () => {
+describe("UploadMetadataStore", () => {
   describe("get", () => {
     it.todo("returns null when upload does not exist")
     it.todo("returns the upload when it exists")

@@ -15,7 +15,9 @@ export function registerRoutes(
 ): void {
   const apiV1Router = createRouter()
 
-  const modules: ApiModule[] = [createUploadsModule({ uploads: services.uploads })]
+  const modules: ApiModule[] = [
+    createUploadsModule({ uploads: services.uploads, config }),
+  ]
 
   for (const m of modules) {
     m.register(apiV1Router)
