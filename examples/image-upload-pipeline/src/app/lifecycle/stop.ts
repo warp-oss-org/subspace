@@ -12,7 +12,7 @@ export function createStopHooks(context: AppContext): LifecycleHook[] {
     {
       name: "stop:upload:worker",
       fn: async () => {
-        await context.services.uploads.worker.stop()
+        await context.services.domains.uploads.worker.stop()
       },
     },
   ]

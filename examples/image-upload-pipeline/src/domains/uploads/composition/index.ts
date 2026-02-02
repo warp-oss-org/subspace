@@ -22,6 +22,8 @@ import { createUploadWorker } from "./worker-factory"
 
 export type UploadServices = {
   clock: Clock
+  jobStore: JobStore
+  metadataStore: UploadMetadataStore
   uploadOrchestrator: UploadOrchestrator
   imageProcessor: ImageProcessor
   worker: UploadFinalizationWorker
@@ -73,7 +75,7 @@ export function createUploadServices(
   )
 
   const objectStore = new UploadObjectStore(
-    { objectStorage: s3Storage },
+    { objectStorage: s3Storage, clock: core.clock },
     {
       bucket: config.s3.bucket,
       stagingPrefix: config.uploads.storage.stagingPrefix,
@@ -88,6 +90,7 @@ export function createUploadServices(
 
   const uploadOrchestrator = new UploadOrchestrator({
     clock: core.clock,
+    logger: core.logger,
     metadataStore,
     jobStore,
     objectStore,
@@ -107,6 +110,8 @@ export function createUploadServices(
 
   return {
     clock: core.clock,
+    jobStore,
+    metadataStore,
     uploadOrchestrator,
     imageProcessor,
     worker,

@@ -63,13 +63,15 @@ export const envSchema = z.object({
   UPLOAD_PREVIEW_WIDTH: z._default(z.coerce.number(), 1600),
   UPLOAD_PREVIEW_HEIGHT: z._default(z.coerce.number(), 1600),
 
-  REDIS_URL: z._default(z.string(), "redis://localhost:16383"),
+  REDIS_URL: z.string(),
   REDIS_KEY_PREFIX: z._default(z.string(), "app:image-upload"),
 
   S3_BUCKET: z._default(z.string(), "image-upload-pipeline"),
   S3_REGION: z._default(z.string(), "us-east-1"),
-  S3_ENDPOINT: z.optional(z.string()),
   S3_KEY_PREFIX: z._default(z.string(), "uploads"),
+  S3_ACCESS_KEY_ID: z.optional(z.string()),
+  S3_SECRET_ACCESS_KEY: z.optional(z.string()),
+  S3_ENDPOINT: z.optional(z.string()),
 })
 
 export type EnvConfig = z.infer<typeof envSchema>
@@ -158,10 +160,15 @@ export type AppConfig = {
     url: string
     keyPrefix: string
   }
+
   s3: {
     bucket: string
     region: string
-    endpoint?: string
     keyPrefix: string
+    endpoint?: string
+    credentials?: {
+      accessKeyId: string
+      secretAccessKey: string
+    }
   }
 }

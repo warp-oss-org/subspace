@@ -6,10 +6,6 @@ import type { LoggerOptions } from "../../ports/logger-options"
 export type ConsoleWriter = Pick<Console, "trace" | "debug" | "info" | "warn" | "error">
 
 export type ConsoleLoggerDeps = {
-  /**
-   * Console sink used for emitting logs.
-   * Defaults to the global `console`.
-   */
   console?: ConsoleWriter
 }
 
@@ -36,26 +32,24 @@ const LEVEL_SEVERITY: Record<LogLevelName, number> = {
 export class ConsoleLogger<TContext extends LogContext = LogContext>
   implements Logger<TContext>
 {
-  private readonly deps: Readonly<ConsoleLoggerDeps>
   private readonly sink: ConsoleWriter
   private readonly opts: Partial<LoggerOptions>
   private readonly context: LogContextPatch
 
   constructor(
-    deps: ConsoleLoggerDeps = {},
+    private readonly deps: ConsoleLoggerDeps = {},
     opts: Partial<LoggerOptions> = {},
     context: LogContextPatch = {},
   ) {
-    this.deps = deps
     this.sink = deps.console ?? globalThis.console
     this.opts = opts
-    this.context = this.stripUndefined(context)
+    this.context = stripUndefined(context)
   }
 
   child<U extends LogContextPatch>(context: U): Logger<TContext & U> {
     return new ConsoleLogger<TContext & U>(this.deps, this.opts, {
       ...this.context,
-      ...this.stripUndefined(context),
+      ...stripUndefined(context),
     })
   }
 
@@ -85,58 +79,13 @@ export class ConsoleLogger<TContext extends LogContext = LogContext>
 
   private shouldLog(level: LogLevelName): boolean {
     const min = this.opts.level ?? "info"
-
     return LEVEL_SEVERITY[level] >= LEVEL_SEVERITY[min]
-  }
-
-  private normalizeErr(err: unknown): unknown {
-    if (err === null) return err
-    if (err instanceof Error) {
-      return {
-        name: err.name,
-        message: err.message,
-        stack: err.stack,
-        cause: (err as { cause?: unknown }).cause,
-      }
-    }
-    return err
-  }
-
-  private stripUndefined(obj: Record<string, unknown>): Record<string, unknown> {
-    const out: Record<string, unknown> = {}
-    for (const [k, v] of Object.entries(obj)) {
-      if (v !== undefined) out[k] = v
-    }
-    return out
-  }
-
-  private safeStringify(value: unknown): string {
-    try {
-      return JSON.stringify(value)
-    } catch {
-      return JSON.stringify({ message: "Failed to stringify log payload" })
-    }
-  }
-
-  private prettyLine(payload: Record<string, unknown>): string {
-    const timestamp =
-      typeof payload.timestamp === "string" ? payload.timestamp : new Date().toISOString()
-    const level = typeof payload.level === "string" ? payload.level.toUpperCase() : "INFO"
-    const message = typeof payload.message === "string" ? payload.message : ""
-
-    const { timestamp: _t, level: _l, message: _m, ...rest } = payload
-    const tail = Object.keys(rest).length ? ` ${this.safeStringify(rest)}` : ""
-
-    return `${timestamp} ${level} ${message}${tail}`
   }
 
   private write(level: LogLevelName, message: string, meta?: LogMeta<TContext>) {
     if (!this.shouldLog(level)) return
 
-    const safeMeta = meta
-      ? this.stripUndefined(meta as unknown as Record<string, unknown>)
-      : {}
-
+    const safeMeta = meta ? stripUndefined(meta as Record<string, unknown>) : {}
     delete safeMeta.timestamp
     delete safeMeta.level
     delete safeMeta.message
@@ -150,13 +99,76 @@ export class ConsoleLogger<TContext extends LogContext = LogContext>
     }
 
     if ("err" in payload) {
-      payload.err = this.normalizeErr(payload.err)
+      payload.err = normalizeError(payload.err)
     }
 
-    const output = this.opts.prettify
-      ? this.prettyLine(payload)
-      : this.safeStringify(payload)
+    const output = this.opts.prettify ? formatPretty(payload) : safeStringify(payload)
 
     this.sink[LEVEL_TO_CONSOLE_METHOD[level]](output)
   }
+}
+
+function normalizeError(err: unknown): unknown {
+  if (!(err instanceof Error)) return err
+
+  return {
+    name: err.name,
+    message: err.message,
+    stack: err.stack,
+    cause: err.cause,
+  }
+}
+
+function stripUndefined(obj: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {}
+  for (const [k, v] of Object.entries(obj)) {
+    if (v !== undefined) out[k] = v
+  }
+  return out
+}
+
+function safeStringify(value: unknown): string {
+  try {
+    return JSON.stringify(value)
+  } catch {
+    return JSON.stringify({ message: "Failed to stringify log payload" })
+  }
+}
+
+function formatPretty(payload: Record<string, unknown>): string {
+  const timestamp =
+    typeof payload.timestamp === "string" ? payload.timestamp : new Date().toISOString()
+  const level = typeof payload.level === "string" ? payload.level.toUpperCase() : "INFO"
+  const message = typeof payload.message === "string" ? payload.message : ""
+
+  const { timestamp: _, level: __, message: ___, err, ...rest } = payload
+
+  const errorObj = err as Record<string, unknown> | undefined
+  const stack = typeof errorObj?.stack === "string" ? errorObj.stack : undefined
+
+  if (errorObj && stack) {
+    const { stack: _, ...errWithoutStack } = errorObj
+    rest.err = errWithoutStack
+  } else if (err !== undefined) {
+    rest.err = err
+  }
+
+  const tail = Object.keys(rest).length ? ` ${safeStringify(rest)}` : ""
+  const line = `${timestamp} ${level} ${message}${tail}`
+
+  if (!stack) return line
+
+  const indentedStack = stack
+    .split("\n")
+    .map((l) => `  ${l}`)
+    .join("\n")
+
+  return `${line}\n${indentedStack}`
+}
+
+export function createConsoleLogger<TContext extends LogContext = LogContext>(
+  deps: ConsoleLoggerDeps = {},
+  opts: Partial<LoggerOptions> = {},
+): Logger<TContext> {
+  return new ConsoleLogger<TContext>(deps, opts)
 }

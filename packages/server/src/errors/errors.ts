@@ -1,4 +1,4 @@
-import { type ErrorCode, isAppError } from "@subspace/errors"
+import { type AppError, type ErrorCode, isAppError } from "@subspace/errors"
 import type { StatusCode } from "../http/status-codes"
 
 export type ErrorMapping = {
@@ -17,6 +17,10 @@ export type FallbackMapping = ErrorMapping & {
   code: ErrorCode
 }
 
+export type ErrorContextTransformer = (
+  error: AppError,
+) => Record<string, unknown> | undefined
+
 export interface ErrorMappingsConfig {
   /**
    * Map of error code to status/message.
@@ -26,15 +30,24 @@ export interface ErrorMappingsConfig {
 
   /** Fallback for unmapped or unknown errors. */
   fallback?: FallbackMapping
+
+  /**
+   * Transform error context before including in response.
+   * Return undefined to exclude context from response.
+   */
+  transformContext?: ErrorContextTransformer
+}
+
+export type ErrorResponseBody = {
+  status: StatusCode
+  code: ErrorCode
+  message: string
+  requestId: string
+  [key: string]: unknown
 }
 
 export type ErrorResponse = {
-  error: {
-    status: StatusCode
-    code: ErrorCode
-    message: string
-    requestId: string
-  }
+  error: ErrorResponseBody
 }
 
 export type ErrorFormatter = (error: unknown, requestId: string) => ErrorResponse
@@ -59,9 +72,11 @@ export function createErrorFormatter(config: ErrorMappingsConfig): ErrorFormatte
   return (error: unknown, requestId: string): ErrorResponse => {
     if (isAppError(error)) {
       const mapping = config.mappings[error.code]
+      const extra = extractExtraContext(config, error)
 
       return {
         error: {
+          ...(extra && { ...extra }),
           code: error.code,
           status: mapping?.status ?? fallback.status,
           message: mapping?.message ?? fallback.message,
@@ -78,5 +93,16 @@ export function createErrorFormatter(config: ErrorMappingsConfig): ErrorFormatte
         requestId,
       },
     }
+  }
+}
+
+function extractExtraContext(
+  config: ErrorMappingsConfig,
+  error: AppError,
+): Record<string, unknown> | undefined {
+  try {
+    return config.transformContext?.(error) ?? {}
+  } catch {
+    return undefined
   }
 }

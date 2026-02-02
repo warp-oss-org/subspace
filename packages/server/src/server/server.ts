@@ -77,6 +77,7 @@ export class Server {
 
   private state: ServerState = "idle"
   private ready = false
+  private built = false
   private runningServer?: ServerHandle
   private signalHandler?: SignalHandler
 
@@ -86,6 +87,38 @@ export class Server {
     private readonly collabs: ServerCollaborators = defaultCollaborators,
   ) {
     this.app = options.createApp()
+  }
+
+  /**
+   * Build the app with routes, middleware, and error handling.
+   *
+   * Call this to prepare the app for testing without starting the server.
+   * Idempotent - safe to call multiple times.
+   */
+  build(): this {
+    if (this.built) return this
+
+    this.collabs.buildApp({
+      options: this.options,
+      isReady: () => this.ready,
+      createApp: () => this.app,
+      createErrorHandler: () =>
+        this.collabs.createErrorHandler(this.options, this.deps.logger),
+      defaultMiddleware: this.collabs.createDefaultMiddleware(
+        this.options,
+        this.deps.logger,
+      ),
+    })
+
+    this.built = true
+    return this
+  }
+
+  /**
+   * Check if the app has been built.
+   */
+  isBuilt(): boolean {
+    return this.built
   }
 
   setupProcessHandlers(): this {
@@ -114,19 +147,11 @@ export class Server {
         startHooks: this.options.startHooks,
       })
 
-      const app = this.collabs.buildApp({
-        options: this.options,
-        isReady: () => this.ready,
-        createApp: () => this.app,
-        createErrorHandler: () =>
-          this.collabs.createErrorHandler(this.options, this.deps.logger),
-        defaultMiddleware: this.collabs.createDefaultMiddleware(
-          this.options,
-          this.deps.logger,
-        ),
-      })
+      if (!this.built) {
+        this.build()
+      }
 
-      const server = this.collabs.listen(app, this.options, this.deps.logger)
+      const server = this.collabs.listen(this.app, this.options, this.deps.logger)
 
       const handle = this.collabs.createStopper({
         deps: this.deps,

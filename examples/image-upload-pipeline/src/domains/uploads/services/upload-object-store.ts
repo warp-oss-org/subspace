@@ -1,3 +1,4 @@
+import type { Clock, Seconds } from "@subspace/clock"
 import type { ObjectRef, StorageBucket, StorageKey, StoragePort } from "@subspace/storage"
 import type {
   PresignedUpload,
@@ -10,6 +11,8 @@ import type {
   UploadPromotionResult,
 } from "../model/upload.model"
 
+const MS_PER_SECOND = 1000
+
 export type UploadObjectStoreOptions = {
   bucket: StorageBucket
   stagingPrefix: StorageKey
@@ -17,6 +20,7 @@ export type UploadObjectStoreOptions = {
 }
 
 export type UploadObjectStoreDeps = {
+  clock: Clock
   objectStorage: StoragePort
 }
 
@@ -37,7 +41,9 @@ export class UploadObjectStore {
       ...(input.contentType && { contentType: input.contentType }),
     })
 
-    return { url, ref }
+    const expiresAt = this.expiresAtFromNow(input.expiresInSeconds)
+
+    return { url: url.toString(), ref, expiresAt }
   }
 
   async headStagingObject(
@@ -114,5 +120,9 @@ export class UploadObjectStore {
 
   private uploadObjectKey(uploadId: string, filename: string): StorageKey {
     return `${uploadId}/${filename}`
+  }
+
+  private expiresAtFromNow(expiresInSeconds: Seconds): Date {
+    return new Date(this.deps.clock.nowMs() + expiresInSeconds * MS_PER_SECOND)
   }
 }

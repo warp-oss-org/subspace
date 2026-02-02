@@ -16,9 +16,10 @@ export function createUploadsModule(deps: UploadModuleDeps) {
     register: (api: Application) => {
       const uploads = createRouter()
 
-      uploads.post("/", createUploadHandler(deps.uploads, deps.config))
-      uploads.get("/:id", getUploadHandler(deps.uploads))
-      uploads.post("/:id/complete", completeUploadHandler(deps.uploads))
+      uploads
+        .post("/", createUploadHandler(deps.uploads, deps.config))
+        .get("/:id", getUploadHandler(deps.uploads))
+        .post("/:id/complete", completeUploadHandler(deps.uploads))
 
       api.route("/uploads", uploads)
     },

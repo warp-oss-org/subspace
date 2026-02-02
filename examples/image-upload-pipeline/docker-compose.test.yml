@@ -3,7 +3,7 @@ services:
     image: redis:8
     container_name: subspace_image-upload-pipeline_redis_test
     ports:
-      - "16382:6379"
+      - "6382:6379"
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 1s

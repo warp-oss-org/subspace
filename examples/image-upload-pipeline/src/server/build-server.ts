@@ -1,6 +1,8 @@
+import type { AppError } from "@subspace/errors"
 import {
   type Application,
   createServer,
+  isValidationError,
   type LifecycleHook,
   type Server,
 } from "@subspace/server"
@@ -20,8 +22,8 @@ export function buildServer(ctx: AppContext): BuiltServer {
 
   const server = createServer(
     {
-      clock: ctx.services.clock,
-      logger: ctx.services.logger,
+      clock: ctx.services.core.clock,
+      logger: ctx.services.core.logger,
     },
     {
       host: ctx.config.server.host,
@@ -31,12 +33,18 @@ export function buildServer(ctx: AppContext): BuiltServer {
         kind: "mappings",
         config: {
           mappings: {
-            file_too_large: {
+            upload_too_large: {
               status: 413,
               message: "Upload exceeds maximum allowed size",
             },
             upload_not_found: { status: 404, message: "Upload not found" },
             upload_failed: { status: 409, message: "Upload failed" },
+            validation_error: { status: 422, message: "Invalid input" },
+          },
+          transformContext: (error: AppError) => {
+            if (isValidationError(error)) return { issues: error.context.issues }
+
+            return undefined
           },
         },
       },
@@ -58,7 +66,7 @@ export function buildServer(ctx: AppContext): BuiltServer {
       },
 
       routes: (app: Application): void => {
-        ctx.registerRoutes(app, ctx.config, ctx.services)
+        ctx.registerRoutes(app, ctx.config, ctx.services.domains)
       },
 
       startHooks,

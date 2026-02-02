@@ -89,11 +89,19 @@ export function mapEnvToConfig(env: EnvConfig): AppConfig {
       url: env.REDIS_URL,
       keyPrefix: env.REDIS_KEY_PREFIX,
     },
+
     s3: {
       bucket: env.S3_BUCKET,
       region: env.S3_REGION,
       keyPrefix: env.S3_KEY_PREFIX,
       ...(env.S3_ENDPOINT !== undefined && { endpoint: env.S3_ENDPOINT }),
+      ...(env.S3_ACCESS_KEY_ID &&
+        env.S3_SECRET_ACCESS_KEY && {
+          credentials: {
+            accessKeyId: env.S3_ACCESS_KEY_ID,
+            secretAccessKey: env.S3_SECRET_ACCESS_KEY,
+          },
+        }),
     },
   }
 }
@@ -101,12 +109,12 @@ export function mapEnvToConfig(env: EnvConfig): AppConfig {
 export async function loadAppConfig(
   env: NodeJS.ProcessEnv,
   overrides?: DeepPartial<AppConfig>,
-  cwd: string = process.cwd(),
+  projectRoot: string = process.cwd(),
 ): Promise<AppConfig> {
   const nodeEnv = env.NODE_ENV
 
   const sources: ConfigSource[] = [
-    new DotenvSource({ file: `.env.${nodeEnv}`, required: false, cwd }),
+    new DotenvSource({ file: `.env.${nodeEnv}`, required: true, cwd: projectRoot }),
     new EnvSource({ env }),
   ]
 

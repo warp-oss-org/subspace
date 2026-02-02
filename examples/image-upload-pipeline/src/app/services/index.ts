@@ -1,35 +1,28 @@
-import type { SystemClock } from "@subspace/clock"
-import type { Logger } from "@subspace/logger"
-import type { IRetryExecutor } from "@subspace/retry"
 import {
   createUploadServices,
   type UploadServices,
 } from "../../domains/uploads/composition"
 import type { AppConfig } from "../config"
-import { createCoreServices } from "./core"
+import type { CoreServices } from "./core"
 import type { InfraClients } from "./infra"
 
-export type AppServices = {
-  // Core
-  logger: Logger
-  clock: SystemClock
-  retryExecutor: IRetryExecutor
-
-  // Domains
+export type DomainServices = {
   uploads: UploadServices
 }
 
-export async function createDefaultServices(
+export type AppServices = {
+  core: CoreServices
+  domains: DomainServices
+}
+
+export function createDefaultDomainServices(
   config: AppConfig,
   infra: InfraClients,
-): Promise<AppServices> {
-  const core = createCoreServices(config)
-
+  core: CoreServices,
+): DomainServices {
   const uploads = createUploadServices(config, core, infra)
 
   return {
-    ...core,
-    ...infra,
     uploads,
   }
 }

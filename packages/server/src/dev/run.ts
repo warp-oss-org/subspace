@@ -55,10 +55,3 @@ export async function run(): Promise<void> {
 
   logger.info("smoke server started", running.address)
 }
-
-if (import.meta.url === `file://${process.argv[1]}`) {
-  run().catch((err) => {
-    console.error(err)
-    process.exitCode = 1
-  })
-}

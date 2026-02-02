@@ -4,7 +4,11 @@ import { UploadId, type UploadRecord } from "../model/upload.model"
 
 export function getUploadHandler(deps: UploadServices): RequestHandler {
   return async (c: Context) => {
-    const id = UploadId.parse(c.req.param("id"))
+    const idParam = c.req.param("id")
+
+    if (!UploadId.is(idParam)) return c.notFound()
+
+    const id = UploadId.parse(idParam)
 
     const result = await deps.uploadOrchestrator.getUpload(id)
 

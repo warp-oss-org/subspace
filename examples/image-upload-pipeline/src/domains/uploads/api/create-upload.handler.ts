@@ -1,5 +1,6 @@
 import type { Context, RequestHandler } from "@subspace/server"
 import type { AppConfig } from "../../../app/config"
+import { parseDataOrThrow } from "../../../lib/validation"
 import type { UploadServices } from "../composition"
 import { UploadError } from "../model/upload.errors"
 import type { CreateUploadResult } from "../model/upload.model"
@@ -26,7 +27,7 @@ export function createUploadHandler(
 }
 
 function validateUpload(body: unknown, config: AppConfig): CreateUploadRequest {
-  const fileDetails = createUploadRequestSchema.parse(body)
+  const fileDetails = parseDataOrThrow(createUploadRequestSchema, body)
 
   if (isTooLarge(fileDetails.expectedSizeBytes, config.uploads.api.maxUploadSizeBytes)) {
     throw UploadError.uploadTooLarge({

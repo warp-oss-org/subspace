@@ -28,3 +28,6 @@ export type {
   PutOptions,
 } from "./ports/storage-options"
 export type { ListResult } from "./ports/storage-result"
+
+// !! TODO: Figure out a better place for test-related exports (maybe a separate package?)
+export { ensureS3BucketExists } from "./tests/utils/ensure-s3-bucket-exists"

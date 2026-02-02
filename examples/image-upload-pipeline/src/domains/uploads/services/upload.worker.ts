@@ -210,17 +210,14 @@ export class UploadFinalizationWorker {
   }
 
   private async fetchDueJobs(limit: number): Promise<FinalizeJob[]> {
-    return this.withIoRetry(() => this.deps.jobStore.listDue(this.now(), limit))
+    return await this.withIoRetry(() => this.deps.jobStore.listDue(this.now(), limit))
   }
 
   private async waitWithIdleBackoff(): Promise<void> {
     this.consecutiveIdlePolls++
     const delay = this.config.idleBackoff.getDelay(this.consecutiveIdlePolls)
 
-    await Promise.race([
-      this.sleep(delay.milliseconds as Milliseconds),
-      this.stopSignal.promise,
-    ])
+    await Promise.race([this.sleep(delay.milliseconds), this.stopSignal.promise])
   }
 
   private shouldStopClaiming(): boolean {

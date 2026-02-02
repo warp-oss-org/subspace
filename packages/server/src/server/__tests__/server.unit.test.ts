@@ -1,10 +1,11 @@
 import { FakeClock } from "@subspace/clock"
 import type { Logger } from "@subspace/logger"
+import { Hono } from "hono"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { mock } from "vitest-mock-extended"
 import type { ServerHandle } from "../../lifecycle/create-stopper"
 import type { StopResult } from "../../lifecycle/shutdown"
-import type { ResolvedServerOptions, ServerDependencies } from ".."
+import type { Context, ResolvedServerOptions, ServerDependencies } from ".."
 import {
   type Application,
   type Middleware,
@@ -71,6 +72,12 @@ describe("Server", () => {
       expect(server.isReady()).toBe(false)
     })
 
+    it("initializes as not built", () => {
+      const server = createServer()
+
+      expect(server.isBuilt()).toBe(false)
+    })
+
     it("creates app from options", () => {
       const createApp = vi.fn(() => app)
       options.createApp = createApp
@@ -79,6 +86,100 @@ describe("Server", () => {
 
       expect(server.app).toBe(app)
       expect(createApp).toHaveBeenCalled()
+    })
+  })
+
+  describe("build", () => {
+    it("returns this for chaining", () => {
+      const server = createServer()
+
+      const result = server.build()
+
+      expect(result).toBe(server)
+    })
+
+    it("is idempotent", () => {
+      const server = createServer()
+
+      server.build()
+      server.build()
+
+      expect(collabs.buildApp).toHaveBeenCalledTimes(1)
+    })
+
+    it("marks server as built", () => {
+      const server = createServer()
+
+      expect(server.isBuilt()).toBe(false)
+
+      server.build()
+
+      expect(server.isBuilt()).toBe(true)
+    })
+
+    it("builds app with options", () => {
+      const server = createServer()
+
+      server.build()
+
+      expect(collabs.buildApp).toHaveBeenCalledWith(expect.objectContaining({ options }))
+    })
+
+    it("provides live readiness accessor", () => {
+      const server = createServer()
+
+      server.build()
+
+      const call = vi.mocked(collabs.buildApp).mock.calls[0]![0]
+      expect(typeof call.isReady).toBe("function")
+    })
+
+    it("wires default middleware", () => {
+      const middleware: Middleware[] = [vi.fn() as any]
+      const server = createServer({
+        createDefaultMiddleware: vi.fn(() => middleware),
+      })
+
+      server.build()
+
+      expect(collabs.buildApp).toHaveBeenCalledWith(
+        expect.objectContaining({ defaultMiddleware: middleware }),
+      )
+    })
+
+    it("wires error handler", () => {
+      const errorHandler = vi.fn()
+      const server = createServer({
+        createErrorHandler: vi.fn(() => errorHandler),
+      })
+
+      server.build()
+
+      const call = vi.mocked(collabs.buildApp).mock.calls[0]![0]
+      expect(call.createErrorHandler()).toBe(errorHandler)
+    })
+
+    it("allows app.request() after build without start", async () => {
+      const realApp = new Hono()
+
+      options.createApp = () => realApp
+
+      const server = new Server(deps, options, {
+        ...collabs,
+        buildApp: vi.fn(({ createApp }) => {
+          const builtApp = createApp()
+          builtApp.get("/health", (c: Context) => c.json({ status: "ok" }))
+          return builtApp
+        }),
+      })
+
+      server.build()
+
+      const res = await server.app.request("/health")
+      const body = await res.json()
+
+      expect(res.status).toBe(200)
+      expect(body).toEqual({ status: "ok" })
     })
   })
 
@@ -177,33 +278,22 @@ describe("Server", () => {
     })
   })
 
-  describe("application building", () => {
-    it("passes options to buildApp", async () => {
+  describe("start with pre-built app", () => {
+    it("skips buildApp if already built", async () => {
       const server = createServer()
+
+      server.build()
       await server.start()
 
-      expect(collabs.buildApp).toHaveBeenCalledWith(expect.objectContaining({ options }))
+      expect(collabs.buildApp).toHaveBeenCalledTimes(1)
     })
 
-    it("provides live readiness accessor to buildApp", async () => {
+    it("calls buildApp if not pre-built", async () => {
       const server = createServer()
-      await server.start()
-
-      const call = vi.mocked(collabs.buildApp).mock.calls[0]![0]
-      expect(typeof call.isReady).toBe("function")
-    })
-
-    it("wires default middleware into buildApp", async () => {
-      const middleware: Middleware[] = [vi.fn() as any]
-      const server = createServer({
-        createDefaultMiddleware: vi.fn(() => middleware),
-      })
 
       await server.start()
 
-      expect(collabs.buildApp).toHaveBeenCalledWith(
-        expect.objectContaining({ defaultMiddleware: middleware }),
-      )
+      expect(collabs.buildApp).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -400,6 +490,20 @@ describe("Server", () => {
 
       expect(server.getState()).toBe("idle")
     })
+
+    it("resets built state on startup failure", async () => {
+      const server = createServer({
+        onStartup: vi.fn().mockRejectedValue(new Error("startup failed")),
+      })
+
+      server.build()
+      expect(server.isBuilt()).toBe(true)
+
+      await expect(server.start()).rejects.toThrow("startup failed")
+
+      expect(server.isBuilt()).toBe(true) // built state preserved
+      expect(server.getState()).toBe("idle")
+    })
   })
 
   describe("setupProcessHandlers", () => {
@@ -416,6 +520,8 @@ describe("Server", () => {
 
       server.setupProcessHandlers()
       server.setupProcessHandlers()
+
+      expect(collabs.setupProcessHandlers).toHaveBeenCalledTimes(1)
     })
 
     it("wires stop to running server when available", async () => {
@@ -494,6 +600,41 @@ describe("Server", () => {
       await server.start()
 
       expect(order).toEqual(["startup", "buildApp", "listen", "createStopper"])
+    })
+
+    it("executes startup sequence with pre-built app", async () => {
+      const order: string[] = []
+
+      const server = createServer({
+        onStartup: vi.fn(async () => {
+          order.push("startup")
+          return { ok: true, failures: [], timedOut: false }
+        }),
+        buildApp: vi.fn(() => {
+          order.push("buildApp")
+          return app
+        }),
+        listen: vi.fn(() => {
+          order.push("listen")
+          return { close: vi.fn((cb) => cb?.()) }
+        }),
+        createStopper: vi.fn(() => {
+          order.push("createStopper")
+          return {
+            stop: vi.fn(() =>
+              Promise.resolve({ ok: true, failures: [], timedOut: false }),
+            ),
+            address: { host: "0.0.0.0", port: 3000 },
+          }
+        }),
+      })
+
+      server.build()
+      order.length = 0 // reset after build
+
+      await server.start()
+
+      expect(order).toEqual(["startup", "listen", "createStopper"])
     })
   })
 })

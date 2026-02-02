@@ -1,15 +1,23 @@
+import path from "node:path"
 import { applyOverrides, type DeepPartial } from "@subspace/server"
 import { type AppConfig, loadAppConfig } from "./config"
 import { type CreateStartHooksFn, createStartHooks } from "./lifecycle/start"
 import { type CreateStopHooksFn, createStopHooks } from "./lifecycle/stop"
 import { type RegisterRoutesFn, registerRoutes } from "./routes"
-import { type AppServices, createDefaultServices } from "./services"
-import { createInfraServices, type InfraClients } from "./services/infra"
+import {
+  type AppServices,
+  createDefaultDomainServices,
+  type DomainServices,
+} from "./services"
+import { type CoreServices, createCoreServices } from "./services/core"
+import { createDefaultInfraClients, type InfraClients } from "./services/infra"
 
 export type AppContextOptions = {
   env?: NodeJS.ProcessEnv
   configOverrides?: DeepPartial<AppConfig>
-  serviceOverrides?: DeepPartial<AppServices>
+  infraOverrides?: DeepPartial<InfraClients>
+  coreOverrides?: DeepPartial<CoreServices>
+  domainOverrides?: DeepPartial<DomainServices>
 }
 
 export type AppContext = {
@@ -24,11 +32,25 @@ export type AppContext = {
 export async function createAppContext(
   options: AppContextOptions = {},
 ): Promise<AppContext> {
-  const config = await loadAppConfig(options.env ?? process.env, options.configOverrides)
+  const projectRoot = path.resolve(__dirname, "..", "..")
 
-  const infra = createInfraServices(config)
-  const baseServices = await createDefaultServices(config, infra)
-  const services = applyOverrides(baseServices, options.serviceOverrides)
+  const config = await loadAppConfig(
+    options.env ?? process.env,
+    options.configOverrides,
+    projectRoot,
+  )
+
+  const baseInfra = createDefaultInfraClients(config)
+  const infra = applyOverrides(baseInfra, options.infraOverrides)
+
+  const baseCore = createCoreServices(config)
+  const core = applyOverrides(baseCore, options.coreOverrides)
+
+  const baseDomains = createDefaultDomainServices(config, infra, core)
+  const domains = applyOverrides(baseDomains, options.domainOverrides)
+
+  // !! TODO: Nesting here is questionable, revisit later.
+  const services = { core, domains }
 
   return {
     config,

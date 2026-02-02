@@ -1,7 +1,7 @@
 import { type Application, createRouter } from "@subspace/server"
 import { createUploadsModule } from "../../domains/uploads"
 import type { AppConfig } from "../config"
-import type { AppServices } from "../services"
+import type { DomainServices } from "../services"
 
 export type ApiModule = {
   name: string
@@ -11,7 +11,7 @@ export type ApiModule = {
 export function registerRoutes(
   app: Application,
   config: AppConfig,
-  services: AppServices,
+  services: DomainServices,
 ): void {
   const apiV1Router = createRouter()
 

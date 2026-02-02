@@ -7,9 +7,11 @@ export type InfraClients = {
   redisClient: RedisBytesClient
 }
 
-export function createInfraServices(config: AppConfig): InfraClients {
+export function createDefaultInfraClients(config: AppConfig): InfraClients {
   const s3Client = new S3Client({
     region: config.s3.region,
+    ...(config.s3.endpoint && { forcePathStyle: true }),
+    ...(config.s3.credentials && { credentials: config.s3.credentials }),
     ...(config.s3.endpoint && { endpoint: config.s3.endpoint }),
   })
 

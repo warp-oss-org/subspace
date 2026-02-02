@@ -22,3 +22,9 @@ export class NullLogger<TContext extends LogContext = LogContext>
     return new NullLogger<TContext & U>()
   }
 }
+
+export function createNullLogger<
+  TContext extends LogContext = LogContext,
+>(): Logger<TContext> {
+  return new NullLogger<TContext>()
+}

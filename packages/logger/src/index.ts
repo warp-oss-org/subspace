@@ -1,3 +1,5 @@
+export { ConsoleLogger, createConsoleLogger } from "./adapters/console/console-logger"
+export { createNullLogger, NullLogger } from "./adapters/null/null-logger"
 export { createPinoLogger } from "./adapters/pino/pino-logger"
 export * from "./ports/log-context"
 export * from "./ports/log-level"

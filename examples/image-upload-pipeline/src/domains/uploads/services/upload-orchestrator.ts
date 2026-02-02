@@ -1,5 +1,6 @@
 import { Readable } from "node:stream"
 import type { Clock, Seconds } from "@subspace/clock"
+import type { Logger } from "@subspace/logger"
 import type {
   ImageProcessor,
   ImageVariant,
@@ -23,6 +24,7 @@ import type { UploadObjectStore } from "./upload-object-store"
 
 type UploadOrchestratorDeps = {
   clock: Clock
+  logger: Logger
   metadataStore: UploadMetadataStore
   jobStore: JobStore
   objectStore: UploadObjectStore
@@ -37,6 +39,8 @@ export class UploadOrchestrator {
   async createUpload(
     input: Omit<CreateUploadInput, "id" | "staging">,
   ): Promise<CreateUploadResult> {
+    this.deps.logger.info("Initiating file upload request", { filename: input.filename })
+
     const id = UploadId.generate()
     const now = this.deps.clock.now()
 
@@ -58,6 +62,8 @@ export class UploadOrchestrator {
     }
 
     await this.deps.metadataStore.create(createInput, now)
+
+    this.deps.logger.info("Upload created successfully", { uploadId: id })
 
     return {
       kind: "created",

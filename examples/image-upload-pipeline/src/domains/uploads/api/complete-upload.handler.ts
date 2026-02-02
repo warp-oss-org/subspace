@@ -27,7 +27,11 @@ function toResponse(
 
 export function completeUploadHandler(deps: UploadServices): RequestHandler {
   return async (c: Context) => {
-    const id = UploadId.parse(c.req.param("id"))
+    const idParam = c.req.param("id")
+
+    if (!UploadId.is(idParam)) return c.notFound()
+
+    const id = UploadId.parse(idParam)
     const result = await deps.uploadOrchestrator.completeUpload(id)
 
     return toResponse(c, result)

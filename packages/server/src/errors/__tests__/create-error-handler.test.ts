@@ -1,4 +1,4 @@
-import { BaseError, type ErrorCode } from "@subspace/errors"
+import { type AppError, BaseError, type ErrorCode } from "@subspace/errors"
 import type { Logger } from "@subspace/logger"
 import { mock } from "vitest-mock-extended"
 import { mockContext } from "../../middleware/__tests__/mocks/context-mock"
@@ -442,5 +442,175 @@ describe("createErrorHandler", async () => {
     )
 
     expect(logger.error).not.toHaveBeenCalled()
+  })
+
+  describe("transformContext", () => {
+    it("includes transformed context in response", async () => {
+      const mappings: Record<ErrorCode, ErrorMapping> = {
+        validation_error: { status: 400, message: "Invalid input" },
+      }
+
+      const transformContext = vi.fn((error: AppError) => {
+        if (error.code !== "validation_error") return undefined
+        return { issues: (error.context as Record<string, unknown>).issues }
+      })
+
+      const handler = createErrorHandler(
+        {
+          errorHandling: {
+            kind: "mappings",
+            config: { mappings, transformContext },
+          },
+        } as unknown as ResolvedServerOptions,
+        logger,
+      )
+
+      const c = mockContext({ requestId: "req-123" })
+      const error = new BaseError("Invalid input", {
+        code: "validation_error",
+        context: {
+          issues: [{ path: ["filename"], message: "Required" }],
+        },
+      })
+
+      const result = await handler(error, c)
+
+      expect(transformContext).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: "validation_error",
+          context: {
+            issues: [{ path: ["filename"], message: "Required" }],
+          },
+        }),
+      )
+
+      expect(result.body).toEqual(
+        expect.objectContaining({
+          error: expect.objectContaining({
+            code: "validation_error",
+            status: 400,
+            message: "Invalid input",
+            requestId: "req-123",
+            issues: [{ path: ["filename"], message: "Required" }],
+          }),
+        }),
+      )
+    })
+
+    it("excludes context when transformer returns undefined", async () => {
+      const mappings: Record<ErrorCode, ErrorMapping> = {
+        test_error: { status: 400, message: "Test error" },
+      }
+
+      const transformContext = vi.fn(() => undefined)
+
+      const handler = createErrorHandler(
+        {
+          errorHandling: {
+            kind: "mappings",
+            config: { mappings, transformContext },
+          },
+        } as unknown as ResolvedServerOptions,
+        logger,
+      )
+
+      const c = mockContext({ requestId: "req-123" })
+      const error = new BaseError("Test", {
+        code: "test_error",
+        context: { sensitive: "data" },
+      })
+
+      const result = await handler(error, c)
+
+      expect(result.body).toEqual({
+        error: {
+          code: "test_error",
+          status: 400,
+          message: "Test error",
+          requestId: "req-123",
+        },
+      })
+    })
+
+    it("does not call transformer for non-AppErrors", async () => {
+      const transformContext = vi.fn()
+
+      const handler = createErrorHandler(
+        {
+          errorHandling: {
+            kind: "mappings",
+            config: { mappings: {}, transformContext },
+          },
+        } as unknown as ResolvedServerOptions,
+        logger,
+      )
+
+      const c = mockContext({ requestId: "req-123" })
+      const error = new Error("boom")
+
+      await handler(error, c)
+
+      expect(transformContext).not.toHaveBeenCalled()
+    })
+
+    it("handles transformer that throws", async () => {
+      const mappings: Record<ErrorCode, ErrorMapping> = {
+        test_error: { status: 400, message: "Test" },
+      }
+
+      const transformContext = vi.fn(() => {
+        throw new Error("transformer boom")
+      })
+
+      const handler = createErrorHandler(
+        {
+          errorHandling: {
+            kind: "mappings",
+            config: { mappings, transformContext },
+          },
+        } as unknown as ResolvedServerOptions,
+        logger,
+      )
+
+      const c = mockContext({ requestId: "req-123" })
+      const error = new BaseError("Test", { code: "test_error" })
+
+      const result = await handler(error, c)
+
+      expect(result.status).toBe(400)
+    })
+
+    it("works without transformContext configured", async () => {
+      const mappings: Record<ErrorCode, ErrorMapping> = {
+        test_error: { status: 400, message: "Test" },
+      }
+
+      const handler = createErrorHandler(
+        {
+          errorHandling: {
+            kind: "mappings",
+            config: { mappings },
+          },
+        } as ResolvedServerOptions,
+        logger,
+      )
+
+      const c = mockContext({ requestId: "req-123" })
+      const error = new BaseError("Test", {
+        code: "test_error",
+        context: { foo: "bar" },
+      })
+
+      const result = await handler(error, c)
+
+      expect(result.body).toEqual({
+        error: {
+          code: "test_error",
+          status: 400,
+          message: "Test",
+          requestId: "req-123",
+        },
+      })
+    })
   })
 })

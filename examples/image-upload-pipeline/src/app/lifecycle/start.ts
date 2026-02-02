@@ -10,9 +10,9 @@ export function createStartHooks(context: AppContext): LifecycleHook[] {
       },
     },
     {
-      name: "start:upload:worker",
+      name: "start:upload-worker",
       fn: async () => {
-        await context.services.uploads.worker.start()
+        await context.services.domains.uploads.worker.start()
       },
     },
   ]

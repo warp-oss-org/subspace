@@ -8,12 +8,21 @@ import type {
   StorageObjectMetadata,
 } from "@subspace/storage"
 import { z } from "zod/mini"
+import { parseDataOrThrow } from "../../../lib/validation"
 
-const PREFIX = "upload_"
-const EXPECTED_LENGTH = PREFIX.length + 36
+const PREFIX = "upload"
+const SEPARATOR = "_"
+const EXPECTED_LENGTH = PREFIX.length + SEPARATOR.length + 36
 
 const uploadIdSchema = z.pipe(
-  z.string().check(z.refine((v) => v.startsWith(PREFIX) && v.length === EXPECTED_LENGTH)),
+  z
+    .string()
+    .check(
+      z.refine(
+        (v) => v.startsWith(`${PREFIX}${SEPARATOR}`) && v.length === EXPECTED_LENGTH,
+        { error: "Invalid upload ID format" },
+      ),
+    ),
   z.transform((v) => v as UploadId),
 )
 
@@ -21,7 +30,7 @@ export type UploadId = Brand<string, "UploadId">
 export const UploadId = withGenerator(
   {
     kind: "UploadId",
-    parse: (s: string) => uploadIdSchema.parse(s),
+    parse: (s: string) => parseDataOrThrow(uploadIdSchema, s),
     is: (value: unknown): value is UploadId => uploadIdSchema.safeParse(value).success,
   },
   {
@@ -289,8 +298,9 @@ export type LoadUploadForFinalizationResult =
   | LoadUploadForFinalizationFailed
 
 export type PresignedUpload = {
-  url: URL
+  url: string
   ref: ObjectRef
+  expiresAt: Date
 }
 
 export type StagingObject = StorageObject

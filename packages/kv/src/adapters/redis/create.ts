@@ -27,6 +27,26 @@ export function createRedisClient(options: RedisBytesClientOptions): RedisBytesC
   }) as unknown as RedisBytesClient
 }
 
+function mergeCasAndConditional<T>(
+  cas: KeyValueStoreCas<T>,
+  conditional: KeyValueStoreConditional<T>,
+): KeyValueStoreCas<T> & KeyValueStoreConditional<T> {
+  return {
+    setIfExists: conditional.setIfExists.bind(conditional),
+    setIfNotExists: conditional.setIfNotExists.bind(conditional),
+
+    getVersioned: cas.getVersioned.bind(cas),
+    setIfVersion: cas.setIfVersion.bind(cas),
+    get: cas.get.bind(cas),
+    set: cas.set.bind(cas),
+    delete: cas.delete.bind(cas),
+    has: cas.has.bind(cas),
+    getMany: cas.getMany.bind(cas),
+    setMany: cas.setMany.bind(cas),
+    deleteMany: cas.deleteMany.bind(cas),
+  }
+}
+
 export type RedisKvBundleOptions = {
   client: RedisBytesClient
   opts: RedisKvStoreOptions
@@ -82,9 +102,7 @@ function createRedisKeyValueStores<T>(
     kv,
     conditional,
     cas,
-    // Convenience: a single store that supports both CAS and conditional writes.
-    // Note: both variants share the base KeyValueStore surface; this merge should be safe.
-    casAndConditional: Object.assign(cas, conditional),
+    casAndConditional: mergeCasAndConditional(cas, conditional),
   }
 }
 
