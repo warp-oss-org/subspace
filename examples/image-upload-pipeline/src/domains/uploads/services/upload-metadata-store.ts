@@ -97,7 +97,9 @@ export class UploadMetadataStore {
       updatedAt: at,
       ...(input.filename !== undefined && { filename: input.filename }),
       ...(input.contentType !== undefined && { contentType: input.contentType }),
-      ...(input.expectedSize !== undefined && { expectedSizeBytes: input.expectedSize }),
+      ...(input.expectedSizeBytes !== undefined && {
+        expectedSizeBytes: input.expectedSizeBytes,
+      }),
     }
 
     const write = await this.deps.uploadKv.setIfVersion(
@@ -165,7 +167,7 @@ export class UploadMetadataStore {
       const sameFinalLocation =
         upload.final.bucket === input.final.bucket && upload.final.key === input.final.key
 
-      const sameSize = upload.actualSize === input.actualSizeBytes
+      const sameSize = upload.actualSizeBytes === input.actualSizeBytes
 
       if (sameFinalLocation && sameSize) return ALREADY
 
@@ -183,7 +185,7 @@ export class UploadMetadataStore {
       ...upload,
       status: "finalized",
       final: input.final,
-      actualSize: input.actualSizeBytes,
+      actualSizeBytes: input.actualSizeBytes,
       finalizedAt: at,
       updatedAt: at,
     }

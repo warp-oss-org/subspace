@@ -1,4 +1,5 @@
-import { PassThrough, type Readable } from "node:stream"
+import { PassThrough, Readable, type Readable as ReadableType } from "node:stream"
+import { buffer as streamToBuffer } from "node:stream/consumers"
 import sharp from "sharp"
 import type {
   ImageProcessor,
@@ -21,45 +22,71 @@ export class SharpImageProcessor implements ImageProcessor {
   constructor(private readonly opts: SharpImageProcessorOptions) {}
 
   async process(input: ImageProcessorInput): Promise<{ variants: ImageVariant[] }> {
-    const base = sharp()
+    const bytes = await streamToBuffer(input.data)
 
-    input.data.pipe(base)
+    const isValidImage = await this.isValidImage(bytes)
 
-    const variants: ImageVariant[] = []
+    if (!isValidImage) {
+      return {
+        variants: [
+          {
+            variant: "original",
+            contentType: input.contentType,
+            data: Readable.from(bytes),
+          },
+          { variant: "thumbnail", contentType: "image/jpeg", data: Readable.from(bytes) },
+          { variant: "preview", contentType: "image/jpeg", data: Readable.from(bytes) },
+        ],
+      }
+    }
 
-    variants.push({
-      variant: "original",
-      contentType: input.contentType,
-      data: this.cloneStream(base),
-    })
-
-    variants.push({
-      variant: "thumbnail",
-      contentType: "image/jpeg",
-      data: this.resizeStream(base, this.opts.thumbnail),
-    })
-
-    variants.push({
-      variant: "preview",
-      contentType: "image/jpeg",
-      data: this.resizeStream(base, this.opts.preview),
-    })
-
-    return { variants }
+    return {
+      variants: [
+        {
+          variant: "original",
+          contentType: input.contentType,
+          data: Readable.from(bytes),
+        },
+        {
+          variant: "thumbnail",
+          contentType: "image/jpeg",
+          data: this.resizeBufferToJpegStream(bytes, this.opts.thumbnail),
+        },
+        {
+          variant: "preview",
+          contentType: "image/jpeg",
+          data: this.resizeBufferToJpegStream(bytes, this.opts.preview),
+        },
+      ],
+    }
   }
 
-  private resizeStream(
-    source: sharp.Sharp,
+  private resizeBufferToJpegStream(
+    bytes: Buffer,
     size: { width: number; height: number },
-  ): Readable {
-    return source
-      .clone()
-      .resize(size.width, size.height, { fit: "inside" })
-      .jpeg()
-      .pipe(new PassThrough())
+  ): ReadableType {
+    const out = new PassThrough()
+
+    // Give callers a chance to attach listeners before the transform starts.
+    queueMicrotask(() => {
+      const s = sharp(bytes)
+        .rotate()
+        .resize(size.width, size.height, { fit: "inside" })
+        .jpeg()
+
+      s.on("error", (err) => out.destroy(err))
+      s.pipe(out)
+    })
+
+    return out
   }
 
-  private cloneStream(source: sharp.Sharp): Readable {
-    return source.clone().pipe(new PassThrough())
+  private async isValidImage(bytes: Buffer): Promise<boolean> {
+    try {
+      await sharp(bytes).metadata()
+      return true
+    } catch {
+      return false
+    }
   }
 }

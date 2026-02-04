@@ -78,7 +78,11 @@ export class UploadObjectStore {
       ...(metadata ? [{ metadata }] : []),
     )
 
-    await this.deps.objectStorage.delete(staging)
+    try {
+      await this.deps.objectStorage.delete(staging)
+    } catch {
+      // best-effort cleanup; ignore delete failures
+    }
 
     return { staging, final }
   }

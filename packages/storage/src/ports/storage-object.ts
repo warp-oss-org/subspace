@@ -26,7 +26,7 @@ export interface ObjectRef {
 
 export type Metadata = {
   contentType?: string
-  metadata?: Record<string, string>
+  metadata?: Record<string, string | number | boolean>
   etag?: string
 }
 

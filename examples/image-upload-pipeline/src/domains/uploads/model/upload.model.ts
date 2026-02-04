@@ -85,7 +85,7 @@ export type UploadFinalized = UploadBase & {
   queuedAt: Date
   finalizedAt: Date
   final: StorageLocation
-  actualSize: number
+  actualSizeBytes: Bytes
 }
 
 export type UploadFailed = UploadBase & {
@@ -211,7 +211,7 @@ type UploadTransitionInput = {
 export type MarkQueuedInput = UploadTransitionInput & {
   filename?: string
   contentType?: string
-  expectedSize?: number
+  expectedSizeBytes?: Bytes
 }
 
 export type MarkProcessingInput = UploadTransitionInput & {

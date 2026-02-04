@@ -15,6 +15,11 @@ export type JobStoreOptions = {
   leaseDurationMs: Milliseconds
 }
 
+export type RescheduleParams = {
+  nextRunAt: Date
+  lastError?: string
+}
+
 export class JobStore {
   public constructor(
     private readonly deps: JobStoreDeps,
@@ -75,12 +80,7 @@ export class JobStore {
     await this.removeFromIndex(id)
   }
 
-  async reschedule(
-    id: JobId,
-    nextRunAt: Date,
-    at: Date,
-    lastError?: string,
-  ): Promise<void> {
+  async reschedule(id: JobId, at: Date, params: RescheduleParams): Promise<void> {
     const job = await this.get(id)
 
     if (!job) return
@@ -90,9 +90,9 @@ export class JobStore {
       ...job,
       status: "pending",
       attempt: job.attempt + 1,
-      runAt: nextRunAt,
+      runAt: params.nextRunAt,
       updatedAt: at,
-      ...(lastError && { lastError }),
+      ...(params.lastError && { lastError: params.lastError }),
     })
   }
 
@@ -129,11 +129,15 @@ export class JobStore {
       if (!isEligibleStatus || !leaseExpired) continue
 
       due.push(job)
-
-      if (due.length >= limit) break
     }
 
-    return due
+    due.sort((a, b) => {
+      const runAtDiff = a.runAt.getTime() - b.runAt.getTime()
+      if (runAtDiff !== 0) return runAtDiff
+      return a.id.localeCompare(b.id)
+    })
+
+    return due.slice(0, limit)
   }
 
   /**

@@ -1,4 +1,10 @@
 export {
+  createMemoryKeyValueStore,
+  createMemoryKeyValueStoreCas,
+  createMemoryKeyValueStoreCasAndConditional,
+  createMemoryKeyValueStoreConditional,
+} from "./adapters/memory/create"
+export {
   createRedisClient,
   createRedisKeyValueStore,
   createRedisKeyValueStoreCas,

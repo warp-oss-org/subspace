@@ -187,7 +187,10 @@ export class UploadFinalizationWorker {
 
     try {
       await this.withIoRetry(() =>
-        this.deps.jobStore.reschedule(job.id, nextRunAt, this.now(), reason),
+        this.deps.jobStore.reschedule(job.id, this.now(), {
+          nextRunAt,
+          lastError: reason,
+        }),
       )
     } catch {
       // Best-effort: lease expiration will allow reclaim

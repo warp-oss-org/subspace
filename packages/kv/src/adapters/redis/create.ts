@@ -13,6 +13,7 @@ import type { Codec } from "../../ports/codec"
 import type { KeyValueStoreCas } from "../../ports/kv-cas"
 import type { KeyValueStoreConditional } from "../../ports/kv-conditional"
 import type { KeyValueStore } from "../../ports/kv-store"
+import { mergeCasAndConditional } from "../utils/merge-cas-and-conditional"
 import { RedisBytesKeyValueStoreCas } from "./redis-bytes-kv-cas"
 import { RedisBytesKeyValueStoreConditional } from "./redis-bytes-kv-conditional"
 import type { RedisKvStoreOptions } from "./redis-bytes-kv-store"
@@ -25,26 +26,6 @@ export function createRedisClient(options: RedisBytesClientOptions): RedisBytesC
   return createClient({ ...options, url: options.url }).withTypeMapping({
     [RESP_TYPES.BLOB_STRING]: Buffer,
   }) as unknown as RedisBytesClient
-}
-
-function mergeCasAndConditional<T>(
-  cas: KeyValueStoreCas<T>,
-  conditional: KeyValueStoreConditional<T>,
-): KeyValueStoreCas<T> & KeyValueStoreConditional<T> {
-  return {
-    setIfExists: conditional.setIfExists.bind(conditional),
-    setIfNotExists: conditional.setIfNotExists.bind(conditional),
-
-    getVersioned: cas.getVersioned.bind(cas),
-    setIfVersion: cas.setIfVersion.bind(cas),
-    get: cas.get.bind(cas),
-    set: cas.set.bind(cas),
-    delete: cas.delete.bind(cas),
-    has: cas.has.bind(cas),
-    getMany: cas.getMany.bind(cas),
-    setMany: cas.setMany.bind(cas),
-    deleteMany: cas.deleteMany.bind(cas),
-  }
 }
 
 export type RedisKvBundleOptions = {
