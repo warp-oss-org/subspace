@@ -49,13 +49,10 @@ export async function createAppContext(
   const baseDomains = createDefaultDomainServices(config, infra, core)
   const domains = applyOverrides(baseDomains, options.domainOverrides)
 
-  // !! TODO: Nesting here is questionable, revisit later.
-  const services = { core, domains }
-
   return {
     config,
     infra,
-    services,
+    services: { core, domains },
     registerRoutes,
     createStartHooks,
     createStopHooks,
