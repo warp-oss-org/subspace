@@ -1,12 +1,22 @@
-name: ci
+name: node-ci
 
 on:
   push:
+    paths-ignore:
+      - "tooling/subspace-cli/**"
+      - "**/*.go"
+      - "go.mod"
+      - "go.sum"
   pull_request:
+    paths-ignore:
+      - "tooling/subspace-cli/**"
+      - "**/*.go"
+      - "go.mod"
+      - "go.sum"
 
 jobs:
   test:
-    name: Test (Node ${{ matrix.node }})
+    name: Node CI (Node ${{ matrix.node }})
     runs-on: ubuntu-24.04
     strategy:
       matrix:

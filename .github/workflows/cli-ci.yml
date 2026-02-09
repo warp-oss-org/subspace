@@ -1,0 +1,48 @@
+name: cli-ci
+
+on:
+  push:
+    paths:
+      - "tooling/subspace-cli/**"
+      - "**/*.go"
+      - "go.mod"
+      - "go.sum"
+  pull_request:
+    paths:
+      - "tooling/subspace-cli/**"
+      - "**/*.go"
+      - "go.mod"
+      - "go.sum"
+
+jobs:
+  test:
+    name: Go CLI CI
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: tooling/subspace-cli
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: "1.27"
+          cache: true
+          cache-dependency-path: tooling/subspace-cli/go.sum
+
+      - name: Go fmt check
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "The following files are not gofmt-formatted:"
+            echo "$unformatted"
+            exit 1
+          fi
+
+      - name: Go test
+        run: go test ./...
+
+      - name: Go build
+        run: go build ./...
