@@ -1,4 +1,0 @@
-targetDir: src/infra/subspace
-testsDir: src/infra/subspace-tests
-language: typescript
-packageManager: pnpm
