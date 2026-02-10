@@ -36,7 +36,7 @@ func TestWriteDefaultRoundTrip(t *testing.T) {
 	}
 
 	d := Default()
-	if c.TargetDir != d.TargetDir || c.TestsDir != d.TestsDir ||
+	if c.TargetDir != d.TargetDir ||
 		c.Language != d.Language || c.PackageManager != d.PackageManager {
 		t.Fatalf("round-tripped config doesn't match defaults:\ngot:  %+v\nwant: %+v", c, d)
 	}
@@ -50,7 +50,6 @@ func TestLoadNormalizesFields(t *testing.T) {
 
 	content := []byte(`
 targetDir: "  src/infra/subspace  "
-testsDir: "  src/infra/subspace  "
 language: TypeScript
 packageManager: PNPM
 `)
@@ -105,11 +104,10 @@ func TestValidateRejectsEmptyFields(t *testing.T) {
 		name   string
 		config Config
 	}{
-		{"empty targetDir", Config{TargetDir: "", TestsDir: "x", Language: "typescript", PackageManager: "pnpm"}},
-		{"empty testsDir", Config{TargetDir: "x", TestsDir: "", Language: "typescript", PackageManager: "pnpm"}},
-		{"empty language", Config{TargetDir: "x", TestsDir: "x", Language: "", PackageManager: "pnpm"}},
-		{"empty packageManager", Config{TargetDir: "x", TestsDir: "x", Language: "typescript", PackageManager: ""}},
-		{"whitespace targetDir", Config{TargetDir: "   ", TestsDir: "x", Language: "typescript", PackageManager: "pnpm"}},
+		{"empty targetDir", Config{TargetDir: "", Language: "typescript", PackageManager: "pnpm"}},
+		{"empty language", Config{TargetDir: "x", Language: "", PackageManager: "pnpm"}},
+		{"empty packageManager", Config{TargetDir: "x", Language: "typescript", PackageManager: ""}},
+		{"whitespace targetDir", Config{TargetDir: "   ", Language: "typescript", PackageManager: "pnpm"}},
 	}
 
 	for _, tt := range tests {
@@ -130,8 +128,8 @@ func TestValidateRejectsUnsupportedValues(t *testing.T) {
 		name   string
 		config Config
 	}{
-		{"bad language", Config{TargetDir: "src", TestsDir: "src", Language: "python", PackageManager: "pnpm"}},
-		{"bad pm", Config{TargetDir: "src", TestsDir: "src", Language: "typescript", PackageManager: "cargo"}},
+		{"bad language", Config{TargetDir: "src", Language: "python", PackageManager: "pnpm"}},
+		{"bad pm", Config{TargetDir: "src", Language: "typescript", PackageManager: "cargo"}},
 	}
 
 	for _, tt := range tests {
@@ -151,8 +149,8 @@ func TestValidateRejectsUnsafePaths(t *testing.T) {
 		name   string
 		config Config
 	}{
-		{"absolute targetDir", Config{TargetDir: "/etc/evil", TestsDir: "src", Language: "typescript", PackageManager: "pnpm"}},
-		{"traversal testsDir", Config{TargetDir: "src", TestsDir: "../etc", Language: "typescript", PackageManager: "pnpm"}},
+		{"absolute targetDir", Config{TargetDir: "/etc/evil", Language: "typescript", PackageManager: "pnpm"}},
+		{"traversal targetDir", Config{TargetDir: "../etc", Language: "typescript", PackageManager: "pnpm"}},
 	}
 
 	for _, tt := range tests {

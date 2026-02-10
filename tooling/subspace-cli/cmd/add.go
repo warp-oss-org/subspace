@@ -4,20 +4,24 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/spf13/cobra"
 
 	"github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/config"
+	"github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/deps"
 	"github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/plan"
 	"github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/registry"
 	"github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/render"
 )
 
 var (
-	addAdapter   string
-	addOverwrite bool
-	addDryRun    bool
+	addAdapter      string
+	addOverwrite    bool
+	addDryRun       bool
+	addExcludeTests bool
 )
 
 // NewAddCmd creates the add command. embeddedFS is the pre-stripped registry FS.
@@ -34,6 +38,7 @@ func NewAddCmd(embeddedFS fs.FS) *cobra.Command {
 	cmd.Flags().StringVar(&addAdapter, "adapter", "", "adapter to scaffold (default: manifest default)")
 	cmd.Flags().BoolVar(&addOverwrite, "overwrite", false, "overwrite existing files")
 	cmd.Flags().BoolVar(&addDryRun, "dry-run", false, "print plan without writing files")
+	cmd.Flags().BoolVar(&addExcludeTests, "exclude-tests", false, "exclude common test file and directory names")
 
 	return cmd
 }
@@ -49,58 +54,118 @@ func runAdd(primitive string, embeddedFS fs.FS) error {
 		return err
 	}
 
-	m, err := reg.LoadManifest(primitive)
-	if err != nil {
-		return err
-	}
-
-	tokens := plan.Tokens{
-		TargetDir: cfg.TargetDir,
-		TestsDir:  cfg.TestsDir,
-	}
-
-	p, err := plan.Build(primitive, m, tokens, plan.Options{Adapter: addAdapter}, reg)
-	if err != nil {
-		return err
-	}
-
-	// Dry run: print plan and exit.
-	if addDryRun {
-		printPlan(p, cfg)
-		return nil
-	}
-
-	// Collision check.
-	conflicts, err := plan.PreflightCollisions(p, os.Stat)
-	if err != nil {
-		return err
-	}
-	if len(conflicts) > 0 && !addOverwrite {
-		fmt.Fprintf(os.Stderr, "\nThe following files already exist:\n")
-		for _, c := range conflicts {
-			fmt.Fprintf(os.Stderr, "  • %s\n", c.Path)
-		}
-		return fmt.Errorf("refusing: %d files already exist (re-run with --overwrite)", len(conflicts))
-	}
-
-	// Execute.
-	err = render.Execute(reg, p, render.ExecuteOptions{
-		Overwrite: addOverwrite,
-		TemplateData: render.TemplateData{
-			"targetDir": cfg.TargetDir,
-			"testsDir":  cfg.TestsDir,
-		},
+	primitives, err := deps.ResolveScaffoldOrder(primitive, reg, func(name string) (bool, error) {
+		return primitiveInstalled(cfg.TargetDir, name)
 	})
 	if err != nil {
 		return err
 	}
 
+	plans, err := buildScaffoldPlans(reg, primitives, cfg.TargetDir, primitive, addAdapter)
+	if err != nil {
+		return err
+	}
+
+	depPkgs := collectDeps(plans)
+
+	// Dry run: print plan and exit.
+	if addDryRun {
+		printPlans(plans, depPkgs, cfg)
+		return nil
+	}
+
+	// Collision check.
+	if !addOverwrite {
+		conflicts, err := collectConflicts(plans)
+		if err != nil {
+			return err
+		}
+		if len(conflicts) > 0 {
+			fmt.Fprintf(os.Stderr, "\nThe following files already exist:\n")
+			for _, c := range conflicts {
+				fmt.Fprintf(os.Stderr, "  • %s\n", c.Path)
+			}
+			return fmt.Errorf("refusing: %d files already exist (re-run with --overwrite)", len(conflicts))
+		}
+	}
+
+	// Execute.
+	for _, p := range plans {
+		if err := render.Execute(reg, p, render.ExecuteOptions{
+			Overwrite: addOverwrite,
+			TemplateData: render.TemplateData{
+				"targetDir": cfg.TargetDir,
+			},
+		}); err != nil {
+			return err
+		}
+	}
+
 	// Summary.
-	printSummary(p, cfg)
+	printSummary(plans, depPkgs, cfg)
 	return nil
 }
 
-func printPlan(p plan.Plan, cfg config.Config) {
+func buildScaffoldPlans(
+	reg registry.Registry,
+	primitives []string,
+	targetDir string,
+	rootPrimitive string,
+	rootAdapter string,
+) ([]plan.Plan, error) {
+	tokens := plan.Tokens{TargetDir: targetDir}
+	out := make([]plan.Plan, 0, len(primitives))
+
+	for _, primitive := range primitives {
+		m, err := reg.LoadManifest(primitive)
+		if err != nil {
+			return nil, err
+		}
+
+		opts := plan.Options{}
+		opts.ExtraExcludes = extraExcludesForAdd(addExcludeTests)
+		if primitive == rootPrimitive {
+			opts.Adapter = rootAdapter
+		}
+
+		p, err := plan.Build(primitive, m, tokens, opts, reg)
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, p)
+	}
+
+	return out, nil
+}
+
+func extraExcludesForAdd(excludeTests bool) []string {
+	if !excludeTests {
+		return nil
+	}
+	return []string{
+		"*.test.ts",
+		"*.spec.ts",
+		"*.test.tsx",
+		"*.spec.tsx",
+		"__tests__",
+		"__test__",
+	}
+}
+
+func printPlans(plans []plan.Plan, depPkgs []string, cfg config.Config) {
+	for i, p := range plans {
+		if i > 0 {
+			fmt.Println()
+		}
+		printPlan(p)
+	}
+
+	if len(depPkgs) > 0 {
+		fmt.Printf("Dependencies:\n  %s add %s\n", cfg.PackageManager, strings.Join(depPkgs, " "))
+	}
+}
+
+func printPlan(p plan.Plan) {
 	fmt.Printf("Primitive: %s (adapter: %s)\n\n", p.Primitive, p.Adapter)
 
 	if len(p.Dirs) > 0 {
@@ -122,22 +187,63 @@ func printPlan(p plan.Plan, cfg config.Config) {
 		}
 		fmt.Println()
 	}
-
-	if len(p.Deps) > 0 {
-		fmt.Printf("Dependencies:\n  %s add %s\n\n", cfg.PackageManager, strings.Join(p.Deps, " "))
-	}
 }
 
-func printSummary(p plan.Plan, cfg config.Config) {
-	for _, d := range p.Dirs {
-		fmt.Printf("✓ Created %s/\n", d.Path)
+func printSummary(plans []plan.Plan, depPkgs []string, cfg config.Config) {
+	for _, p := range plans {
+		for _, d := range p.Dirs {
+			fmt.Printf("✓ Created %s/\n", d.Path)
+		}
 	}
 	fmt.Println()
 
-	if len(p.Deps) > 0 {
+	if len(depPkgs) > 0 {
 		fmt.Println("Install dependencies:")
-		fmt.Printf("  %s add %s\n\n", cfg.PackageManager, strings.Join(p.Deps, " "))
+		fmt.Printf("  %s add %s\n\n", cfg.PackageManager, strings.Join(depPkgs, " "))
 	}
 
-	fmt.Printf("Run behavior tests:\n  %s test %s\n", cfg.PackageManager, cfg.TestsDir)
+	fmt.Printf("Run behavior tests:\n  %s", cfg.PackageManager)
+}
+
+func primitiveInstalled(targetDir, primitive string) (bool, error) {
+	path := filepath.Join(targetDir, primitive)
+	info, err := os.Stat(path)
+	if err == nil {
+		if !info.IsDir() {
+			return false, fmt.Errorf("required primitive path exists but is not a directory: %s", path)
+		}
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, fmt.Errorf("stat %q: %w", path, err)
+}
+
+func collectConflicts(plans []plan.Plan) ([]plan.Collision, error) {
+	conflicts := make([]plan.Collision, 0)
+	for _, p := range plans {
+		c, err := plan.PreflightCollisions(p, os.Stat)
+		if err != nil {
+			return nil, err
+		}
+		conflicts = append(conflicts, c...)
+	}
+	return conflicts, nil
+}
+
+func collectDeps(plans []plan.Plan) []string {
+	seen := map[string]struct{}{}
+	out := make([]string, 0)
+	for _, p := range plans {
+		for _, d := range p.Deps {
+			if _, ok := seen[d]; ok {
+				continue
+			}
+			seen[d] = struct{}{}
+			out = append(out, d)
+		}
+	}
+	sort.Strings(out)
+	return out
 }

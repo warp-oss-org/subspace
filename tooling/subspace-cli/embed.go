@@ -2,7 +2,7 @@ package main
 
 import "embed"
 
-// registry/ is relative to this file — lives at tooling/subspace-cli/registry/
+// packages/ is relative to this file.
 //
-//go:embed registry/**
+//go:embed packages/**
 var embeddedRegistry embed.FS

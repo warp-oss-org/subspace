@@ -19,8 +19,10 @@ type Manifest struct {
 	Description    string                     `yaml:"description"`
 	Language       string                     `yaml:"language"`
 	DefaultAdapter string                     `yaml:"defaultAdapter"`
+	Exclude        []string                   `yaml:"exclude"`
 	Copy           []CopyOp                   `yaml:"copy"`
 	Tests          *TestsSection              `yaml:"tests"`
+	Requires       []string                   `yaml:"requires"`
 	Deps           []string                   `yaml:"deps"`
 	Adapters       map[string]AdapterManifest `yaml:"adapters"`
 }
@@ -72,6 +74,8 @@ func (m *Manifest) Normalize() {
 	m.Description = strings.TrimSpace(m.Description)
 	m.Language = strings.ToLower(strings.TrimSpace(m.Language))
 	m.DefaultAdapter = strings.TrimSpace(m.DefaultAdapter)
+	m.Exclude = normalizeExcludePatterns(m.Exclude)
+	m.Requires = normalizeDeps(m.Requires)
 	m.Deps = normalizeDeps(m.Deps)
 
 	for k, a := range m.Adapters {
@@ -104,6 +108,16 @@ func (m Manifest) ValidateStructural() error {
 
 	if len(m.Copy) == 0 {
 		return errors.New("copy must have at least one entry")
+	}
+	for i, p := range m.Exclude {
+		if strings.TrimSpace(p) == "" {
+			return fmt.Errorf("exclude[%d] must not be empty", i)
+		}
+	}
+	for i, req := range m.Requires {
+		if !primitiveNameRe.MatchString(req) {
+			return fmt.Errorf("requires[%d]: invalid primitive name %q", i, req)
+		}
 	}
 	for i, op := range m.Copy {
 		if err := validateFromPath(op.From); err != nil {
@@ -196,6 +210,21 @@ func normalizeDeps(in []string) []string {
 		out = append(out, d)
 	}
 
+	sort.Strings(out)
+	return out
+}
+
+func normalizeExcludePatterns(in []string) []string {
+	seen := map[string]struct{}{}
+	out := make([]string, 0, len(in))
+	for _, p := range in {
+		p = strings.TrimSpace(p)
+		if _, ok := seen[p]; ok {
+			continue
+		}
+		seen[p] = struct{}{}
+		out = append(out, p)
+	}
 	sort.Strings(out)
 	return out
 }

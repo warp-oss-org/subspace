@@ -78,6 +78,64 @@ adapters:
 	}
 }
 
+func TestParseManifestYAML_ParsesRequires(t *testing.T) {
+	t.Parallel()
+
+	m, err := ParseManifestYAML([]byte(`
+name: cache
+description: Cache primitive
+language: typescript
+defaultAdapter: memory
+requires:
+  - clock
+copy:
+  - from: base
+    to: "{{targetDir}}/cache"
+adapters:
+  memory:
+    description: In-memory
+    copy:
+      - from: adapters/memory
+        to: "{{targetDir}}/cache/adapters/memory"
+`))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(m.Requires) != 1 || m.Requires[0] != "clock" {
+		t.Fatalf("expected requires [clock], got %v", m.Requires)
+	}
+}
+
+func TestParseManifestYAML_ParsesExclude(t *testing.T) {
+	t.Parallel()
+
+	m, err := ParseManifestYAML([]byte(`
+name: kv
+description: test
+language: typescript
+defaultAdapter: memory
+exclude:
+  - "*.test.ts"
+  - "__tests__"
+copy:
+  - from: base
+    to: "{{targetDir}}/kv"
+adapters:
+  memory:
+    description: mem
+    copy:
+      - from: adapters/memory
+        to: x
+`))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(m.Exclude) != 2 {
+		t.Fatalf("expected 2 exclude patterns, got %d", len(m.Exclude))
+	}
+}
+
 // --- Normalization ---
 
 func TestParseManifestYAML_NormalizesFields(t *testing.T) {
@@ -341,6 +399,56 @@ adapters:
 `))
 	if err == nil {
 		t.Fatal("expected error, got nil")
+	}
+}
+
+func TestParseManifestYAML_RejectsInvalidRequiresName(t *testing.T) {
+	t.Parallel()
+
+	_, err := ParseManifestYAML([]byte(`
+name: cache
+description: test
+language: typescript
+defaultAdapter: memory
+requires:
+  - "../clock"
+copy:
+  - from: base
+    to: dest
+adapters:
+  memory:
+    description: mem
+    copy:
+      - from: adapters/memory
+        to: x
+`))
+	if err == nil {
+		t.Fatal("expected error for invalid requires primitive name, got nil")
+	}
+}
+
+func TestParseManifestYAML_RejectsEmptyExcludePattern(t *testing.T) {
+	t.Parallel()
+
+	_, err := ParseManifestYAML([]byte(`
+name: kv
+description: test
+language: typescript
+defaultAdapter: memory
+exclude:
+  - ""
+copy:
+  - from: base
+    to: dest
+adapters:
+  memory:
+    description: mem
+    copy:
+      - from: adapters/memory
+        to: x
+`))
+	if err == nil {
+		t.Fatal("expected validation error for empty exclude pattern, got nil")
 	}
 }
 

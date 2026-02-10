@@ -3,6 +3,7 @@ package registry
 import (
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 	"testing/fstest"
 )
@@ -342,5 +343,66 @@ func TestValidatePrimitiveName(t *testing.T) {
 				t.Fatalf("unexpected error: %v", err)
 			}
 		})
+	}
+}
+
+func TestListPrimitiveFiles_ExcludeBehavior(t *testing.T) {
+	t.Parallel()
+
+	mapFS := fstest.MapFS{
+		"kv":                                   {Mode: os.ModeDir},
+		"kv/manifest.yaml":                     {Data: []byte(validManifestYAML)},
+		"kv/src":                               {Mode: os.ModeDir},
+		"kv/src/index.ts":                      {Data: []byte("export {}")},
+		"kv/src/service.test.ts":               {Data: []byte("test")},
+		"kv/src/nested":                        {Mode: os.ModeDir},
+		"kv/src/nested/thing.ts":               {Data: []byte("ok")},
+		"kv/src/nested/__tests__":              {Mode: os.ModeDir},
+		"kv/src/nested/__tests__/deep.test.ts": {Data: []byte("test")},
+		"kv/src/adapters":                      {Mode: os.ModeDir},
+		"kv/src/adapters/redis.ts":             {Data: []byte("ok")},
+		"kv/src/adapters/__tests__":            {Mode: os.ModeDir},
+		"kv/src/adapters/__tests__/adapter.contract.ts":  {Data: []byte("test")},
+		"kv/src/adapters/__test__":                       {Mode: os.ModeDir},
+		"kv/src/adapters/__test__/adapter.behavior.test": {Data: []byte("test")},
+	}
+
+	r := &fsRegistry{src: "test", fs: mapFS}
+	files, err := r.ListPrimitiveFiles("kv", "src", []string{"*.test.ts", "__tests__", "__test__"})
+	if err != nil {
+		t.Fatalf("ListPrimitiveFiles: %v", err)
+	}
+
+	want := []string{
+		"adapters/redis.ts",
+		"index.ts",
+		"nested/thing.ts",
+	}
+	if !reflect.DeepEqual(files, want) {
+		t.Fatalf("unexpected filtered files:\ngot:  %v\nwant: %v", files, want)
+	}
+}
+
+func TestListPrimitiveFiles_DeterministicSorting(t *testing.T) {
+	t.Parallel()
+
+	mapFS := fstest.MapFS{
+		"kv":               {Mode: os.ModeDir},
+		"kv/manifest.yaml": {Data: []byte(validManifestYAML)},
+		"kv/src":           {Mode: os.ModeDir},
+		"kv/src/z.ts":      {Data: []byte("z")},
+		"kv/src/a.ts":      {Data: []byte("a")},
+		"kv/src/m.ts":      {Data: []byte("m")},
+	}
+	r := &fsRegistry{src: "test", fs: mapFS}
+
+	files, err := r.ListPrimitiveFiles("kv", "src", nil)
+	if err != nil {
+		t.Fatalf("ListPrimitiveFiles: %v", err)
+	}
+
+	want := []string{"a.ts", "m.ts", "z.ts"}
+	if !reflect.DeepEqual(files, want) {
+		t.Fatalf("unexpected sort order: got %v want %v", files, want)
 	}
 }

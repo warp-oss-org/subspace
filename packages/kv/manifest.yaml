@@ -1,0 +1,29 @@
+name: kv
+description: Key-value storage
+language: typescript
+defaultAdapter: memory
+
+exclude:
+  - "*.spec.ts"
+  - "*.test.ts"
+  - "__tests__"
+  - "__test__"
+
+copy:
+  - from: src
+    to: "{{targetDir}}/kv"
+
+adapters:
+  memory:
+    description: In-memory
+    copy:
+      - from: src/adapters/memory
+        to: "{{targetDir}}/kv/adapters/memory"
+  redis:
+    description: Redis
+    copy:
+      - from: src/adapters/redis
+        to: "{{targetDir}}/kv/adapters/redis"
+
+deps:
+  - zod

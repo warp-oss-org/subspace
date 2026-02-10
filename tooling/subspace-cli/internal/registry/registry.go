@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	"path"
 	"sort"
 	"strings"
 )
@@ -27,7 +28,7 @@ type Registry interface {
 	// `fromDir` is a directory path relative to the primitive root (e.g. "base", "adapters/redis").
 	// The returned paths are relative to `fromDir` (e.g. "port.ts", "nested/file.ts").
 	// Results are sorted and contain files only (no directories).
-	ListPrimitiveFiles(primitive, fromDir string) ([]string, error)
+	ListPrimitiveFiles(primitive, fromDir string, excludes []string) ([]string, error)
 }
 
 // Open returns a Registry. If SUBSPACE_REGISTRY_DIR is set, uses local filesystem.
@@ -36,7 +37,16 @@ func Open(embedded fs.FS) (Registry, error) {
 	if dir := os.Getenv("SUBSPACE_REGISTRY_DIR"); dir != "" {
 		return openLocal(dir)
 	}
-	return &fsRegistry{src: "embedded", fs: embedded}, nil
+
+	rootFS, root, err := resolveRegistryRoot(embedded)
+	if err != nil {
+		return nil, err
+	}
+	src := "embedded"
+	if root != "." {
+		src = "embedded:" + root
+	}
+	return &fsRegistry{src: src, fs: rootFS}, nil
 }
 
 // fsRegistry implements Registry over any fs.FS.
@@ -106,7 +116,7 @@ func (r *fsRegistry) ReadPrimitiveFile(primitive, relPath string) ([]byte, error
 	return b, nil
 }
 
-func (r *fsRegistry) ListPrimitiveFiles(primitive, fromDir string) ([]string, error) {
+func (r *fsRegistry) ListPrimitiveFiles(primitive, fromDir string, excludes []string) ([]string, error) {
 	if err := validatePrimitiveName(primitive); err != nil {
 		return nil, err
 	}
@@ -122,6 +132,15 @@ func (r *fsRegistry) ListPrimitiveFiles(primitive, fromDir string) ([]string, er
 			return err
 		}
 		if d.IsDir() {
+			if p == root {
+				return nil
+			}
+			if shouldExcludeName(d.Name(), excludes) {
+				return fs.SkipDir
+			}
+			return nil
+		}
+		if shouldExcludeName(d.Name(), excludes) {
 			return nil
 		}
 
@@ -144,4 +163,27 @@ func (r *fsRegistry) ListPrimitiveFiles(primitive, fromDir string) ([]string, er
 
 	sort.Strings(out)
 	return out, nil
+}
+
+func shouldExcludeName(name string, patterns []string) bool {
+	for _, p := range patterns {
+		if hasGlobMeta(p) {
+			match, err := path.Match(p, name)
+			if err != nil {
+				continue
+			}
+			if match {
+				return true
+			}
+			continue
+		}
+		if name == p {
+			return true
+		}
+	}
+	return false
+}
+
+func hasGlobMeta(s string) bool {
+	return strings.ContainsAny(s, "*?[")
 }

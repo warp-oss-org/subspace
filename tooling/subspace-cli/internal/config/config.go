@@ -15,7 +15,6 @@ const DefaultConfigFilename = "subspace.config.yaml"
 
 type Config struct {
 	TargetDir      string `yaml:"targetDir"`
-	TestsDir       string `yaml:"testsDir"`
 	Language       string `yaml:"language"`
 	PackageManager string `yaml:"packageManager"`
 }
@@ -23,7 +22,6 @@ type Config struct {
 func Default() Config {
 	return Config{
 		TargetDir:      "src/infra/subspace",
-		TestsDir:       "src/infra/subspace-tests",
 		Language:       "typescript",
 		PackageManager: "pnpm",
 	}
@@ -33,7 +31,6 @@ func Default() Config {
 // Must be called before Validate.
 func (c *Config) Normalize() {
 	c.TargetDir = strings.TrimSpace(c.TargetDir)
-	c.TestsDir = strings.TrimSpace(c.TestsDir)
 	c.Language = strings.ToLower(strings.TrimSpace(c.Language))
 	c.PackageManager = strings.ToLower(strings.TrimSpace(c.PackageManager))
 }
@@ -44,9 +41,6 @@ func (c Config) Validate() error {
 	if c.TargetDir == "" {
 		return errors.New("targetDir is required")
 	}
-	if c.TestsDir == "" {
-		return errors.New("testsDir is required")
-	}
 	if c.Language == "" {
 		return errors.New("language is required")
 	}
@@ -56,9 +50,6 @@ func (c Config) Validate() error {
 
 	if _, err := fsx.ValidateRelativePath(c.TargetDir); err != nil {
 		return fmt.Errorf("targetDir: %w", err)
-	}
-	if _, err := fsx.ValidateRelativePath(c.TestsDir); err != nil {
-		return fmt.Errorf("testsDir: %w", err)
 	}
 
 	switch c.Language {

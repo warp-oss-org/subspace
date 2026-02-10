@@ -14,12 +14,13 @@ import (
 // Satisfied by registry.Registry — kept minimal so the planner doesn't
 // depend on manifest loading or other registry concerns.
 type FileEnumerator interface {
-	ListPrimitiveFiles(primitive, dir string) ([]string, error)
+	ListPrimitiveFiles(primitive, dir string, excludes []string) ([]string, error)
 }
 
 // Options controls how a plan is built.
 type Options struct {
-	Adapter string // if empty, uses manifest's defaultAdapter
+	Adapter       string   // if empty, uses manifest's defaultAdapter
+	ExtraExcludes []string // merged with manifest excludes
 }
 
 // Build turns a manifest + tokens + options into a deterministic Plan.
@@ -50,20 +51,21 @@ func Build(
 		Primitive: primitive,
 		Adapter:   adapter,
 	}
+	excludes := mergeExcludes(m.Exclude, opts.ExtraExcludes)
 
 	// Base copy
-	if err := expandCopies(&p, primitive, m.Copy, tokens, files); err != nil {
+	if err := expandCopies(&p, primitive, m.Copy, excludes, tokens, files); err != nil {
 		return Plan{}, fmt.Errorf("expand base copy: %w", err)
 	}
 
 	// Adapter copy
-	if err := expandCopies(&p, primitive, am.Copy, tokens, files); err != nil {
+	if err := expandCopies(&p, primitive, am.Copy, excludes, tokens, files); err != nil {
 		return Plan{}, fmt.Errorf("expand adapter %q copy: %w", adapter, err)
 	}
 
 	// Tests
 	if m.Tests != nil {
-		if err := expandCopies(&p, primitive, m.Tests.Copy, tokens, files); err != nil {
+		if err := expandCopies(&p, primitive, m.Tests.Copy, excludes, tokens, files); err != nil {
 			return Plan{}, fmt.Errorf("expand tests copy: %w", err)
 		}
 	}
@@ -81,6 +83,7 @@ func expandCopies(
 	p *Plan,
 	primitive string,
 	ops []registry.CopyOp,
+	excludes []string,
 	tokens Tokens,
 	files FileEnumerator,
 ) error {
@@ -95,7 +98,7 @@ func expandCopies(
 			return fmt.Errorf("invalid resolved destination %q: %w", dst, err)
 		}
 
-		srcFiles, err := files.ListPrimitiveFiles(primitive, op.From)
+		srcFiles, err := files.ListPrimitiveFiles(primitive, op.From, excludes)
 		if err != nil {
 			return fmt.Errorf("list files %q in %q: %w", op.From, primitive, err)
 		}
@@ -128,7 +131,6 @@ func expandCopies(
 func resolveTokens(tpl string, t Tokens) (string, error) {
 	s := tpl
 	s = strings.ReplaceAll(s, "{{targetDir}}", t.TargetDir)
-	s = strings.ReplaceAll(s, "{{testsDir}}", t.TestsDir)
 
 	if strings.Contains(s, "{{") {
 		return "", fmt.Errorf("unresolved token in %q", s)
@@ -166,6 +168,29 @@ func mergeDeps(a, b []string) []string {
 			seen[d] = struct{}{}
 			out = append(out, d)
 		}
+	}
+
+	sort.Strings(out)
+	return out
+}
+
+func mergeExcludes(a, b []string) []string {
+	seen := map[string]struct{}{}
+	out := make([]string, 0, len(a)+len(b))
+
+	for _, e := range a {
+		if _, ok := seen[e]; ok {
+			continue
+		}
+		seen[e] = struct{}{}
+		out = append(out, e)
+	}
+	for _, e := range b {
+		if _, ok := seen[e]; ok {
+			continue
+		}
+		seen[e] = struct{}{}
+		out = append(out, e)
 	}
 
 	sort.Strings(out)

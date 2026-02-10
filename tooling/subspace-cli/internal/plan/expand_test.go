@@ -10,10 +10,15 @@ import (
 type stubEnumerator struct {
 	// files maps "primitive/dir" → list of relative file paths
 	files map[string][]string
+	seen  map[string][]string
 }
 
-func (s *stubEnumerator) ListPrimitiveFiles(primitive, dir string) ([]string, error) {
+func (s *stubEnumerator) ListPrimitiveFiles(primitive, dir string, excludes []string) ([]string, error) {
 	key := primitive + "/" + dir
+	if s.seen == nil {
+		s.seen = map[string][]string{}
+	}
+	s.seen[key] = append([]string(nil), excludes...)
 	if files, ok := s.files[key]; ok {
 		return files, nil
 	}
@@ -44,14 +49,14 @@ func baseManifest() registry.Manifest {
 				Deps: []string{"ioredis"},
 			},
 		},
-		Deps: []string{"zod"},
+		Deps:    []string{"zod"},
+		Exclude: []string{"__tests__"},
 	}
 }
 
 func baseTokens() Tokens {
 	return Tokens{
 		TargetDir: "src/infra/subspace",
-		TestsDir:  "src/infra/subspace-tests",
 	}
 }
 
@@ -183,7 +188,7 @@ func TestBuild_IncludesTests(t *testing.T) {
 	m := baseManifest()
 	m.Tests = &registry.TestsSection{
 		Copy: []registry.CopyOp{
-			{From: "tests", To: "{{testsDir}}/kv"},
+			{From: "tests", To: "{{targetDir}}/kv/__tests__"},
 		},
 	}
 
@@ -200,7 +205,7 @@ func TestBuild_IncludesTests(t *testing.T) {
 
 	found := false
 	for _, f := range p.Files {
-		if f.DestPath == "src/infra/subspace-tests/kv/kv.behavior.test.ts" {
+		if f.DestPath == "src/infra/subspace/kv/__tests__/kv.behavior.test.ts" {
 			found = true
 			break
 		}
@@ -308,6 +313,33 @@ func TestBuild_NoDeps(t *testing.T) {
 	}
 }
 
+func TestBuild_PassesMergedExcludesToEnumerator(t *testing.T) {
+	t.Parallel()
+
+	m := baseManifest()
+	m.Exclude = []string{"__tests__", "*.spec.ts"}
+
+	enum := &stubEnumerator{files: map[string][]string{
+		"kv/base":            {"port.ts"},
+		"kv/adapters/memory": {"adapter.ts"},
+	}}
+
+	_, err := Build("kv", m, baseTokens(), Options{
+		ExtraExcludes: []string{"*.test.ts", "__tests__"},
+	}, enum)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	gotBase := enum.seen["kv/base"]
+	if len(gotBase) != 3 {
+		t.Fatalf("expected 3 merged excludes, got %v", gotBase)
+	}
+	if gotBase[0] != "*.spec.ts" || gotBase[1] != "*.test.ts" || gotBase[2] != "__tests__" {
+		t.Fatalf("unexpected exclude merge order/content: %v", gotBase)
+	}
+}
+
 // --- Dirs ---
 
 func TestBuild_DeduplicatesDirs(t *testing.T) {
@@ -371,7 +403,6 @@ func TestBuild_RejectsTraversalInResolvedPath(t *testing.T) {
 
 	tokens := Tokens{
 		TargetDir: "../../etc",
-		TestsDir:  "tests",
 	}
 
 	enum := &stubEnumerator{files: map[string][]string{
