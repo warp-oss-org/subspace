@@ -19,6 +19,6 @@ When adding or changing a package:
 
 ## Docs expectations
 
-- Update `docs/packages.md` and `docs/examples.md` indexes when adding entries
+- Update [docs/packages.md](./packages.md) and [docs/examples.md](./examples.md) indexes when adding entries
 - Keep package and example README quickstarts runnable
-- Put shared concepts in `docs/` instead of duplicating them across READMEs
+- Put shared concepts in [docs/](./) instead of duplicating them across READMEs

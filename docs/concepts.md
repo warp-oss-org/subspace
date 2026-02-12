@@ -27,6 +27,6 @@ Examples are integration references. They should show:
 
 ## Documentation boundaries
 
-- Global docs (`docs/`): cross-cutting guidance and indexes
-- Package docs (`packages/*/README.md`): package-specific contracts and usage
-- Example docs (`examples/*/README.md`): runnable end-to-end walkthroughs
+- Global docs ([docs/](./)): cross-cutting guidance and indexes
+- Package docs ([packages/*/README.md](../packages/)): package-specific contracts and usage
+- Example docs ([examples/*/README.md](../examples/)): runnable end-to-end walkthroughs

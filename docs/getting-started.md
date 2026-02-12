@@ -23,7 +23,7 @@ pnpm test
 
 ## Explore packages
 
-- Package index: `docs/packages.md`
-- Example index: `docs/examples.md`
-- Core concepts: `docs/concepts.md`
-- CLI notes: `docs/cli.md`
+- Package index: [docs/packages.md](./packages.md)
+- Example index: [docs/examples.md](./examples.md)
+- Core concepts: [docs/concepts.md](./concepts.md)
+- CLI notes: [docs/cli.md](./cli.md)
