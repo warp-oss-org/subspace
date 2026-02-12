@@ -30,31 +30,26 @@ Each package is independent. Use one, use several, or use none together.
 ## Quick Example
 
 ```ts
-import {
-  createRedisClient,
-  createRedisKeyValueStoreCasAndConditional,
-  type Codec,
-} from "@subspace/kv"
+import { createRetryExecutor } from "@subspace/retry"
+import { createBackoff, exponential } from "@subspace/backoff"
+import { SystemClock } from "@subspace/clock"
 
-type Job = { status: "pending" | "running" | "done" }
-
-const codec: Codec<Job> = {
-  encode: (value) => new TextEncoder().encode(JSON.stringify(value)),
-  decode: (bytes) => JSON.parse(new TextDecoder().decode(bytes)),
-}
-
-const redis = createRedisClient({ url: process.env.REDIS_URL! })
-const store = createRedisKeyValueStoreCasAndConditional<Job>({
-  client: redis,
-  codec,
-  opts: { keyspacePrefix: "jobs", batchSize: 500 },
+const retry = createRetryExecutor({ clock: new SystemClock() })
+const delay = createBackoff({
+  delay: exponential({ base: { milliseconds: 100 }, factor: 2 }),
+  min: { milliseconds: 100 },
+  max: { milliseconds: 2_000 },
 })
 
-const current = await store.getVersioned("job:123")
-if (current.kind === "found" && current.value.status === "pending") {
-  await store.setIfVersion("job:123", { ...current.value, status: "running" }, current.version)
+async function getUserWithRetry(id: string) {
+  return retry.execute(
+    () => fetch(`https://api.example.com/users/${id}`).then((r) => r.json()),
+    { maxAttempts: 3, delay },
+  )
 }
 ```
+
+For a production-style composition example (KV + storage + worker + server), see [image-upload-pipeline](examples/image-upload-pipeline/README.md).
 
 ## Examples
 
