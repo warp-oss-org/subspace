@@ -1,6 +1,6 @@
 # @subspace/server
 
-> [!WARNING]
+> [!CAUTION]
 > `@subspace/server` is primarily an internal package. It is intentionally opinionated around our service conventions and is not intended to be a universal server framework for every team.
 
 HTTP server composition utilities with lifecycle hooks, middleware wiring, and error mapping.
