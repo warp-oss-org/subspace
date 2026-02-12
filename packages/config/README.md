@@ -1,12 +1,20 @@
 # @subspace/config
 
-Composable configuration loading with typed schema validation and layered sources.
+Composable config loading with typed schema validation and layered sources.
 
-## Core API
+## Core Interfaces
 
-- `loadConfig(...)`: load and validate config from ordered sources.
-- Source adapters: `DotenvSource`, `EnvSource`, `JsonSource`.
-- Ports: `ConfigSource`, `IConfig`.
+Use the port definitions as the source of truth:
+- [source.ts](./src/ports/source.ts)
+- [config.ts](./src/ports/config.ts)
+
+## When To Use Each
+
+`loadConfig`
+- Load and validate config from ordered sources.
+
+`DotenvSource` / `EnvSource` / `JsonSource` / `object`
+- Choose configuration inputs based on environment and test needs.
 
 ## Usage
 

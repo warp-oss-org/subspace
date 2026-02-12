@@ -1,6 +1,6 @@
 # @subspace/email
 
-Email transport abstractions plus provider adapters (Postmark, SendGrid, SES, SMTP).
+Email transport abstractions with Postmark, SendGrid, SES, and SMTP adapters.
 
 ## Core Interfaces
 
@@ -9,16 +9,27 @@ Use the port definitions as the source of truth:
 - [message.ts](./src/ports/message.ts)
 - [transport.ts](./src/ports/transport.ts)
 
+## When To Use Each
+
+`EmailTransport`
+- Standardize outbound email delivery across providers.
+
+Provider adapters
+- Choose based on provider and deployment constraints.
+
+## Usage
+
+```ts
+// Use EmailTransport implementations from src/adapters/*.
+// See adapter files for provider-specific construction.
+```
+
 ## Adapters
 
-- [postmark](./src/adapters/postmark/postmark-transport.ts)
-- [sendgrid](./src/adapters/sendgrid/sendgrid-transport.ts)
-- [ses](./src/adapters/ses/ses-transport.ts)
-- [smtp](./src/adapters/smtp/smtp-transport.ts)
-
-## Notes
-
-Public root exports are still being finalized. Current implementation and tests live under `src/ports` and `src/adapters`.
+- [postmark-transport.ts](./src/adapters/postmark/postmark-transport.ts)
+- [sendgrid-transport.ts](./src/adapters/sendgrid/sendgrid-transport.ts)
+- [ses-transport.ts](./src/adapters/ses/ses-transport.ts)
+- [smtp-transport.ts](./src/adapters/smtp/smtp-transport.ts)
 
 ## Testing
 

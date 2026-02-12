@@ -13,15 +13,29 @@ Use the port definitions as the source of truth:
 Helper utilities:
 - [with-lock.ts](./src/core/with-lock.ts)
 
+## When To Use Each
+
+`lock.acquire`
+- Block/wait until lock is acquired.
+
+`lock.tryAcquire`
+- Fast-fail lock attempt when contention is expected.
+
+`withLock` / `tryWithLock`
+- Wrap critical sections with automatic release.
+
+## Usage
+
+```ts
+// Use Lock implementations from src/adapters/* and
+// execute critical sections via withLock/tryWithLock.
+```
+
 ## Adapters
 
 - [memory](./src/adapters/memory): in-process lock implementation.
 - [postgres](./src/adapters/postgres): advisory lock implementation.
 - [redis](./src/adapters/redis): Redis-backed lock implementation.
-
-## Notes
-
-Public root exports are still being finalized. Current implementation and tests live under `src/ports`, `src/core`, and `src/adapters`.
 
 ## Testing
 

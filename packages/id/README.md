@@ -1,12 +1,22 @@
 # @subspace/id
 
-ID generation primitives with branding and codec helpers for type-safe identifiers.
+ID generation utilities with branding and codec helpers.
 
-## Core API
+## Core Interfaces
 
-- Generators: `nanoid`, `uuidV4`, `uuidV7`, `prefixed(...)`.
-- Branding utilities: `Brand`, `IdType`.
-- Codec wrapper: `withGenerator(...)`.
+Use the port definitions as the source of truth:
+- [id-generator.ts](./src/ports/id-generator.ts)
+
+## When To Use Each
+
+`nanoid` / `uuidV4` / `uuidV7`
+- Base ID generators.
+
+`prefixed`
+- Add semantic prefixes to generated IDs.
+
+`withGenerator`
+- Build strongly typed ID wrappers for domain models.
 
 ## Usage
 
@@ -27,9 +37,9 @@ const UploadId = withGenerator(
 
 ## Adapters
 
-- [nanoid](./src/adapters/nanoid.ts)
-- [uuid](./src/adapters/uuid.ts)
-- [prefixed](./src/adapters/prefixed.ts)
+- [nanoid.ts](./src/adapters/nanoid.ts)
+- [uuid.ts](./src/adapters/uuid.ts)
+- [prefixed.ts](./src/adapters/prefixed.ts)
 
 ## Testing
 

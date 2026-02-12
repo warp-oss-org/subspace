@@ -1,13 +1,22 @@
 # @subspace/errors
 
-Shared application error model and helpers for consistent error creation, wrapping, and inspection.
+Shared application error model for creation, normalization, and inspection.
 
-## Core API
+## Core Interfaces
 
-- `createError(...)`: construct typed app errors.
-- `errorChain(...)`: walk nested causes.
-- `isAppError(...)`: runtime guard for app error shape.
-- `toAppError(...)`: normalize unknown errors.
+Use the port definitions as the source of truth:
+- [error.ts](./src/ports/error.ts)
+
+## When To Use Each
+
+`createError`
+- Define typed domain error constructors.
+
+`toAppError` / `isAppError`
+- Normalize and guard unknown errors at boundaries.
+
+`errorChain`
+- Inspect nested causes for logging and mapping.
 
 ## Usage
 

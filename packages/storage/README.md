@@ -1,13 +1,25 @@
 # @subspace/storage
 
-Object storage abstraction with local and cloud adapters.
+Object storage abstraction for memory, filesystem, S3, and GCS backends.
 
-## Core API
+## Core Interfaces
 
-- Factory functions: `createMemoryStorage`, `createFsStorage`, `createS3Storage`, `createGcsStorage`.
-- Shared interface: `StoragePort`.
-- Shared value types: `ObjectRef`, `StorageObject`, `PutOptions`, `ListOptions`, etc.
-- Utility export: `ensureS3BucketExists` (test/local bootstrap helper).
+Use the port definitions as the source of truth:
+- [storage.ts](./src/ports/storage.ts)
+- [storage-object.ts](./src/ports/storage-object.ts)
+- [storage-options.ts](./src/ports/storage-options.ts)
+- [storage-result.ts](./src/ports/storage-result.ts)
+
+## When To Use Each
+
+`StoragePort`
+- Adapter-agnostic object storage operations.
+
+`createMemoryStorage` / `createFsStorage`
+- Local development and test-friendly storage implementations.
+
+`createS3Storage` / `createGcsStorage`
+- Cloud object storage integrations.
 
 ## Usage
 
@@ -25,11 +37,11 @@ const storage = createS3Storage({
 
 ## Adapters
 
-- [memory](./src/adapters/memory-storage.ts)
-- [filesystem](./src/adapters/fs-storage.ts)
-- [s3](./src/adapters/s3-storage.ts)
-- [gcs](./src/adapters/gcs-storage.ts)
-- [factory helpers](./src/adapters/create.ts)
+- [memory-storage.ts](./src/adapters/memory-storage.ts)
+- [fs-storage.ts](./src/adapters/fs-storage.ts)
+- [s3-storage.ts](./src/adapters/s3-storage.ts)
+- [gcs-storage.ts](./src/adapters/gcs-storage.ts)
+- [create.ts](./src/adapters/create.ts)
 
 ## Testing
 

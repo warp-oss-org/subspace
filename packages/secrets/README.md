@@ -1,24 +1,38 @@
 # @subspace/secrets
 
-Unified secret vault interfaces with cloud and local adapters.
+Secret vault interfaces with cloud and local adapter implementations.
 
 ## Core Interfaces
 
 Use the port definitions as the source of truth:
 - [secret-vault.ts](./src/ports/secret-vault.ts)
 
+## When To Use Each
+
+`SecretVault`
+- Read/write secret workflows.
+
+`ReadableSecretVault`
+- Read-only consumers.
+
+`VersionedSecretVault` / `ListableSecretVault`
+- Version history and prefix discovery semantics.
+
+## Usage
+
+```ts
+// Use SecretVault implementations from src/adapters/*.
+// Choose provider-specific adapters by deployment environment.
+```
+
 ## Adapters
 
-- [aws-secrets-manager](./src/adapters/aws/aws-secrets-manager-vault.ts)
-- [aws-ssm](./src/adapters/aws/aws-ssm-vault.ts)
-- [gcp-secret-manager](./src/adapters/gcp/gcp-secret-manager-vault.ts)
-- [env](./src/adapters/env/env-secret-vault.ts)
-- [fs-json](./src/adapters/fs/json-file-secret-vault.ts)
-- [memory](./src/adapters/memory/memory-secret-vault.ts)
-
-## Notes
-
-Public root exports are still being finalized. Current implementation and tests live under `src/ports` and `src/adapters`.
+- [aws-secrets-manager-vault.ts](./src/adapters/aws/aws-secrets-manager-vault.ts)
+- [aws-ssm-vault.ts](./src/adapters/aws/aws-ssm-vault.ts)
+- [gcp-secret-manager-vault.ts](./src/adapters/gcp/gcp-secret-manager-vault.ts)
+- [env-secret-vault.ts](./src/adapters/env/env-secret-vault.ts)
+- [json-file-secret-vault.ts](./src/adapters/fs/json-file-secret-vault.ts)
+- [memory-secret-vault.ts](./src/adapters/memory/memory-secret-vault.ts)
 
 ## Testing
 

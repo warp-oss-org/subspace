@@ -1,13 +1,24 @@
 # @subspace/backoff
 
-Composable backoff strategies and jitter policies for retries, polling loops, and contention control.
+Composable backoff and jitter primitives for retries, polling, and contention control.
 
-## Core API
+## Core Interfaces
 
-- `createBackoff(...)`: creates a `DelayPolicy` with min/max bounds and jitter.
-- Strategies: `constant(...)`, `linear(...)`, `exponential(...)`.
-- Jitter: `fullJitter(...)`, `equalJitter(...)`, `decorrelatedJitter(...)`.
-- `RandomSource`: pluggable randomness for deterministic tests.
+Use the port definitions as the source of truth:
+- [delay-policy.ts](./src/ports/delay-policy.ts)
+- [jitter-strategy.ts](./src/ports/jitter-strategy.ts)
+- [random-source.ts](./src/ports/random-source.ts)
+
+## When To Use Each
+
+`createBackoff`
+- Compose a bounded delay policy with optional jitter.
+
+`constant` / `linear` / `exponential`
+- Choose the raw delay growth model.
+
+`fullJitter` / `equalJitter` / `decorrelatedJitter`
+- Add randomness to reduce synchronized retries.
 
 ## Usage
 
@@ -21,12 +32,12 @@ const policy = createBackoff({
   jitter: decorrelatedJitter({ min: { milliseconds: 50 } }),
 })
 
-const next = policy.getDelay(3)
+const nextDelay = policy.getDelay(3)
 ```
 
 ## Adapters
 
-- [random](./src/adapters/random.ts): default random source used by jitter strategies.
+- [random.ts](./src/adapters/random.ts): random source used by jitter strategies.
 
 ## Testing
 

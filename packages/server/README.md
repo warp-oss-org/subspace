@@ -5,13 +5,24 @@
 
 HTTP server composition utilities with lifecycle hooks, middleware wiring, and error mapping.
 
-## Core API
+## Core Interfaces
 
-- `createServer(...)`: compose app, middleware, routes, hooks, and runtime behavior.
-- `createRouter(...)`: build modular route groups.
-- `parseOrThrow(...)`, `ValidationError`, `isValidationError(...)`: request parsing and validation support.
-- `LifecycleHook` + `LifecycleHookContext`: startup/shutdown hook contracts.
-- `applyOverrides(...)`: deep partial config override helper.
+Use the port/type definitions as the source of truth:
+- [server.ts](./src/server/server.ts)
+- [server-options.ts](./src/server/server-options.ts)
+- [lifecycle-hook.ts](./src/lifecycle/lifecycle-hook.ts)
+- [errors.ts](./src/errors/errors.ts)
+
+## When To Use Each
+
+`createServer`
+- Build app/runtime with routes, middleware, and lifecycle behavior.
+
+`createRouter`
+- Compose modular route groups.
+
+`parseOrThrow` + `ValidationError`
+- Validate request payloads and map validation failures.
 
 ## Usage
 

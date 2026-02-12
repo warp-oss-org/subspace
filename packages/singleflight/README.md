@@ -1,19 +1,33 @@
 # @subspace/singleflight
 
-Duplicate suppression for concurrent work: one in-flight execution per key, shared by all waiters.
+Duplicate suppression for concurrent work: one in-flight execution per key.
 
-## Core Interface
+## Core Interfaces
 
-Use the port definition as the source of truth:
+Use the port definitions as the source of truth:
 - [single-flight.ts](./src/ports/single-flight.ts)
 
-## Adapter
+## When To Use Each
 
-- [memory](./src/adapters/memory/memory-single-flight.ts): in-memory singleflight group.
+`run`
+- Share one in-flight execution across concurrent callers for the same key.
 
-## Notes
+`tryRun`
+- Skip work immediately if an in-flight execution already exists.
 
-Public root exports are still being finalized. Current implementation and tests live under `src/ports` and `src/adapters`.
+`forget`
+- Drop key tracking so next call starts a fresh execution.
+
+## Usage
+
+```ts
+// Use Singleflight implementations from src/adapters/*.
+// In-memory adapter is the default implementation in this package.
+```
+
+## Adapters
+
+- [memory-single-flight.ts](./src/adapters/memory/memory-single-flight.ts)
 
 ## Testing
 

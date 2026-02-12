@@ -1,23 +1,37 @@
 # @subspace/cache
 
-Byte-oriented caching primitives with codec layers, eviction policies, and memory/Redis adapters.
+Byte-oriented cache primitives with codec, eviction, and through-cache building blocks.
 
-## Scope
+## Core Interfaces
 
-This package defines core cache ports and implementation building blocks under:
+Use the port definitions as the source of truth:
+- [bytes-cache.ts](./src/ports/bytes-cache.ts)
+- [data-cache.ts](./src/ports/data-cache.ts)
+- [cache-result.ts](./src/ports/cache-result.ts)
+- [cache-options.ts](./src/ports/cache-options.ts)
 
-- [ports](./src/ports)
-- [core](./src/core)
-- [adapters](./src/adapters)
+## When To Use Each
+
+`DataCache`
+- Typed cache usage through codecs.
+
+`BytesCache`
+- Raw byte-level cache operations.
+
+Core modules (`codec`, `eviction`, `through`)
+- Compose behavior like serialization, eviction policy, and read/write-through flows.
+
+## Usage
+
+```ts
+// Package APIs are centered in ports/core/adapters.
+// Start from src/ports and src/adapters for integration points.
+```
 
 ## Adapters
 
 - [memory](./src/adapters/memory): in-memory cache adapter.
 - [redis](./src/adapters/redis): Redis-backed cache adapter.
-
-## Notes
-
-The root barrel in [src/index.ts](./src/index.ts) is currently minimal. Most integration points are in the adapter/core modules directly while API surfacing is being finalized.
 
 ## Testing
 
