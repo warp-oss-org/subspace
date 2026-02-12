@@ -4,10 +4,14 @@ Distributed lock primitives for critical sections with lease semantics.
 
 ## Core Interfaces
 
-- [Lock](./src/ports/lock.ts): acquire/tryAcquire semantics.
-- [LockLease](./src/ports/lock-lease.ts): release and lifecycle operations.
-- [AcquireOptions / TryAcquireOptions](./src/ports/options.ts)
-- Helpers: `withLock(...)` and `tryWithLock(...)` in [with-lock.ts](./src/core/with-lock.ts)
+Use the port definitions as the source of truth:
+- [lock.ts](./src/ports/lock.ts)
+- [lock-lease.ts](./src/ports/lock-lease.ts)
+- [options.ts](./src/ports/options.ts)
+- [time.ts](./src/ports/time.ts)
+
+Helper utilities:
+- [with-lock.ts](./src/core/with-lock.ts)
 
 ## Adapters
 

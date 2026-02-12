@@ -4,11 +4,8 @@ Duplicate suppression for concurrent work: one in-flight execution per key, shar
 
 ## Core Interface
 
-[Singleflight](./src/ports/single-flight.ts) defines:
-- `run(key, fn)`: deduplicate concurrent calls by key.
-- `tryRun(key, fn)`: return immediately if a call is already in flight.
-- `forget(key)`: clear key tracking for future calls.
-- Result metadata includes leader/follower source and sharing counts.
+Use the port definition as the source of truth:
+- [single-flight.ts](./src/ports/single-flight.ts)
 
 ## Adapter
 

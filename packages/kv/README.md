@@ -4,27 +4,10 @@ Key-value storage with compare-and-swap (CAS) and conditional writes. Provides p
 
 ## Core Interfaces
 
-```ts
-interface KeyValueStore<T> {
-  get(key: string): Promise<KvResult<T>>
-  set(key: string, value: T, opts?: { ttl?: { kind: 'milliseconds'; milliseconds: number } }): Promise<void>
-  delete(key: string): Promise<void>
-  has(key: string): Promise<boolean>
-  getMany(keys: readonly string[]): Promise<Map<string, KvResult<T>>>
-  setMany(entries: readonly [string, T][]): Promise<void>
-  deleteMany(keys: readonly string[]): Promise<void>
-}
-
-interface KeyValueStoreCas<T> extends KeyValueStore<T> {
-  getVersioned(key: string): Promise<KvResultVersioned<T>>
-  setIfVersion(key: string, value: T, expectedVersion: string): Promise<KvCasResult>
-}
-
-interface KeyValueStoreConditional<T> extends KeyValueStore<T> {
-  setIfNotExists(key: string, value: T): Promise<KvWriteResult>
-  setIfExists(key: string, value: T): Promise<KvWriteResult>
-}
-```
+Use the port definitions as the source of truth:
+- [kv-store.ts](./src/ports/kv-store.ts)
+- [kv-cas.ts](./src/ports/kv-cas.ts)
+- [kv-conditional.ts](./src/ports/kv-conditional.ts)
 
 ## When To Use Each
 

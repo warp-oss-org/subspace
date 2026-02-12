@@ -4,10 +4,8 @@ Unified secret vault interfaces with cloud and local adapters.
 
 ## Core Interfaces
 
-- [SecretVault](./src/ports/secret-vault.ts): read/write secret contract.
-- [ReadableSecretVault](./src/ports/secret-vault.ts): read-only access.
-- [VersionedSecretVault](./src/ports/secret-vault.ts): versioned retrieval.
-- [ListableSecretVault](./src/ports/secret-vault.ts): prefix-based discovery.
+Use the port definitions as the source of truth:
+- [secret-vault.ts](./src/ports/secret-vault.ts)
 
 ## Adapters
 

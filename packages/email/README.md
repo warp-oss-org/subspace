@@ -4,9 +4,10 @@ Email transport abstractions plus provider adapters (Postmark, SendGrid, SES, SM
 
 ## Core Interfaces
 
-- [EmailMessage](./src/ports/message.ts): transport-agnostic email payload.
-- [EmailTransport](./src/ports/transport.ts): single `send(message)` contract.
-- [SendResult](./src/ports/transport.ts): normalized delivery response.
+Use the port definitions as the source of truth:
+- [address.ts](./src/ports/address.ts)
+- [message.ts](./src/ports/message.ts)
+- [transport.ts](./src/ports/transport.ts)
 
 ## Adapters
 
