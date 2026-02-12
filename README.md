@@ -14,9 +14,9 @@ Each package is designed to stand on its own.
 
 ## Documentation
 
-- Getting started: `docs/getting-started.md`
-- Concepts: `docs/concepts.md`
-- Package index: `docs/packages.md`
-- Example index: `docs/examples.md`
-- CLI: `docs/cli.md`
-- Contributing: `docs/contributing.md`
+- Getting started: [docs/getting-started.md](docs/getting-started.md)
+- Concepts: [docs/concepts.md](docs/concepts.md)
+- Package index: [docs/packages.md](docs/packages.md)
+- Example index: [docs/examples.md](docs/examples.md)
+- CLI: [docs/cli.md](docs/cli.md)
+- Contributing: [docs/contributing.md](docs/contributing.md)

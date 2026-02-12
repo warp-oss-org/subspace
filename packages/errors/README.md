@@ -41,6 +41,6 @@ Document expected error categories, retryability, and caller handling.
 
 ## Related Docs
 
-- Global concepts: `docs/concepts.md`
-- Package index: `docs/packages.md`
-- Example index: `docs/examples.md`
+- Global concepts: [docs/concepts.md](../../docs/concepts.md)
+- Package index: [docs/packages.md](../../docs/packages.md)
+- Example index: [docs/examples.md](../../docs/examples.md)

@@ -19,8 +19,8 @@ This example shows a full upload pipeline using multiple Subspace primitives for
 
 ## Environment Setup
 
-- Development env: `.env.development`
-- Test env: `.env.test`
+- Development env: [.env.development](./.env.development)
+- Test env: [.env.test](./.env.test)
 
 ## Run
 

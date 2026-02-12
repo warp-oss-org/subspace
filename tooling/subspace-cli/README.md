@@ -151,7 +151,7 @@ make test
 make build
 ```
 
-The sync script copies `packages/*/` (those with `manifest.yaml`) into `tooling/subspace-cli/registry/`, excluding junk. The embed bundles `registry/` into the binary. `SUBSPACE_REGISTRY_DIR` overrides for local dev.
+The sync script copies [packages/*/](../../packages/) (those with `manifest.yaml`) into [tooling/subspace-cli/registry/](./registry/), excluding junk. The embed bundles `registry/` into the binary. `SUBSPACE_REGISTRY_DIR` overrides for local dev.
 
 ### What ships with every primitive
 
