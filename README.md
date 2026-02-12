@@ -11,3 +11,12 @@ Subspace is a set of narrowly scoped libraries that solve common infrastructure 
 This is not a framework.
 This is not an ecosystem.
 Each package is designed to stand on its own.
+
+## Documentation
+
+- Getting started: `docs/getting-started.md`
+- Concepts: `docs/concepts.md`
+- Package index: `docs/packages.md`
+- Example index: `docs/examples.md`
+- CLI: `docs/cli.md`
+- Contributing: `docs/contributing.md`
