@@ -2,11 +2,16 @@
 
 [![codecov](https://codecov.io/gh/warp-oss-org/subspace/branch/main/graph/badge.svg)](https://codecov.io/gh/warp-oss-org/subspace)
 
-WIP
+Subspace is a backend toolkit built around small, composable primitives.
+Each package targets one infrastructure concern (cache, retries, locks, config, secrets, storage, server utilities, and more) with explicit behavior and minimal coupling.
 
-A collection of small, composable primitives for building backend systems — without becoming a platform.
+This repository includes:
 
-Subspace is a set of narrowly scoped libraries that solve common infrastructure problems (caching, queues, locks, retries, telemetry, secrets, etc.) with explicit semantics, honest guarantees, and minimal coupling.
+- Standalone TypeScript packages under `packages/`
+- Runnable integration examples under `examples/`
+- A scaffolding CLI under `tooling/subspace-cli/` for bringing primitives into services
+
+Subspace is designed for teams that want clear contracts and reusable infrastructure building blocks without adopting a full framework.
 
 This is not a framework.
 This is not an ecosystem.
