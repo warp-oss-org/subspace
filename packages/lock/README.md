@@ -2,7 +2,7 @@
 
 ## What It Is
 
-`@subspace/lock` provides a focused primitive for backend systems.
+`@subspace/lock` provides distributed locking primitives with lease, polling, and validation utilities.
 
 ## Quickstart
 
@@ -24,7 +24,9 @@ pnpm --filter @subspace/lock build
 
 ## Adapters
 
-Check package source for adapter implementations under `src/adapters` (if present).
+- [memory](./src/adapters/memory): in-memory lock adapter.
+- [postgres](./src/adapters/postgres): PostgreSQL-backed lock adapter.
+- [redis](./src/adapters/redis): Redis-backed lock adapter.
 
 ## Configuration
 

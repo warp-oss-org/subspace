@@ -2,7 +2,7 @@
 
 ## What It Is
 
-`@subspace/retry` provides a focused primitive for backend systems.
+`@subspace/retry` provides a retry execution engine with configurable predicates, delay policies, and observers.
 
 ## Quickstart
 
@@ -24,7 +24,7 @@ pnpm --filter @subspace/retry build
 
 ## Adapters
 
-Check package source for adapter implementations under `src/adapters` (if present).
+This package currently has no external adapters. See [core](./src/core) and [ports](./src/ports).
 
 ## Configuration
 

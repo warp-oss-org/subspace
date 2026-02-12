@@ -2,7 +2,7 @@
 
 ## What It Is
 
-`@subspace/id` provides a focused primitive for backend systems.
+`@subspace/id` provides ID generation utilities and type-safe ID codec helpers.
 
 ## Quickstart
 
@@ -24,7 +24,9 @@ pnpm --filter @subspace/id build
 
 ## Adapters
 
-Check package source for adapter implementations under `src/adapters` (if present).
+- [nanoid](./src/adapters/nanoid.ts): Nano ID generator adapter.
+- [uuid](./src/adapters/uuid.ts): UUID v4 and v7 generator adapters.
+- [prefixed](./src/adapters/prefixed.ts): prefix-aware ID generator adapter.
 
 ## Configuration
 

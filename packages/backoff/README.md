@@ -2,7 +2,7 @@
 
 ## What It Is
 
-`@subspace/backoff` provides a focused primitive for backend systems.
+`@subspace/backoff` provides backoff strategies and jitter policies for retry scheduling with pluggable randomness.
 
 ## Quickstart
 
@@ -24,7 +24,7 @@ pnpm --filter @subspace/backoff build
 
 ## Adapters
 
-Check package source for adapter implementations under `src/adapters` (if present).
+- [random](./src/adapters/random.ts): random source adapter used by jitter calculations.
 
 ## Configuration
 

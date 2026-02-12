@@ -2,7 +2,7 @@
 
 ## What It Is
 
-`@subspace/storage` provides a focused primitive for backend systems.
+`@subspace/storage` provides an object storage abstraction for file/blob operations across local and cloud backends.
 
 ## Quickstart
 
@@ -24,7 +24,11 @@ pnpm --filter @subspace/storage build
 
 ## Adapters
 
-Check package source for adapter implementations under `src/adapters` (if present).
+- [memory-storage](./src/adapters/memory-storage.ts): in-memory storage adapter.
+- [fs-storage](./src/adapters/fs-storage.ts): local filesystem storage adapter.
+- [s3-storage](./src/adapters/s3-storage.ts): AWS S3 storage adapter.
+- [gcs-storage](./src/adapters/gcs-storage.ts): Google Cloud Storage adapter.
+- [create](./src/adapters/create.ts): factory helpers for adapter construction.
 
 ## Configuration
 

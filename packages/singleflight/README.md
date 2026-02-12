@@ -2,7 +2,7 @@
 
 ## What It Is
 
-`@subspace/singleflight` provides a focused primitive for backend systems.
+`@subspace/singleflight` provides duplicate-suppression primitives so concurrent requests share one in-flight execution.
 
 ## Quickstart
 
@@ -24,7 +24,7 @@ pnpm --filter @subspace/singleflight build
 
 ## Adapters
 
-Check package source for adapter implementations under `src/adapters` (if present).
+- [memory](./src/adapters/memory): in-memory singleflight coordination adapter.
 
 ## Configuration
 

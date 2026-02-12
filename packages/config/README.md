@@ -2,7 +2,7 @@
 
 ## What It Is
 
-`@subspace/config` provides a focused primitive for backend systems.
+`@subspace/config` provides composable configuration sources and typed loading helpers for application config.
 
 ## Quickstart
 
@@ -24,7 +24,10 @@ pnpm --filter @subspace/config build
 
 ## Adapters
 
-Check package source for adapter implementations under `src/adapters` (if present).
+- [dotenv](./src/adapters/dotenv): loads key-value config from dotenv files.
+- [env](./src/adapters/env): reads config from process environment variables.
+- [json](./src/adapters/json): reads config from JSON sources.
+- [object](./src/adapters/object): in-memory object config source.
 
 ## Configuration
 

@@ -2,7 +2,7 @@
 
 ## What It Is
 
-`@subspace/cache` provides a focused primitive for backend systems.
+`@subspace/cache` provides byte-oriented caching primitives with codec, eviction, and through-cache composition.
 
 ## Quickstart
 
@@ -24,7 +24,8 @@ pnpm --filter @subspace/cache build
 
 ## Adapters
 
-Check package source for adapter implementations under `src/adapters` (if present).
+- [memory](./src/adapters/memory): in-memory cache adapter.
+- [redis](./src/adapters/redis): Redis-backed cache adapter.
 
 ## Configuration
 

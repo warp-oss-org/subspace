@@ -2,7 +2,7 @@
 
 ## What It Is
 
-`@subspace/errors` provides a focused primitive for backend systems.
+`@subspace/errors` provides shared error types and utilities for building consistent application error chains.
 
 ## Quickstart
 
@@ -24,7 +24,7 @@ pnpm --filter @subspace/errors build
 
 ## Adapters
 
-Check package source for adapter implementations under `src/adapters` (if present).
+This package currently has no external adapters. See [core](./src/core) and [ports](./src/ports).
 
 ## Configuration
 

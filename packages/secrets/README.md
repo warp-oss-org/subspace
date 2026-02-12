@@ -2,7 +2,7 @@
 
 ## What It Is
 
-`@subspace/secrets` provides a focused primitive for backend systems.
+`@subspace/secrets` provides a unified secret-store interface with cloud and local adapters.
 
 ## Quickstart
 
@@ -24,7 +24,11 @@ pnpm --filter @subspace/secrets build
 
 ## Adapters
 
-Check package source for adapter implementations under `src/adapters` (if present).
+- [aws](./src/adapters/aws): AWS Secrets Manager adapter.
+- [gcp](./src/adapters/gcp): Google Secret Manager adapter.
+- [env](./src/adapters/env): process environment adapter.
+- [fs](./src/adapters/fs): filesystem-backed adapter.
+- [memory](./src/adapters/memory): in-memory adapter for tests/local use.
 
 ## Configuration
 

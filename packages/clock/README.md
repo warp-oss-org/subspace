@@ -2,7 +2,7 @@
 
 ## What It Is
 
-`@subspace/clock` provides a focused primitive for backend systems.
+`@subspace/clock` provides a clock abstraction for deterministic time handling in production and tests.
 
 ## Quickstart
 
@@ -24,7 +24,8 @@ pnpm --filter @subspace/clock build
 
 ## Adapters
 
-Check package source for adapter implementations under `src/adapters` (if present).
+- [SystemClock](./src/adapters/system-clock.ts): wall-clock time adapter.
+- [FakeClock](./src/adapters/fake-clock.ts): controllable test clock adapter.
 
 ## Configuration
 

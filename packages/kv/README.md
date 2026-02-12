@@ -2,7 +2,7 @@
 
 ## What It Is
 
-`@subspace/kv` provides a focused primitive for backend systems.
+`@subspace/kv` provides a key-value store abstraction with optional CAS and conditional write semantics.
 
 ## Quickstart
 
@@ -24,7 +24,8 @@ pnpm --filter @subspace/kv build
 
 ## Adapters
 
-Check package source for adapter implementations under `src/adapters` (if present).
+- [memory](./src/adapters/memory): in-memory key-value adapter.
+- [redis](./src/adapters/redis): Redis-backed key-value adapter.
 
 ## Configuration
 

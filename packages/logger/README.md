@@ -2,7 +2,7 @@
 
 ## What It Is
 
-`@subspace/logger` provides a focused primitive for backend systems.
+`@subspace/logger` provides structured logging interfaces and adapters for console, pino, and no-op logging.
 
 ## Quickstart
 
@@ -24,7 +24,9 @@ pnpm --filter @subspace/logger build
 
 ## Adapters
 
-Check package source for adapter implementations under `src/adapters` (if present).
+- [console](./src/adapters/console): console logger adapter.
+- [pino](./src/adapters/pino): Pino-backed logger adapter.
+- [null](./src/adapters/null): no-op logger adapter for tests and silencing logs.
 
 ## Configuration
 

@@ -1,8 +1,11 @@
 # @subspace/server
 
+> [!WARNING]
+> `@subspace/server` is primarily an internal package. It is intentionally opinionated around our service conventions and is not intended to be a universal server framework for every team.
+
 ## What It Is
 
-`@subspace/server` provides a focused primitive for backend systems.
+`@subspace/server` provides HTTP server composition helpers, lifecycle hooks, middleware utilities, and validation error handling.
 
 ## Quickstart
 
@@ -24,7 +27,7 @@ pnpm --filter @subspace/server build
 
 ## Adapters
 
-Check package source for adapter implementations under `src/adapters` (if present).
+This package currently has no adapter layer; composition is provided via [server](./src/server), [middleware](./src/middleware), and [lifecycle](./src/lifecycle).
 
 ## Configuration
 

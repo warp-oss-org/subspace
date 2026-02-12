@@ -2,7 +2,7 @@
 
 ## What It Is
 
-`@subspace/email` provides a focused primitive for backend systems.
+`@subspace/email` provides a transport-agnostic email delivery interface with provider adapters.
 
 ## Quickstart
 
@@ -24,7 +24,10 @@ pnpm --filter @subspace/email build
 
 ## Adapters
 
-Check package source for adapter implementations under `src/adapters` (if present).
+- [postmark](./src/adapters/postmark): Postmark transport adapter.
+- [sendgrid](./src/adapters/sendgrid): SendGrid transport adapter.
+- [ses](./src/adapters/ses): AWS SES transport adapter.
+- [smtp](./src/adapters/smtp): SMTP transport adapter.
 
 ## Configuration
 
