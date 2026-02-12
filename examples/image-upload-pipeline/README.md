@@ -1,35 +1,59 @@
-# image-upload-pipeline
+# Image Upload Pipeline
 
-## What This Demonstrates
+A presigned-URL upload flow with async image processing. Demonstrates coordinating S3, Redis, and background workers using Subspace primitives.
 
-This example shows a full upload pipeline using multiple Subspace primitives for API handling, metadata persistence, object storage, and background processing.
+## What It Does
 
-## Architecture Overview
+1. Client requests upload → API returns presigned S3 URL
+2. Client uploads directly to S3 staging bucket
+3. Client signals completion → API queues processing job
+4. Worker claims job, generates thumbnail/preview variants, writes to final prefix
+5. Client polls for status until finalized
 
-- HTTP API receives upload requests.
-- Metadata and job state are persisted.
-- Object storage holds uploaded images and derivatives.
-- Worker flow handles image processing asynchronously.
+## Key Patterns
 
-## Prerequisites
+**Presigned uploads** - Clients upload directly to S3, avoiding proxying large files through the API server.
 
-- Node.js 22+
-- pnpm 10+
-- Docker (for local dev/test dependencies)
+**CAS-based job claiming** - Workers use compare-and-swap on job state to prevent duplicate processing across instances.
 
-## Environment Setup
+**State machine metadata** - Upload records transition through `awaiting_upload → queued → processing → finalized | failed` with guarded transitions.
 
-- Development env: [.env.development](./.env.development)
-- Test env: [.env.test](./.env.test)
+**Lease-based recovery** - Running jobs have a lease expiry; if a worker crashes, another can reclaim the job after timeout.
 
-## Run
+## Project Structure
 
-```bash
-pnpm --filter @subspace/image-upload-pipeline dev:up
-pnpm --filter @subspace/image-upload-pipeline dev
+```
+src/
+  app/
+    routes/      # Route registration (/api/v1/uploads)
+    services/    # Core + infra composition
+  domains/
+    uploads/
+      model/     # Types: upload states, job states, storage locations
+      services/  # UploadOrchestrator, JobStore, MetadataStore, Worker
+  server/        # Server build/run entrypoints
+  bin/server.ts  # Runtime entrypoint
 ```
 
-## Test
+## Running
+
+```bash
+# Start Redis + LocalStack
+pnpm --filter @subspace/image-upload-pipeline dev:up
+
+# Create the S3 bucket expected by .env.development
+aws --endpoint-url http://localhost:4570 s3 mb s3://image-upload-pipeline-dev
+
+# Run API + worker
+pnpm --filter @subspace/image-upload-pipeline dev
+
+# In another terminal - create an upload
+curl -X POST http://localhost:4663/api/v1/uploads \
+  -H "Content-Type: application/json" \
+  -d '{"filename": "photo.jpg", "contentType": "image/jpeg"}'
+```
+
+## Testing
 
 ```bash
 pnpm --filter @subspace/image-upload-pipeline test:up
@@ -37,25 +61,12 @@ pnpm --filter @subspace/image-upload-pipeline test
 pnpm --filter @subspace/image-upload-pipeline test:down
 ```
 
-## Request/Data Flow
+## Packages Used
 
-1. Client starts upload via API route.
-2. Service allocates identifiers and records upload intent.
-3. Binary object is written to object storage.
-4. Worker processes image and writes derivative artifacts.
-5. API exposes current upload/job state.
-
-## Troubleshooting
-
-- Ensure Docker services are running before `dev` or `test` commands.
-- Verify environment variables in `.env.development` or `.env.test`.
-- Use package-local tests to isolate failures in upload services.
-
-## Related Packages
-
-- `@subspace/server`
-- `@subspace/kv`
-- `@subspace/storage`
-- `@subspace/logger`
-- `@subspace/retry`
-- `@subspace/lock`
+| Package | Purpose |
+|---------|---------|
+| `@subspace/server` | Hono-based HTTP with typed error handling |
+| `@subspace/kv` | Redis KV with CAS operations for metadata/jobs |
+| `@subspace/storage` | S3 client wrapper for staging/final buckets |
+| `@subspace/retry` | IO retry with backoff for transient failures |
+| `@subspace/clock` | Injectable time for testing worker timing |

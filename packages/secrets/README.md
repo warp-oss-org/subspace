@@ -1,50 +1,42 @@
 # @subspace/secrets
 
-## What It Is
+Unified secret vault interfaces with cloud and local adapters.
 
-`@subspace/secrets` provides a unified secret-store interface with cloud and local adapters.
+## Core Interfaces
 
-## Quickstart
+- [SecretVault](./src/ports/secret-vault.ts): read/write secret contract.
+- [ReadableSecretVault](./src/ports/secret-vault.ts): read-only access.
+- [VersionedSecretVault](./src/ports/secret-vault.ts): versioned retrieval.
+- [ListableSecretVault](./src/ports/secret-vault.ts): prefix-based discovery.
 
-```ts
-import {} from "@subspace/secrets";
-```
+## Adapters
 
-Install dependencies and run checks:
+- [aws-secrets-manager](./src/adapters/aws/aws-secrets-manager-vault.ts)
+- [aws-ssm](./src/adapters/aws/aws-ssm-vault.ts)
+- [gcp-secret-manager](./src/adapters/gcp/gcp-secret-manager-vault.ts)
+- [env](./src/adapters/env/env-secret-vault.ts)
+- [fs-json](./src/adapters/fs/json-file-secret-vault.ts)
+- [memory](./src/adapters/memory/memory-secret-vault.ts)
+
+## Notes
+
+Public root exports are still being finalized. Current implementation and tests live under `src/ports` and `src/adapters`.
+
+## Testing
 
 ```bash
 pnpm --filter @subspace/secrets test
 pnpm --filter @subspace/secrets build
 ```
 
-## Guarantees And Non-Goals
+Adapter integration tests:
 
-- Guarantees: behavior is defined by explicit contracts and tests.
-- Non-goals: framework-level orchestration belongs outside this package.
+```bash
+pnpm --filter @subspace/secrets test:up
+pnpm --filter @subspace/secrets test
+pnpm --filter @subspace/secrets test:down
+```
 
-## Adapters
+## See Also
 
-- [aws](./src/adapters/aws): AWS Secrets Manager adapter.
-- [gcp](./src/adapters/gcp): Google Secret Manager adapter.
-- [env](./src/adapters/env): process environment adapter.
-- [fs](./src/adapters/fs): filesystem-backed adapter.
-- [memory](./src/adapters/memory): in-memory adapter for tests/local use.
-
-## Configuration
-
-Describe runtime configuration and required environment variables here.
-
-## Error Model
-
-Document expected error categories, retryability, and caller handling.
-
-## Testing Notes
-
-- Run package tests with `pnpm --filter @subspace/secrets test`.
-- Add tests for both happy-path and failure semantics when behavior changes.
-
-## Related Docs
-
-- Global concepts: [docs/concepts.md](../../docs/concepts.md)
-- Package index: [docs/packages.md](../../docs/packages.md)
-- Example index: [docs/examples.md](../../docs/examples.md)
+- [Global concepts](../../docs/concepts.md)

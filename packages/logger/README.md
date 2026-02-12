@@ -1,48 +1,43 @@
 # @subspace/logger
 
-## What It Is
+Structured logging interfaces and adapters for console, Pino, and no-op logging.
 
-`@subspace/logger` provides structured logging interfaces and adapters for console, pino, and no-op logging.
+## Core API
 
-## Quickstart
+- `createPinoLogger(...)`: production structured logger adapter.
+- `createConsoleLogger(...)`: lightweight console adapter.
+- `createNullLogger(...)` / `NullLogger`: test/no-output adapter.
+- Shared types: `Logger`, `LogContext`, `LogLevelName`.
+
+## Usage
 
 ```ts
-import {} from "@subspace/logger";
+import { createPinoLogger } from "@subspace/logger"
+
+const logger = createPinoLogger(
+  {},
+  {
+    level: "info",
+    prettify: false,
+  },
+)
+
+logger.info("service_started", { port: 4663 })
 ```
 
-Install dependencies and run checks:
+## Adapters
+
+- [console](./src/adapters/console)
+- [pino](./src/adapters/pino)
+- [null](./src/adapters/null)
+
+## Testing
 
 ```bash
 pnpm --filter @subspace/logger test
 pnpm --filter @subspace/logger build
 ```
 
-## Guarantees And Non-Goals
+## See Also
 
-- Guarantees: behavior is defined by explicit contracts and tests.
-- Non-goals: framework-level orchestration belongs outside this package.
-
-## Adapters
-
-- [console](./src/adapters/console): console logger adapter.
-- [pino](./src/adapters/pino): Pino-backed logger adapter.
-- [null](./src/adapters/null): no-op logger adapter for tests and silencing logs.
-
-## Configuration
-
-Describe runtime configuration and required environment variables here.
-
-## Error Model
-
-Document expected error categories, retryability, and caller handling.
-
-## Testing Notes
-
-- Run package tests with `pnpm --filter @subspace/logger test`.
-- Add tests for both happy-path and failure semantics when behavior changes.
-
-## Related Docs
-
-- Global concepts: [docs/concepts.md](../../docs/concepts.md)
-- Package index: [docs/packages.md](../../docs/packages.md)
-- Example index: [docs/examples.md](../../docs/examples.md)
+- [Global concepts](../../docs/concepts.md)

@@ -1,48 +1,43 @@
 # @subspace/id
 
-## What It Is
+ID generation primitives with branding and codec helpers for type-safe identifiers.
 
-`@subspace/id` provides ID generation utilities and type-safe ID codec helpers.
+## Core API
 
-## Quickstart
+- Generators: `nanoid`, `uuidV4`, `uuidV7`, `prefixed(...)`.
+- Branding utilities: `Brand`, `IdType`.
+- Codec wrapper: `withGenerator(...)`.
+
+## Usage
 
 ```ts
-import {} from "@subspace/id";
+import { prefixed, uuidV7, withGenerator } from "@subspace/id"
+
+type UploadId = string & { readonly __brand: "UploadId" }
+
+const UploadId = withGenerator(
+  {
+    kind: "UploadId",
+    parse: (s: string) => s as UploadId,
+    is: (v: unknown): v is UploadId => typeof v === "string",
+  },
+  { generate: () => prefixed<UploadId>("upload", uuidV7).generate() },
+)
 ```
 
-Install dependencies and run checks:
+## Adapters
+
+- [nanoid](./src/adapters/nanoid.ts)
+- [uuid](./src/adapters/uuid.ts)
+- [prefixed](./src/adapters/prefixed.ts)
+
+## Testing
 
 ```bash
 pnpm --filter @subspace/id test
 pnpm --filter @subspace/id build
 ```
 
-## Guarantees And Non-Goals
+## See Also
 
-- Guarantees: behavior is defined by explicit contracts and tests.
-- Non-goals: framework-level orchestration belongs outside this package.
-
-## Adapters
-
-- [nanoid](./src/adapters/nanoid.ts): Nano ID generator adapter.
-- [uuid](./src/adapters/uuid.ts): UUID v4 and v7 generator adapters.
-- [prefixed](./src/adapters/prefixed.ts): prefix-aware ID generator adapter.
-
-## Configuration
-
-Describe runtime configuration and required environment variables here.
-
-## Error Model
-
-Document expected error categories, retryability, and caller handling.
-
-## Testing Notes
-
-- Run package tests with `pnpm --filter @subspace/id test`.
-- Add tests for both happy-path and failure semantics when behavior changes.
-
-## Related Docs
-
-- Global concepts: [docs/concepts.md](../../docs/concepts.md)
-- Package index: [docs/packages.md](../../docs/packages.md)
-- Example index: [docs/examples.md](../../docs/examples.md)
+- [Global concepts](../../docs/concepts.md)

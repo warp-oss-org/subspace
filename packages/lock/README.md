@@ -1,48 +1,39 @@
 # @subspace/lock
 
-## What It Is
+Distributed lock primitives for critical sections with lease semantics.
 
-`@subspace/lock` provides distributed locking primitives with lease, polling, and validation utilities.
+## Core Interfaces
 
-## Quickstart
+- [Lock](./src/ports/lock.ts): acquire/tryAcquire semantics.
+- [LockLease](./src/ports/lock-lease.ts): release and lifecycle operations.
+- [AcquireOptions / TryAcquireOptions](./src/ports/options.ts)
+- Helpers: `withLock(...)` and `tryWithLock(...)` in [with-lock.ts](./src/core/with-lock.ts)
 
-```ts
-import {} from "@subspace/lock";
-```
+## Adapters
 
-Install dependencies and run checks:
+- [memory](./src/adapters/memory): in-process lock implementation.
+- [postgres](./src/adapters/postgres): advisory lock implementation.
+- [redis](./src/adapters/redis): Redis-backed lock implementation.
+
+## Notes
+
+Public root exports are still being finalized. Current implementation and tests live under `src/ports`, `src/core`, and `src/adapters`.
+
+## Testing
 
 ```bash
 pnpm --filter @subspace/lock test
 pnpm --filter @subspace/lock build
 ```
 
-## Guarantees And Non-Goals
+Adapter integration tests:
 
-- Guarantees: behavior is defined by explicit contracts and tests.
-- Non-goals: framework-level orchestration belongs outside this package.
+```bash
+pnpm --filter @subspace/lock test:up
+pnpm --filter @subspace/lock test
+pnpm --filter @subspace/lock test:down
+```
 
-## Adapters
+## See Also
 
-- [memory](./src/adapters/memory): in-memory lock adapter.
-- [postgres](./src/adapters/postgres): PostgreSQL-backed lock adapter.
-- [redis](./src/adapters/redis): Redis-backed lock adapter.
-
-## Configuration
-
-Describe runtime configuration and required environment variables here.
-
-## Error Model
-
-Document expected error categories, retryability, and caller handling.
-
-## Testing Notes
-
-- Run package tests with `pnpm --filter @subspace/lock test`.
-- Add tests for both happy-path and failure semantics when behavior changes.
-
-## Related Docs
-
-- Global concepts: [docs/concepts.md](../../docs/concepts.md)
-- Package index: [docs/packages.md](../../docs/packages.md)
-- Example index: [docs/examples.md](../../docs/examples.md)
+- [Global concepts](../../docs/concepts.md)

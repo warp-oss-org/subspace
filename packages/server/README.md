@@ -3,47 +3,52 @@
 > [!WARNING]
 > `@subspace/server` is primarily an internal package. It is intentionally opinionated around our service conventions and is not intended to be a universal server framework for every team.
 
-## What It Is
+HTTP server composition utilities with lifecycle hooks, middleware wiring, and error mapping.
 
-`@subspace/server` provides HTTP server composition helpers, lifecycle hooks, middleware utilities, and validation error handling.
+## Core API
 
-## Quickstart
+- `createServer(...)`: compose app, middleware, routes, hooks, and runtime behavior.
+- `createRouter(...)`: build modular route groups.
+- `parseOrThrow(...)`, `ValidationError`, `isValidationError(...)`: request parsing and validation support.
+- `LifecycleHook` + `LifecycleHookContext`: startup/shutdown hook contracts.
+- `applyOverrides(...)`: deep partial config override helper.
+
+## Usage
 
 ```ts
-import {} from "@subspace/server";
+import { createServer, createRouter, type Application } from "@subspace/server"
+
+const server = createServer(
+  { clock, logger },
+  {
+    host: "0.0.0.0",
+    port: 4663,
+    routes: (app: Application) => {
+      const api = createRouter()
+      api.get("/health", (c) => c.json({ ok: true }))
+      app.route("/api/v1", api)
+    },
+  },
+)
+
+await server.setupProcessHandlers().start()
 ```
 
-Install dependencies and run checks:
+## Adapters
+
+No dedicated `src/adapters` layer. Composition is organized under:
+- [server](./src/server)
+- [middleware](./src/middleware)
+- [lifecycle](./src/lifecycle)
+- [errors](./src/errors)
+
+## Testing
 
 ```bash
 pnpm --filter @subspace/server test
 pnpm --filter @subspace/server build
 ```
 
-## Guarantees And Non-Goals
+## See Also
 
-- Guarantees: behavior is defined by explicit contracts and tests.
-- Non-goals: framework-level orchestration belongs outside this package.
-
-## Adapters
-
-This package currently has no adapter layer; composition is provided via [server](./src/server), [middleware](./src/middleware), and [lifecycle](./src/lifecycle).
-
-## Configuration
-
-Describe runtime configuration and required environment variables here.
-
-## Error Model
-
-Document expected error categories, retryability, and caller handling.
-
-## Testing Notes
-
-- Run package tests with `pnpm --filter @subspace/server test`.
-- Add tests for both happy-path and failure semantics when behavior changes.
-
-## Related Docs
-
-- Global concepts: [docs/concepts.md](../../docs/concepts.md)
-- Package index: [docs/packages.md](../../docs/packages.md)
-- Example index: [docs/examples.md](../../docs/examples.md)
+- [Global concepts](../../docs/concepts.md)

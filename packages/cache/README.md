@@ -1,47 +1,39 @@
 # @subspace/cache
 
-## What It Is
+Byte-oriented caching primitives with codec layers, eviction policies, and memory/Redis adapters.
 
-`@subspace/cache` provides byte-oriented caching primitives with codec, eviction, and through-cache composition.
+## Scope
 
-## Quickstart
+This package defines core cache ports and implementation building blocks under:
 
-```ts
-import {} from "@subspace/cache";
-```
-
-Install dependencies and run checks:
-
-```bash
-pnpm --filter @subspace/cache test
-pnpm --filter @subspace/cache build
-```
-
-## Guarantees And Non-Goals
-
-- Guarantees: behavior is defined by explicit contracts and tests.
-- Non-goals: framework-level orchestration belongs outside this package.
+- [ports](./src/ports)
+- [core](./src/core)
+- [adapters](./src/adapters)
 
 ## Adapters
 
 - [memory](./src/adapters/memory): in-memory cache adapter.
 - [redis](./src/adapters/redis): Redis-backed cache adapter.
 
-## Configuration
+## Notes
 
-Describe runtime configuration and required environment variables here.
+The root barrel in [src/index.ts](./src/index.ts) is currently minimal. Most integration points are in the adapter/core modules directly while API surfacing is being finalized.
 
-## Error Model
+## Testing
 
-Document expected error categories, retryability, and caller handling.
+```bash
+pnpm --filter @subspace/cache test
+pnpm --filter @subspace/cache build
+```
 
-## Testing Notes
+Redis adapter tests:
 
-- Run package tests with `pnpm --filter @subspace/cache test`.
-- Add tests for both happy-path and failure semantics when behavior changes.
+```bash
+pnpm --filter @subspace/cache test:up
+pnpm --filter @subspace/cache test
+pnpm --filter @subspace/cache test:down
+```
 
-## Related Docs
+## See Also
 
-- Global concepts: [docs/concepts.md](../../docs/concepts.md)
-- Package index: [docs/packages.md](../../docs/packages.md)
-- Example index: [docs/examples.md](../../docs/examples.md)
+- [Global concepts](../../docs/concepts.md)

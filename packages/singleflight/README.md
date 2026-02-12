@@ -1,46 +1,30 @@
 # @subspace/singleflight
 
-## What It Is
+Duplicate suppression for concurrent work: one in-flight execution per key, shared by all waiters.
 
-`@subspace/singleflight` provides duplicate-suppression primitives so concurrent requests share one in-flight execution.
+## Core Interface
 
-## Quickstart
+[Singleflight](./src/ports/single-flight.ts) defines:
+- `run(key, fn)`: deduplicate concurrent calls by key.
+- `tryRun(key, fn)`: return immediately if a call is already in flight.
+- `forget(key)`: clear key tracking for future calls.
+- Result metadata includes leader/follower source and sharing counts.
 
-```ts
-import {} from "@subspace/singleflight";
-```
+## Adapter
 
-Install dependencies and run checks:
+- [memory](./src/adapters/memory/memory-single-flight.ts): in-memory singleflight group.
+
+## Notes
+
+Public root exports are still being finalized. Current implementation and tests live under `src/ports` and `src/adapters`.
+
+## Testing
 
 ```bash
 pnpm --filter @subspace/singleflight test
 pnpm --filter @subspace/singleflight build
 ```
 
-## Guarantees And Non-Goals
+## See Also
 
-- Guarantees: behavior is defined by explicit contracts and tests.
-- Non-goals: framework-level orchestration belongs outside this package.
-
-## Adapters
-
-- [memory](./src/adapters/memory): in-memory singleflight coordination adapter.
-
-## Configuration
-
-Describe runtime configuration and required environment variables here.
-
-## Error Model
-
-Document expected error categories, retryability, and caller handling.
-
-## Testing Notes
-
-- Run package tests with `pnpm --filter @subspace/singleflight test`.
-- Add tests for both happy-path and failure semantics when behavior changes.
-
-## Related Docs
-
-- Global concepts: [docs/concepts.md](../../docs/concepts.md)
-- Package index: [docs/packages.md](../../docs/packages.md)
-- Example index: [docs/examples.md](../../docs/examples.md)
+- [Global concepts](../../docs/concepts.md)

@@ -1,49 +1,39 @@
 # @subspace/email
 
-## What It Is
+Email transport abstractions plus provider adapters (Postmark, SendGrid, SES, SMTP).
 
-`@subspace/email` provides a transport-agnostic email delivery interface with provider adapters.
+## Core Interfaces
 
-## Quickstart
+- [EmailMessage](./src/ports/message.ts): transport-agnostic email payload.
+- [EmailTransport](./src/ports/transport.ts): single `send(message)` contract.
+- [SendResult](./src/ports/transport.ts): normalized delivery response.
 
-```ts
-import {} from "@subspace/email";
-```
+## Adapters
 
-Install dependencies and run checks:
+- [postmark](./src/adapters/postmark/postmark-transport.ts)
+- [sendgrid](./src/adapters/sendgrid/sendgrid-transport.ts)
+- [ses](./src/adapters/ses/ses-transport.ts)
+- [smtp](./src/adapters/smtp/smtp-transport.ts)
+
+## Notes
+
+Public root exports are still being finalized. Current implementation and tests live under `src/ports` and `src/adapters`.
+
+## Testing
 
 ```bash
 pnpm --filter @subspace/email test
 pnpm --filter @subspace/email build
 ```
 
-## Guarantees And Non-Goals
+Provider integration tests:
 
-- Guarantees: behavior is defined by explicit contracts and tests.
-- Non-goals: framework-level orchestration belongs outside this package.
+```bash
+pnpm --filter @subspace/email test:up
+pnpm --filter @subspace/email test
+pnpm --filter @subspace/email test:down
+```
 
-## Adapters
+## See Also
 
-- [postmark](./src/adapters/postmark): Postmark transport adapter.
-- [sendgrid](./src/adapters/sendgrid): SendGrid transport adapter.
-- [ses](./src/adapters/ses): AWS SES transport adapter.
-- [smtp](./src/adapters/smtp): SMTP transport adapter.
-
-## Configuration
-
-Describe runtime configuration and required environment variables here.
-
-## Error Model
-
-Document expected error categories, retryability, and caller handling.
-
-## Testing Notes
-
-- Run package tests with `pnpm --filter @subspace/email test`.
-- Add tests for both happy-path and failure semantics when behavior changes.
-
-## Related Docs
-
-- Global concepts: [docs/concepts.md](../../docs/concepts.md)
-- Package index: [docs/packages.md](../../docs/packages.md)
-- Example index: [docs/examples.md](../../docs/examples.md)
+- [Global concepts](../../docs/concepts.md)

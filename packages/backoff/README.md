@@ -1,46 +1,40 @@
 # @subspace/backoff
 
-## What It Is
+Composable backoff strategies and jitter policies for retries, polling loops, and contention control.
 
-`@subspace/backoff` provides backoff strategies and jitter policies for retry scheduling with pluggable randomness.
+## Core API
 
-## Quickstart
+- `createBackoff(...)`: creates a `DelayPolicy` with min/max bounds and jitter.
+- Strategies: `constant(...)`, `linear(...)`, `exponential(...)`.
+- Jitter: `fullJitter(...)`, `equalJitter(...)`, `decorrelatedJitter(...)`.
+- `RandomSource`: pluggable randomness for deterministic tests.
+
+## Usage
 
 ```ts
-import {} from "@subspace/backoff";
+import { createBackoff, exponential, decorrelatedJitter } from "@subspace/backoff"
+
+const policy = createBackoff({
+  delay: exponential({ base: { milliseconds: 100 }, factor: 2 }),
+  min: { milliseconds: 100 },
+  max: { milliseconds: 10_000 },
+  jitter: decorrelatedJitter({ min: { milliseconds: 50 } }),
+})
+
+const next = policy.getDelay(3)
 ```
 
-Install dependencies and run checks:
+## Adapters
+
+- [random](./src/adapters/random.ts): default random source used by jitter strategies.
+
+## Testing
 
 ```bash
 pnpm --filter @subspace/backoff test
 pnpm --filter @subspace/backoff build
 ```
 
-## Guarantees And Non-Goals
+## See Also
 
-- Guarantees: behavior is defined by explicit contracts and tests.
-- Non-goals: framework-level orchestration belongs outside this package.
-
-## Adapters
-
-- [random](./src/adapters/random.ts): random source adapter used by jitter calculations.
-
-## Configuration
-
-Describe runtime configuration and required environment variables here.
-
-## Error Model
-
-Document expected error categories, retryability, and caller handling.
-
-## Testing Notes
-
-- Run package tests with `pnpm --filter @subspace/backoff test`.
-- Add tests for both happy-path and failure semantics when behavior changes.
-
-## Related Docs
-
-- Global concepts: [docs/concepts.md](../../docs/concepts.md)
-- Package index: [docs/packages.md](../../docs/packages.md)
-- Example index: [docs/examples.md](../../docs/examples.md)
+- [Global concepts](../../docs/concepts.md)

@@ -1,46 +1,42 @@
 # @subspace/errors
 
-## What It Is
+Shared application error model and helpers for consistent error creation, wrapping, and inspection.
 
-`@subspace/errors` provides shared error types and utilities for building consistent application error chains.
+## Core API
 
-## Quickstart
+- `createError(...)`: construct typed app errors.
+- `errorChain(...)`: walk nested causes.
+- `isAppError(...)`: runtime guard for app error shape.
+- `toAppError(...)`: normalize unknown errors.
+
+## Usage
 
 ```ts
-import {} from "@subspace/errors";
+import { createError, isAppError, toAppError } from "@subspace/errors"
+
+const UploadError = createError("upload_failed")
+
+try {
+  throw UploadError({ message: "write failed" })
+} catch (err) {
+  const appErr = toAppError(err)
+  if (isAppError(appErr)) {
+    // map to transport-level response
+  }
+}
 ```
 
-Install dependencies and run checks:
+## Adapters
+
+No external adapter layer. See [core](./src/core) and [ports](./src/ports).
+
+## Testing
 
 ```bash
 pnpm --filter @subspace/errors test
 pnpm --filter @subspace/errors build
 ```
 
-## Guarantees And Non-Goals
+## See Also
 
-- Guarantees: behavior is defined by explicit contracts and tests.
-- Non-goals: framework-level orchestration belongs outside this package.
-
-## Adapters
-
-This package currently has no external adapters. See [core](./src/core) and [ports](./src/ports).
-
-## Configuration
-
-Describe runtime configuration and required environment variables here.
-
-## Error Model
-
-Document expected error categories, retryability, and caller handling.
-
-## Testing Notes
-
-- Run package tests with `pnpm --filter @subspace/errors test`.
-- Add tests for both happy-path and failure semantics when behavior changes.
-
-## Related Docs
-
-- Global concepts: [docs/concepts.md](../../docs/concepts.md)
-- Package index: [docs/packages.md](../../docs/packages.md)
-- Example index: [docs/examples.md](../../docs/examples.md)
+- [Global concepts](../../docs/concepts.md)

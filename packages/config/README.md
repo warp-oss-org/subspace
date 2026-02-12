@@ -1,49 +1,42 @@
 # @subspace/config
 
-## What It Is
+Composable configuration loading with typed schema validation and layered sources.
 
-`@subspace/config` provides composable configuration sources and typed loading helpers for application config.
+## Core API
 
-## Quickstart
+- `loadConfig(...)`: load and validate config from ordered sources.
+- Source adapters: `DotenvSource`, `EnvSource`, `JsonSource`.
+- Ports: `ConfigSource`, `IConfig`.
+
+## Usage
 
 ```ts
-import {} from "@subspace/config";
+import { DotenvSource, EnvSource, loadConfig } from "@subspace/config"
+
+const result = await loadConfig({
+  schema: mySchema,
+  sources: [
+    new DotenvSource({ file: ".env.development", required: true }),
+    new EnvSource({ env: process.env }),
+  ],
+  expandEnv: true,
+})
 ```
 
-Install dependencies and run checks:
+## Adapters
+
+- [dotenv](./src/adapters/dotenv)
+- [env](./src/adapters/env)
+- [json](./src/adapters/json)
+- [object](./src/adapters/object)
+
+## Testing
 
 ```bash
 pnpm --filter @subspace/config test
 pnpm --filter @subspace/config build
 ```
 
-## Guarantees And Non-Goals
+## See Also
 
-- Guarantees: behavior is defined by explicit contracts and tests.
-- Non-goals: framework-level orchestration belongs outside this package.
-
-## Adapters
-
-- [dotenv](./src/adapters/dotenv): loads key-value config from dotenv files.
-- [env](./src/adapters/env): reads config from process environment variables.
-- [json](./src/adapters/json): reads config from JSON sources.
-- [object](./src/adapters/object): in-memory object config source.
-
-## Configuration
-
-Describe runtime configuration and required environment variables here.
-
-## Error Model
-
-Document expected error categories, retryability, and caller handling.
-
-## Testing Notes
-
-- Run package tests with `pnpm --filter @subspace/config test`.
-- Add tests for both happy-path and failure semantics when behavior changes.
-
-## Related Docs
-
-- Global concepts: [docs/concepts.md](../../docs/concepts.md)
-- Package index: [docs/packages.md](../../docs/packages.md)
-- Example index: [docs/examples.md](../../docs/examples.md)
+- [Global concepts](../../docs/concepts.md)
