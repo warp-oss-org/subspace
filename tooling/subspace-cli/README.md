@@ -162,6 +162,7 @@ The sync script copies [packages/*/](../../packages/) (those with `manifest.yaml
 - **Behavior tests** — verify adapter logic, always copied
 - **README** — copied into the primitive directory
 - **Deps** — printed as install command, never auto-installed
+- **Dev deps** — deferred; v1 manifests do not model test-only dependencies yet
 
 ### What does NOT ship
 

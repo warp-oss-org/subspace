@@ -1,0 +1,35 @@
+name: logger
+description: Structured logger ports with console, null, and pino adapters
+language: typescript
+defaultAdapter: console
+
+exclude:
+  - "*.spec.ts"
+  - "*.test.ts"
+  - "__test__"
+  - "__tests__"
+
+copy:
+  - from: src/ports
+    to: "{{targetDir}}/logger/ports"
+
+adapters:
+  console:
+    description: Console-backed structured logger
+    copy:
+      - from: src/adapters/console
+        to: "{{targetDir}}/logger/adapters/console"
+  "null":
+    description: No-op logger for tests and local composition
+    copy:
+      - from: src/adapters/null
+        to: "{{targetDir}}/logger/adapters/null"
+  pino:
+    description: Pino-backed structured logger
+    copy:
+      - from: src/adapters/pino
+        to: "{{targetDir}}/logger/adapters/pino"
+    deps:
+      - pino
+      - pino-pretty
+      - pino-std-serializers

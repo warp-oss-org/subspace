@@ -1,0 +1,37 @@
+name: id
+description: ID generators, branding, and ID codecs
+language: typescript
+defaultAdapter: nanoid
+
+exclude:
+  - "*.spec.ts"
+  - "*.test.ts"
+  - "__test__"
+  - "__tests__"
+
+copy:
+  - from: src/ports
+    to: "{{targetDir}}/id/ports"
+  - from: src/core
+    to: "{{targetDir}}/id/core"
+
+adapters:
+  nanoid:
+    description: Nano ID generator
+    copy:
+      - from: src/adapters/nanoid.ts
+        to: "{{targetDir}}/id/adapters"
+    deps:
+      - nanoid
+  prefixed:
+    description: Prefix wrapper for another ID generator
+    copy:
+      - from: src/adapters/prefixed.ts
+        to: "{{targetDir}}/id/adapters"
+  uuid:
+    description: UUID v4 and v7 generators
+    copy:
+      - from: src/adapters/uuid.ts
+        to: "{{targetDir}}/id/adapters"
+    deps:
+      - uuid

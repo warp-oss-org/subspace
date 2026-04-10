@@ -1,0 +1,26 @@
+name: server
+description: Opinionated server composition utilities
+language: typescript
+
+exclude:
+  - "*.spec.ts"
+  - "*.test.ts"
+  - "__test__"
+  - "__tests__"
+  - "dev"
+  - "tests"
+
+copy:
+  - from: src
+    to: "{{targetDir}}/server"
+
+requires:
+  - clock
+  - config
+  - errors
+  - logger
+
+deps:
+  - "@hono/node-server"
+  - hono
+  - zod

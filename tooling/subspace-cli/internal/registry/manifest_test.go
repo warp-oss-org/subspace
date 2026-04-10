@@ -136,6 +136,28 @@ adapters:
 	}
 }
 
+func TestParseManifestYAML_ValidWithoutAdapters(t *testing.T) {
+	t.Parallel()
+
+	m, err := ParseManifestYAML([]byte(`
+name: errors
+description: Error helpers
+language: typescript
+copy:
+  - from: src
+    to: "{{targetDir}}/errors"
+`))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if m.DefaultAdapter != "" {
+		t.Fatalf("expected no defaultAdapter, got %q", m.DefaultAdapter)
+	}
+	if len(m.Adapters) != 0 {
+		t.Fatalf("expected no adapters, got %v", m.Adapters)
+	}
+}
+
 // --- Normalization ---
 
 func TestParseManifestYAML_NormalizesFields(t *testing.T) {
@@ -260,21 +282,6 @@ adapters:
       - from: adapters/memory
         to: x
 `},
-		{"missing defaultAdapter", `
-name: kv
-description: test
-language: typescript
-defaultAdapter: ""
-copy:
-  - from: base
-    to: dest
-adapters:
-  memory:
-    description: mem
-    copy:
-      - from: adapters/memory
-        to: x
-`},
 		{"no copy entries", `
 name: kv
 description: test
@@ -287,16 +294,6 @@ adapters:
     copy:
       - from: adapters/memory
         to: x
-`},
-		{"no adapters", `
-name: kv
-description: test
-language: typescript
-defaultAdapter: memory
-copy:
-  - from: base
-    to: dest
-adapters: {}
 `},
 		{"empty to field", `
 name: kv
@@ -327,6 +324,47 @@ adapters:
 }
 
 // --- Structural validation: referential + semantic ---
+
+func TestParseManifestYAML_RejectsMissingDefaultAdapterWhenAdaptersExist(t *testing.T) {
+	t.Parallel()
+
+	_, err := ParseManifestYAML([]byte(`
+name: kv
+description: test
+language: typescript
+defaultAdapter: ""
+copy:
+  - from: base
+    to: dest
+adapters:
+  memory:
+    description: mem
+    copy:
+      - from: adapters/memory
+        to: x
+`))
+	if err == nil {
+		t.Fatal("expected error for missing default adapter, got nil")
+	}
+}
+
+func TestParseManifestYAML_RejectsDefaultAdapterWhenAdaptersEmpty(t *testing.T) {
+	t.Parallel()
+
+	_, err := ParseManifestYAML([]byte(`
+name: errors
+description: test
+language: typescript
+defaultAdapter: default
+copy:
+  - from: src
+    to: dest
+adapters: {}
+`))
+	if err == nil {
+		t.Fatal("expected error for default adapter without adapters, got nil")
+	}
+}
 
 func TestParseManifestYAML_RejectsDefaultAdapterNotInMap(t *testing.T) {
 	t.Parallel()

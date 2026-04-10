@@ -98,10 +98,6 @@ func (m Manifest) ValidateStructural() error {
 	if m.Language == "" {
 		return errors.New("language is required")
 	}
-	if m.DefaultAdapter == "" {
-		return errors.New("defaultAdapter is required")
-	}
-
 	if m.Language != "typescript" {
 		return fmt.Errorf("unsupported language: %q (v1 supports: typescript)", m.Language)
 	}
@@ -140,7 +136,14 @@ func (m Manifest) ValidateStructural() error {
 	}
 
 	if len(m.Adapters) == 0 {
-		return errors.New("adapters must have at least one entry")
+		if m.DefaultAdapter != "" {
+			return fmt.Errorf("defaultAdapter %q set but adapters is empty", m.DefaultAdapter)
+		}
+		return nil
+	}
+
+	if m.DefaultAdapter == "" {
+		return errors.New("defaultAdapter is required when adapters are defined")
 	}
 	if _, ok := m.Adapters[m.DefaultAdapter]; !ok {
 		return fmt.Errorf("defaultAdapter %q not found in adapters", m.DefaultAdapter)

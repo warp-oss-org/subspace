@@ -1,0 +1,39 @@
+name: lock
+description: Lock ports with memory, Redis, and Postgres adapters
+language: typescript
+defaultAdapter: memory
+
+exclude:
+  - "*.DS_Store"
+  - "*.spec.ts"
+  - "*.test.ts"
+  - "__test__"
+  - "__tests__"
+  - "tests"
+
+copy:
+  - from: src/ports
+    to: "{{targetDir}}/lock/ports"
+  - from: src/core
+    to: "{{targetDir}}/lock/core"
+
+adapters:
+  memory:
+    description: In-process lock adapter
+    copy:
+      - from: src/adapters/memory
+        to: "{{targetDir}}/lock/adapters/memory"
+  postgres:
+    description: Postgres advisory lock adapter
+    copy:
+      - from: src/adapters/postgres
+        to: "{{targetDir}}/lock/adapters/postgres"
+    deps:
+      - pg
+  redis:
+    description: Redis-backed lock adapter
+    copy:
+      - from: src/adapters/redis
+        to: "{{targetDir}}/lock/adapters/redis"
+    deps:
+      - redis

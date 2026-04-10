@@ -1,0 +1,30 @@
+name: cache
+description: Cache ports and byte/data cache adapters
+language: typescript
+defaultAdapter: memory
+
+exclude:
+  - "*.spec.ts"
+  - "*.test.ts"
+  - "__test__"
+  - "__tests__"
+
+copy:
+  - from: src/ports
+    to: "{{targetDir}}/cache/ports"
+  - from: src/core
+    to: "{{targetDir}}/cache/core"
+
+adapters:
+  memory:
+    description: In-memory cache adapter
+    copy:
+      - from: src/adapters/memory
+        to: "{{targetDir}}/cache/adapters/memory"
+  redis:
+    description: Redis-backed cache adapter
+    copy:
+      - from: src/adapters/redis
+        to: "{{targetDir}}/cache/adapters/redis"
+    deps:
+      - redis

@@ -1,0 +1,21 @@
+name: singleflight
+description: In-flight request deduplication by key
+language: typescript
+defaultAdapter: memory
+
+exclude:
+  - "*.spec.ts"
+  - "*.test.ts"
+  - "__test__"
+  - "__tests__"
+
+copy:
+  - from: src/ports
+    to: "{{targetDir}}/singleflight/ports"
+
+adapters:
+  memory:
+    description: In-memory singleflight coordinator
+    copy:
+      - from: src/adapters/memory
+        to: "{{targetDir}}/singleflight/adapters/memory"

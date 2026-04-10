@@ -1,0 +1,16 @@
+name: retry
+description: Retry executor with configurable predicates and delays
+language: typescript
+
+exclude:
+  - "*.spec.ts"
+  - "*.test.ts"
+  - "__test__"
+  - "__tests__"
+
+copy:
+  - from: src
+    to: "{{targetDir}}/retry"
+
+requires:
+  - clock

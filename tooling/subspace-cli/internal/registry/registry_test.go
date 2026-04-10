@@ -56,11 +56,14 @@ func TestListPrimitives_SkipsNonPrimitiveDirs(t *testing.T) {
 	t.Parallel()
 
 	mapFS := fstest.MapFS{
-		"kv":               {Mode: os.ModeDir},
-		"kv/manifest.yaml": {Data: []byte(validManifestYAML)},
-		".git":             {Mode: os.ModeDir},
-		"NOTES":            {Mode: os.ModeDir},
-		"readme.txt":       {Data: []byte("not a dir")},
+		"kv":                  {Mode: os.ModeDir},
+		"kv/manifest.yaml":    {Data: []byte(validManifestYAML)},
+		"cache":               {Mode: os.ModeDir},
+		"email":               {Mode: os.ModeDir},
+		"email/manifest.yaml": {Data: []byte("not: valid")},
+		".git":                {Mode: os.ModeDir},
+		"NOTES":               {Mode: os.ModeDir},
+		"readme.txt":          {Data: []byte("not a dir")},
 	}
 	r := &fsRegistry{src: "test", fs: mapFS}
 
@@ -404,5 +407,28 @@ func TestListPrimitiveFiles_DeterministicSorting(t *testing.T) {
 	want := []string{"a.ts", "m.ts", "z.ts"}
 	if !reflect.DeepEqual(files, want) {
 		t.Fatalf("unexpected sort order: got %v want %v", files, want)
+	}
+}
+
+func TestListPrimitiveFiles_FileSource(t *testing.T) {
+	t.Parallel()
+
+	mapFS := fstest.MapFS{
+		"storage":                            {Mode: os.ModeDir},
+		"storage/manifest.yaml":              {Data: []byte(validManifestYAML)},
+		"storage/src":                        {Mode: os.ModeDir},
+		"storage/src/adapters":               {Mode: os.ModeDir},
+		"storage/src/adapters/fs-storage.ts": {Data: []byte("export {}")},
+	}
+	r := &fsRegistry{src: "test", fs: mapFS}
+
+	files, err := r.ListPrimitiveFiles("storage", "src/adapters/fs-storage.ts", nil)
+	if err != nil {
+		t.Fatalf("ListPrimitiveFiles: %v", err)
+	}
+
+	want := []string{"."}
+	if !reflect.DeepEqual(files, want) {
+		t.Fatalf("unexpected file source result: got %v want %v", files, want)
 	}
 }

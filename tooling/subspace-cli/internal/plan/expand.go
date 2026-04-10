@@ -33,23 +33,8 @@ func Build(
 	files FileEnumerator,
 ) (Plan, error) {
 	adapter := opts.Adapter
-	if adapter == "" {
-		adapter = m.DefaultAdapter
-	}
-
-	am, ok := m.Adapters[adapter]
-	if !ok {
-		available := make([]string, 0, len(m.Adapters))
-		for k := range m.Adapters {
-			available = append(available, k)
-		}
-		sort.Strings(available)
-		return Plan{}, fmt.Errorf("unknown adapter %q (available: %s)", adapter, strings.Join(available, ", "))
-	}
-
 	p := Plan{
 		Primitive: primitive,
-		Adapter:   adapter,
 	}
 	excludes := mergeExcludes(m.Exclude, opts.ExtraExcludes)
 
@@ -58,9 +43,34 @@ func Build(
 		return Plan{}, fmt.Errorf("expand base copy: %w", err)
 	}
 
-	// Adapter copy
-	if err := expandCopies(&p, primitive, am.Copy, excludes, tokens, files); err != nil {
-		return Plan{}, fmt.Errorf("expand adapter %q copy: %w", adapter, err)
+	if len(m.Adapters) > 0 {
+		if adapter == "" {
+			adapter = m.DefaultAdapter
+		}
+
+		am, ok := m.Adapters[adapter]
+		if !ok {
+			available := make([]string, 0, len(m.Adapters))
+			for k := range m.Adapters {
+				available = append(available, k)
+			}
+			sort.Strings(available)
+			return Plan{}, fmt.Errorf("unknown adapter %q (available: %s)", adapter, strings.Join(available, ", "))
+		}
+
+		p.Adapter = adapter
+
+		// Adapter copy
+		if err := expandCopies(&p, primitive, am.Copy, excludes, tokens, files); err != nil {
+			return Plan{}, fmt.Errorf("expand adapter %q copy: %w", adapter, err)
+		}
+
+		// Deps: primitive-level + adapter-level, deduped and sorted.
+		p.Deps = mergeDeps(m.Deps, am.Deps)
+	} else if adapter != "" {
+		return Plan{}, fmt.Errorf("primitive %q does not support adapters", primitive)
+	} else {
+		p.Deps = mergeDeps(m.Deps, nil)
 	}
 
 	// Tests
@@ -69,9 +79,6 @@ func Build(
 			return Plan{}, fmt.Errorf("expand tests copy: %w", err)
 		}
 	}
-
-	// Deps: primitive-level + adapter-level, deduped and sorted.
-	p.Deps = mergeDeps(m.Deps, am.Deps)
 
 	return p, nil
 }
@@ -105,24 +112,49 @@ func expandCopies(
 
 		for _, f := range srcFiles {
 			src := path.Join(op.From, f)
-
-			isTpl := strings.HasSuffix(f, ".tpl")
 			out := f
+			if f == "." {
+				src = op.From
+				out = path.Base(op.From)
+			}
+
+			isTpl := strings.HasSuffix(out, ".tpl")
 			if isTpl {
-				out = strings.TrimSuffix(f, ".tpl")
+				out = strings.TrimSuffix(out, ".tpl")
 			}
 
 			dest := path.Join(dst, out)
 
-			p.Files = append(p.Files, FileOp{
+			if err := addFile(p, FileOp{
 				SrcPath:  src,
 				DestPath: dest,
 				Template: isTpl,
-			})
+			}); err != nil {
+				return err
+			}
 
 			addDir(p, path.Dir(dest))
 		}
 	}
+	return nil
+}
+
+func addFile(p *Plan, file FileOp) error {
+	for _, existing := range p.Files {
+		if existing.DestPath != file.DestPath {
+			continue
+		}
+		if existing.SrcPath == file.SrcPath && existing.Template == file.Template {
+			return nil
+		}
+		return fmt.Errorf(
+			"destination %q already planned from %q",
+			file.DestPath,
+			existing.SrcPath,
+		)
+	}
+
+	p.Files = append(p.Files, file)
 	return nil
 }
 

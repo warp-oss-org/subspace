@@ -1,0 +1,13 @@
+name: errors
+description: Shared application error types and helpers
+language: typescript
+
+exclude:
+  - "*.spec.ts"
+  - "*.test.ts"
+  - "__test__"
+  - "__tests__"
+
+copy:
+  - from: src
+    to: "{{targetDir}}/errors"

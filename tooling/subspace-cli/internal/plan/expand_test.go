@@ -180,6 +180,121 @@ func TestBuild_NonTplFilesNotMarkedAsTemplate(t *testing.T) {
 	}
 }
 
+func TestBuild_FileCopySource(t *testing.T) {
+	t.Parallel()
+
+	m := baseManifest()
+	m.Copy = []registry.CopyOp{
+		{From: "src/adapters/fs-storage.ts", To: "{{targetDir}}/storage/adapters"},
+	}
+	m.Adapters = nil
+	m.DefaultAdapter = ""
+
+	enum := &stubEnumerator{files: map[string][]string{
+		"storage/src/adapters/fs-storage.ts": {"."},
+	}}
+
+	p, err := Build("storage", m, baseTokens(), Options{}, enum)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(p.Files) != 1 {
+		t.Fatalf("expected one file, got %d", len(p.Files))
+	}
+	if p.Files[0].SrcPath != "src/adapters/fs-storage.ts" {
+		t.Fatalf("unexpected src path: %q", p.Files[0].SrcPath)
+	}
+	if p.Files[0].DestPath != "src/infra/subspace/storage/adapters/fs-storage.ts" {
+		t.Fatalf("unexpected dest path: %q", p.Files[0].DestPath)
+	}
+}
+
+func TestBuild_FileCopyTemplateSource(t *testing.T) {
+	t.Parallel()
+
+	m := baseManifest()
+	m.Copy = []registry.CopyOp{
+		{From: "src/index.ts.tpl", To: "{{targetDir}}/errors"},
+	}
+	m.Adapters = nil
+	m.DefaultAdapter = ""
+
+	enum := &stubEnumerator{files: map[string][]string{
+		"errors/src/index.ts.tpl": {"."},
+	}}
+
+	p, err := Build("errors", m, baseTokens(), Options{}, enum)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(p.Files) != 1 {
+		t.Fatalf("expected one file, got %d", len(p.Files))
+	}
+	if p.Files[0].SrcPath != "src/index.ts.tpl" {
+		t.Fatalf("unexpected src path: %q", p.Files[0].SrcPath)
+	}
+	if p.Files[0].DestPath != "src/infra/subspace/errors/index.ts" {
+		t.Fatalf("unexpected dest path: %q", p.Files[0].DestPath)
+	}
+	if !p.Files[0].Template {
+		t.Fatal("expected Template=true for .tpl file source")
+	}
+}
+
+func TestBuild_DeduplicatesIdenticalFiles(t *testing.T) {
+	t.Parallel()
+
+	m := baseManifest()
+	m.Copy = []registry.CopyOp{
+		{From: "src/common", To: "{{targetDir}}/config/common"},
+	}
+	m.DefaultAdapter = "env"
+	m.Adapters = map[string]registry.AdapterManifest{
+		"env": {
+			Description: "Environment",
+			Copy: []registry.CopyOp{
+				{From: "src/common", To: "{{targetDir}}/config/common"},
+			},
+		},
+	}
+
+	enum := &stubEnumerator{files: map[string][]string{
+		"config/src/common": {"env-source.ts"},
+	}}
+
+	p, err := Build("config", m, baseTokens(), Options{}, enum)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(p.Files) != 1 {
+		t.Fatalf("expected duplicate file to be skipped, got %d files: %v", len(p.Files), p.Files)
+	}
+}
+
+func TestBuild_RejectsConflictingDestinationFiles(t *testing.T) {
+	t.Parallel()
+
+	m := baseManifest()
+	m.Copy = []registry.CopyOp{
+		{From: "src/common", To: "{{targetDir}}/config"},
+		{From: "src/other", To: "{{targetDir}}/config"},
+	}
+	m.Adapters = nil
+	m.DefaultAdapter = ""
+
+	enum := &stubEnumerator{files: map[string][]string{
+		"config/src/common": {"index.ts"},
+		"config/src/other":  {"index.ts"},
+	}}
+
+	_, err := Build("config", m, baseTokens(), Options{}, enum)
+	if err == nil {
+		t.Fatal("expected destination conflict error, got nil")
+	}
+}
+
 // --- Tests section ---
 
 func TestBuild_IncludesTests(t *testing.T) {
@@ -231,6 +346,54 @@ func TestBuild_NoTestsSection(t *testing.T) {
 	// Only base + adapter files, no test files.
 	if len(p.Files) != 2 {
 		t.Fatalf("expected 2 files (no tests), got %d", len(p.Files))
+	}
+}
+
+func TestBuild_PrimitiveWithoutAdapters(t *testing.T) {
+	t.Parallel()
+
+	m := registry.Manifest{
+		Name:        "errors",
+		Description: "Error helpers",
+		Language:    "typescript",
+		Copy: []registry.CopyOp{
+			{From: "src", To: "{{targetDir}}/errors"},
+		},
+	}
+	enum := &stubEnumerator{files: map[string][]string{
+		"errors/src": {"index.ts", "core/base-error.ts"},
+	}}
+
+	p, err := Build("errors", m, baseTokens(), Options{}, enum)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if p.Adapter != "" {
+		t.Fatalf("expected no adapter, got %q", p.Adapter)
+	}
+	if len(p.Files) != 2 {
+		t.Fatalf("expected 2 files, got %d", len(p.Files))
+	}
+}
+
+func TestBuild_RejectsAdapterForPrimitiveWithoutAdapters(t *testing.T) {
+	t.Parallel()
+
+	m := registry.Manifest{
+		Name:        "errors",
+		Description: "Error helpers",
+		Language:    "typescript",
+		Copy: []registry.CopyOp{
+			{From: "src", To: "{{targetDir}}/errors"},
+		},
+	}
+	enum := &stubEnumerator{files: map[string][]string{
+		"errors/src": {"index.ts"},
+	}}
+
+	_, err := Build("errors", m, baseTokens(), Options{Adapter: "memory"}, enum)
+	if err == nil {
+		t.Fatal("expected adapter error, got nil")
 	}
 }
 

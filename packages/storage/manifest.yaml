@@ -1,0 +1,46 @@
+name: storage
+description: Object storage ports with memory, filesystem, S3, and GCS adapters
+language: typescript
+defaultAdapter: memory
+
+exclude:
+  - "*.spec.ts"
+  - "*.test.ts"
+  - "__test__"
+  - "__tests__"
+  - "tests"
+
+copy:
+  - from: src/ports
+    to: "{{targetDir}}/storage/ports"
+
+requires:
+  - clock
+
+adapters:
+  fs:
+    description: Filesystem-backed storage adapter
+    copy:
+      - from: src/adapters/fs-storage.ts
+        to: "{{targetDir}}/storage/adapters"
+  gcs:
+    description: Google Cloud Storage adapter
+    copy:
+      - from: src/adapters/gcs-storage.ts
+        to: "{{targetDir}}/storage/adapters"
+    deps:
+      - "@google-cloud/storage"
+  memory:
+    description: In-memory storage adapter
+    copy:
+      - from: src/adapters/memory-storage.ts
+        to: "{{targetDir}}/storage/adapters"
+  s3:
+    description: Amazon S3 storage adapter
+    copy:
+      - from: src/adapters/s3-storage.ts
+        to: "{{targetDir}}/storage/adapters"
+    deps:
+      - "@aws-sdk/client-s3"
+      - "@aws-sdk/lib-storage"
+      - "@aws-sdk/s3-request-presigner"

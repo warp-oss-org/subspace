@@ -41,16 +41,18 @@ func runInfo(primitive string, embeddedFS fs.FS) error {
 
 	// Adapters
 	adapters := sortedAdapterNames(m)
-	fmt.Printf("Adapters:\n")
-	for _, name := range adapters {
-		a := m.Adapters[name]
-		def := ""
-		if name == m.DefaultAdapter {
-			def = " (default)"
+	if len(adapters) > 0 {
+		fmt.Printf("Adapters:\n")
+		for _, name := range adapters {
+			a := m.Adapters[name]
+			def := ""
+			if name == m.DefaultAdapter {
+				def = " (default)"
+			}
+			fmt.Printf("  %-16s %s%s\n", name, a.Description, def)
 		}
-		fmt.Printf("  %-16s %s%s\n", name, a.Description, def)
+		fmt.Println()
 	}
-	fmt.Println()
 
 	// Deps
 	if len(m.Deps) > 0 {

@@ -1,0 +1,47 @@
+name: email
+description: Email transport ports with provider adapters
+language: typescript
+defaultAdapter: smtp
+
+exclude:
+  - "*.spec.ts"
+  - "*.test.ts"
+  - "__test__"
+  - "__tests__"
+  - "tests"
+
+copy:
+  - from: src/ports
+    to: "{{targetDir}}/email/ports"
+  - from: src/core
+    to: "{{targetDir}}/email/core"
+
+adapters:
+  postmark:
+    description: Postmark email transport
+    copy:
+      - from: src/adapters/postmark
+        to: "{{targetDir}}/email/adapters/postmark"
+    deps:
+      - postmark
+  sendgrid:
+    description: SendGrid email transport
+    copy:
+      - from: src/adapters/sendgrid
+        to: "{{targetDir}}/email/adapters/sendgrid"
+    deps:
+      - "@sendgrid/mail"
+  ses:
+    description: AWS SES v2 email transport
+    copy:
+      - from: src/adapters/ses
+        to: "{{targetDir}}/email/adapters/ses"
+    deps:
+      - "@aws-sdk/client-sesv2"
+  smtp:
+    description: SMTP email transport
+    copy:
+      - from: src/adapters/smtp
+        to: "{{targetDir}}/email/adapters/smtp"
+    deps:
+      - nodemailer

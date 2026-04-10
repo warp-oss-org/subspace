@@ -23,10 +23,11 @@ type Registry interface {
 	// ReadPrimitiveFile reads a file relative to a primitive's root directory.
 	ReadPrimitiveFile(primitive, relPath string) ([]byte, error)
 
-	// ListPrimitiveFiles returns all file paths under a primitive subdirectory.
+	// ListPrimitiveFiles returns all file paths under a primitive source path.
 	//
-	// `fromDir` is a directory path relative to the primitive root (e.g. "base", "adapters/redis").
+	// `fromDir` is a path relative to the primitive root (e.g. "base", "adapters/redis", "adapters/fs.ts").
 	// The returned paths are relative to `fromDir` (e.g. "port.ts", "nested/file.ts").
+	// If `fromDir` points to a file, the returned sentinel path is ".".
 	// Results are sorted and contain files only (no directories).
 	ListPrimitiveFiles(primitive, fromDir string, excludes []string) ([]string, error)
 }
@@ -71,6 +72,9 @@ func (r *fsRegistry) ListPrimitives() ([]string, error) {
 		}
 		if validatePrimitiveName(e.Name()) != nil {
 			continue // skip non-primitive dirs (notes, etc.)
+		}
+		if _, err := r.LoadManifest(e.Name()); err != nil {
+			continue // only list installable primitives with valid manifests
 		}
 		out = append(out, e.Name())
 	}
@@ -124,6 +128,17 @@ func (r *fsRegistry) ListPrimitiveFiles(primitive, fromDir string, excludes []st
 	root, err := safePrimitiveJoin(primitive, fromDir)
 	if err != nil {
 		return nil, fmt.Errorf("list files in %q: %w", primitive, err)
+	}
+
+	info, err := fs.Stat(r.fs, root)
+	if err != nil {
+		return nil, fmt.Errorf("stat %q/%q: %w", primitive, fromDir, err)
+	}
+	if !info.IsDir() {
+		if shouldExcludeName(path.Base(root), excludes) {
+			return nil, nil
+		}
+		return []string{"."}, nil
 	}
 
 	var out []string

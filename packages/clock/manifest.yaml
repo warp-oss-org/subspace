@@ -1,0 +1,26 @@
+name: clock
+description: Real and fake clock abstractions
+language: typescript
+defaultAdapter: system
+
+exclude:
+  - "*.spec.ts"
+  - "*.test.ts"
+  - "__test__"
+  - "__tests__"
+
+copy:
+  - from: src/ports
+    to: "{{targetDir}}/clock/ports"
+
+adapters:
+  fake:
+    description: Controllable fake clock for tests and deterministic workflows
+    copy:
+      - from: src/adapters/fake-clock.ts
+        to: "{{targetDir}}/clock/adapters"
+  system:
+    description: System clock backed by Date and timers
+    copy:
+      - from: src/adapters/system-clock.ts
+        to: "{{targetDir}}/clock/adapters"

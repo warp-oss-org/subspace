@@ -1,0 +1,45 @@
+name: config
+description: Layered config loading from dotenv, env, JSON, and object sources
+language: typescript
+defaultAdapter: env
+
+exclude:
+  - "*.spec.ts"
+  - "*.test.ts"
+  - "__test__"
+  - "__tests__"
+
+copy:
+  - from: src/ports
+    to: "{{targetDir}}/config/ports"
+  - from: src/core
+    to: "{{targetDir}}/config/core"
+  - from: src/adapters/env
+    to: "{{targetDir}}/config/adapters/env"
+
+adapters:
+  dotenv:
+    description: Dotenv file configuration source
+    copy:
+      - from: src/adapters/dotenv
+        to: "{{targetDir}}/config/adapters/dotenv"
+    deps:
+      - dotenv
+  env:
+    description: Process environment configuration source
+    copy:
+      - from: src/adapters/env
+        to: "{{targetDir}}/config/adapters/env"
+  json:
+    description: JSON file configuration source
+    copy:
+      - from: src/adapters/json
+        to: "{{targetDir}}/config/adapters/json"
+  object:
+    description: In-memory object configuration source
+    copy:
+      - from: src/adapters/object
+        to: "{{targetDir}}/config/adapters/object"
+
+deps:
+  - zod

@@ -166,7 +166,11 @@ func printPlans(plans []plan.Plan, depPkgs []string, cfg config.Config) {
 }
 
 func printPlan(p plan.Plan) {
-	fmt.Printf("Primitive: %s (adapter: %s)\n\n", p.Primitive, p.Adapter)
+	if p.Adapter == "" {
+		fmt.Printf("Primitive: %s\n\n", p.Primitive)
+	} else {
+		fmt.Printf("Primitive: %s (adapter: %s)\n\n", p.Primitive, p.Adapter)
+	}
 
 	if len(p.Dirs) > 0 {
 		fmt.Println("Directories:")

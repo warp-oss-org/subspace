@@ -1,0 +1,17 @@
+name: backoff
+description: Backoff strategy and jitter policy primitives
+language: typescript
+
+exclude:
+  - "*.spec.ts"
+  - "*.test.ts"
+  - "__test__"
+  - "__tests__"
+
+copy:
+  - from: src/ports
+    to: "{{targetDir}}/backoff/ports"
+  - from: src/core
+    to: "{{targetDir}}/backoff/core"
+  - from: src/adapters/random.ts
+    to: "{{targetDir}}/backoff/adapters"
