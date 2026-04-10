@@ -20,8 +20,11 @@ Provider adapters
 ## Usage
 
 ```ts
-// Use EmailTransport implementations from src/adapters/*.
-// See adapter files for provider-specific construction.
+import {
+  SmtpTransport,
+  type EmailMessage,
+  type EmailTransport,
+} from "@subspace/email"
 ```
 
 ## Adapters

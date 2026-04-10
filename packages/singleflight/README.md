@@ -21,8 +21,10 @@ Use the port definitions as the source of truth:
 ## Usage
 
 ```ts
-// Use Singleflight implementations from src/adapters/*.
-// In-memory adapter is the default implementation in this package.
+import {
+  MemorySingleflight,
+  type Singleflight,
+} from "@subspace/singleflight"
 ```
 
 ## Adapters

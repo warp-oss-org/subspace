@@ -27,8 +27,13 @@ Helper utilities:
 ## Usage
 
 ```ts
-// Use Lock implementations from src/adapters/* and
-// execute critical sections via withLock/tryWithLock.
+import {
+  MemoryLock,
+  SystemClock,
+  pollUntil,
+  sleep,
+  withLock,
+} from "@subspace/lock"
 ```
 
 ## Adapters

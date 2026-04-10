@@ -21,8 +21,11 @@ Use the port definitions as the source of truth:
 ## Usage
 
 ```ts
-// Use SecretVault implementations from src/adapters/*.
-// Choose provider-specific adapters by deployment environment.
+import {
+  EnvSecretVault,
+  MemorySecretVault,
+  type SecretVault,
+} from "@subspace/secrets"
 ```
 
 ## Adapters

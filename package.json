@@ -29,7 +29,7 @@
     "subspace:cli:check": "pnpm subspace:cli:fmt && pnpm subspace:cli:test && pnpm subspace:cli:lint"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.3.11",
+    "@biomejs/biome": "^2.4.6",
     "@types/node": "^22.19.3",
     "@vitest/coverage-v8": "^4.0.16",
     "@vitest/ui": "^4.0.16",

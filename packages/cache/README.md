@@ -24,8 +24,13 @@ Core modules (`codec`, `eviction`, `through`)
 ## Usage
 
 ```ts
-// Package APIs are centered in ports/core/adapters.
-// Start from src/ports and src/adapters for integration points.
+import {
+  CodecDataCache,
+  MemoryBytesCache,
+  SystemClock,
+  LruMemoryMap,
+  type Codec,
+} from "@subspace/cache"
 ```
 
 ## Adapters
