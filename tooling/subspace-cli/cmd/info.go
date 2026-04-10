@@ -11,8 +11,6 @@ import (
 	"github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/registry"
 )
 
-// NewInfoCmd creates the info command.
-// Does not require subspace.config.yaml — works anywhere.
 func NewInfoCmd(embeddedFS fs.FS) *cobra.Command {
 	return &cobra.Command{
 		Use:   "info <primitive>",
@@ -35,11 +33,9 @@ func runInfo(primitive string, embeddedFS fs.FS) error {
 		return err
 	}
 
-	// Header
 	fmt.Printf("%s\n", m.Name)
 	fmt.Printf("%s\n\n", m.Description)
 
-	// Adapters
 	adapters := sortedAdapterNames(m)
 	if len(adapters) > 0 {
 		fmt.Printf("Adapters:\n")
@@ -54,12 +50,10 @@ func runInfo(primitive string, embeddedFS fs.FS) error {
 		fmt.Println()
 	}
 
-	// Deps
 	if len(m.Deps) > 0 {
 		fmt.Printf("Dependencies: %s\n", strings.Join(m.Deps, ", "))
 	}
 
-	// Adapter-specific deps
 	for _, name := range adapters {
 		a := m.Adapters[name]
 		if len(a.Deps) > 0 {
@@ -70,17 +64,14 @@ func runInfo(primitive string, embeddedFS fs.FS) error {
 		fmt.Println()
 	}
 
-	// Language
 	fmt.Printf("Language: %s\n\n", m.Language)
 
-	// Usage hint
 	fmt.Printf("Add to your project:\n")
 	fmt.Printf("  subspace add %s\n", m.Name)
 	if len(adapters) > 1 {
 		fmt.Printf("  subspace add %s --adapter <name>\n", m.Name)
 	}
 
-	// README
 	readme, err := reg.ReadPrimitiveFile(primitive, "README.md")
 	if err == nil && len(readme) > 0 {
 		fmt.Printf("\n---\n\n%s\n", string(readme))

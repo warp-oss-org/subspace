@@ -17,33 +17,33 @@ import (
 	"github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/render"
 )
 
-var (
-	addAdapter      string
-	addOverwrite    bool
-	addDryRun       bool
-	addExcludeTests bool
-)
+type addOptions struct {
+	adapter      string
+	overwrite    bool
+	dryRun       bool
+	excludeTests bool
+}
 
-// NewAddCmd creates the add command. embeddedFS is the pre-stripped registry FS.
 func NewAddCmd(embeddedFS fs.FS) *cobra.Command {
+	opts := addOptions{}
 	cmd := &cobra.Command{
 		Use:   "add <primitive>",
 		Short: "Scaffold a primitive into your repo",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runAdd(args[0], embeddedFS)
+			return runAdd(args[0], embeddedFS, opts)
 		},
 	}
 
-	cmd.Flags().StringVar(&addAdapter, "adapter", "", "adapter to scaffold (default: manifest default)")
-	cmd.Flags().BoolVar(&addOverwrite, "overwrite", false, "overwrite existing files")
-	cmd.Flags().BoolVar(&addDryRun, "dry-run", false, "print plan without writing files")
-	cmd.Flags().BoolVar(&addExcludeTests, "exclude-tests", false, "exclude common test file and directory names")
+	cmd.Flags().StringVar(&opts.adapter, "adapter", "", "adapter to scaffold (default: manifest default)")
+	cmd.Flags().BoolVar(&opts.overwrite, "overwrite", false, "overwrite existing files")
+	cmd.Flags().BoolVar(&opts.dryRun, "dry-run", false, "print plan without writing files")
+	cmd.Flags().BoolVar(&opts.excludeTests, "exclude-tests", false, "exclude common test file and directory names")
 
 	return cmd
 }
 
-func runAdd(primitive string, embeddedFS fs.FS) error {
+func runAdd(primitive string, embeddedFS fs.FS, opts addOptions) error {
 	cfg, err := config.Load(config.DefaultConfigFilename)
 	if err != nil {
 		return err
@@ -61,21 +61,19 @@ func runAdd(primitive string, embeddedFS fs.FS) error {
 		return err
 	}
 
-	plans, err := buildScaffoldPlans(reg, primitives, cfg.TargetDir, primitive, addAdapter)
+	plans, err := buildScaffoldPlans(reg, primitives, cfg.TargetDir, primitive, opts)
 	if err != nil {
 		return err
 	}
 
 	depPkgs := collectDeps(plans)
 
-	// Dry run: print plan and exit.
-	if addDryRun {
+	if opts.dryRun {
 		printPlans(plans, depPkgs, cfg)
 		return nil
 	}
 
-	// Collision check.
-	if !addOverwrite {
+	if !opts.overwrite {
 		conflicts, err := collectConflicts(plans)
 		if err != nil {
 			return err
@@ -89,10 +87,9 @@ func runAdd(primitive string, embeddedFS fs.FS) error {
 		}
 	}
 
-	// Execute.
 	for _, p := range plans {
 		if err := render.Execute(reg, p, render.ExecuteOptions{
-			Overwrite: addOverwrite,
+			Overwrite: opts.overwrite,
 			TemplateData: render.TemplateData{
 				"targetDir": cfg.TargetDir,
 			},
@@ -101,7 +98,6 @@ func runAdd(primitive string, embeddedFS fs.FS) error {
 		}
 	}
 
-	// Summary.
 	printSummary(plans, depPkgs, cfg)
 	return nil
 }
@@ -111,7 +107,7 @@ func buildScaffoldPlans(
 	primitives []string,
 	targetDir string,
 	rootPrimitive string,
-	rootAdapter string,
+	addOpts addOptions,
 ) ([]plan.Plan, error) {
 	tokens := plan.Tokens{TargetDir: targetDir}
 	out := make([]plan.Plan, 0, len(primitives))
@@ -122,13 +118,13 @@ func buildScaffoldPlans(
 			return nil, err
 		}
 
-		opts := plan.Options{}
-		opts.ExtraExcludes = extraExcludesForAdd(addExcludeTests)
+		planOpts := plan.Options{}
+		planOpts.ExtraExcludes = extraExcludesForAdd(addOpts.excludeTests)
 		if primitive == rootPrimitive {
-			opts.Adapter = rootAdapter
+			planOpts.Adapter = addOpts.adapter
 		}
 
-		p, err := plan.Build(primitive, m, tokens, opts, reg)
+		p, err := plan.Build(primitive, m, tokens, planOpts, reg)
 		if err != nil {
 			return nil, err
 		}

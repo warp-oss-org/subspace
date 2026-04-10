@@ -9,9 +9,8 @@ import (
 	"github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/plan"
 )
 
-// stubReader implements FileReader for testing.
 type stubReader struct {
-	files map[string]string // "primitive/path" → content
+	files map[string]string
 }
 
 func (s *stubReader) ReadPrimitiveFile(primitive, relPath string) ([]byte, error) {
@@ -58,7 +57,6 @@ func TestExecute_CreatesDirectoriesAndFiles(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	// Verify files written.
 	b, err := os.ReadFile(filepath.Join(dir, "kv", "port.ts"))
 	if err != nil {
 		t.Fatalf("read port.ts: %v", err)
@@ -120,7 +118,6 @@ func TestExecute_RefusesOverwriteByDefault(t *testing.T) {
 
 	dir := t.TempDir()
 
-	// Pre-create the file.
 	dest := filepath.Join(dir, "kv", "port.ts")
 	if err := os.MkdirAll(filepath.Dir(dest), 0o755); err != nil {
 		t.Fatalf("mkdir: %v", err)
@@ -146,7 +143,6 @@ func TestExecute_RefusesOverwriteByDefault(t *testing.T) {
 		t.Fatal("expected overwrite refusal, got nil")
 	}
 
-	// Verify original content preserved.
 	b, err := os.ReadFile(dest)
 	if err != nil {
 		t.Fatalf("read: %v", err)

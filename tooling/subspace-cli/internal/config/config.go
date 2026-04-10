@@ -27,16 +27,12 @@ func Default() Config {
 	}
 }
 
-// Normalize trims whitespace and lowercases relevant fields.
-// Must be called before Validate.
 func (c *Config) Normalize() {
 	c.TargetDir = strings.TrimSpace(c.TargetDir)
 	c.Language = strings.ToLower(strings.TrimSpace(c.Language))
 	c.PackageManager = strings.ToLower(strings.TrimSpace(c.PackageManager))
 }
 
-// Validate checks all required fields are present and valid.
-// Assumes Normalize has already been called.
 func (c Config) Validate() error {
 	if c.TargetDir == "" {
 		return errors.New("targetDir is required")
@@ -53,7 +49,7 @@ func (c Config) Validate() error {
 	}
 
 	switch c.Language {
-	case "typescript": // ok
+	case "typescript":
 	default:
 		return fmt.Errorf("unsupported language: %q (v1 supports: typescript)", c.Language)
 	}
@@ -67,7 +63,6 @@ func (c Config) Validate() error {
 	return nil
 }
 
-// Load reads, parses, normalizes, and validates a config file.
 func Load(path string) (Config, error) {
 	b, err := os.ReadFile(path)
 	if err != nil {
@@ -88,8 +83,6 @@ func Load(path string) (Config, error) {
 	return c, nil
 }
 
-// WriteDefault writes a default config to path.
-// Refuses to overwrite an existing file. Writes atomically via temp + rename.
 func WriteDefault(path string) error {
 	if _, err := os.Stat(path); err == nil {
 		return fmt.Errorf("config already exists: %s", path)

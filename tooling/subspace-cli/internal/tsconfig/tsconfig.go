@@ -11,12 +11,10 @@ import (
 	"github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/fsx"
 )
 
-// TSConfig wraps a parsed tsconfig.json document.
 type TSConfig struct {
 	Data map[string]any
 }
 
-// Load reads and parses tsconfig.json from path.
 func Load(path string) (TSConfig, error) {
 	b, err := os.ReadFile(path)
 	if err != nil {
@@ -37,9 +35,6 @@ func Load(path string) (TSConfig, error) {
 	return TSConfig{Data: root}, nil
 }
 
-// EnsureSubspaceAlias mutates cfg to guarantee @subspace/* alias resolution.
-// It sets compilerOptions.baseUrl to "." only when missing.
-// It sets compilerOptions.paths["@subspace/*"] to ["./<targetDir>/*"].
 func EnsureSubspaceAlias(cfg *TSConfig, targetDir string) error {
 	if cfg == nil {
 		return fmt.Errorf("tsconfig is nil")
@@ -64,7 +59,6 @@ func EnsureSubspaceAlias(cfg *TSConfig, targetDir string) error {
 	return nil
 }
 
-// WriteAtomic writes cfg to path via temp file + rename.
 func WriteAtomic(path string, cfg TSConfig) error {
 	if cfg.Data == nil {
 		cfg.Data = map[string]any{}

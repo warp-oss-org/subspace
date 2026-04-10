@@ -140,18 +140,29 @@ packageManager: pnpm
 
 ### Build and distribution
 
-```bash
-# Dev — iterate without rebuilding
-make dev ARGS="add cache --dry-run"
+`registry/` is generated release output and is intentionally git-ignored. Build or test commands must generate it before `go build`/`go test`; `go:embed` explicitly requires `registry/registry.json` so missing registry output fails the build instead of embedding a placeholder.
 
-# Test
-make test
+```bash
+# Build deterministic source registry from repo packages
+go run ./cmd/subspace-registry build --source ../../packages --out registry
+
+# Validate generated registry hashes, paths, manifests, and dry-run plans
+go run ./cmd/subspace-registry validate --dir registry
 
 # Build distributable binary
-make build
+go build -o /tmp/subspace-cli .
 ```
 
-The sync script copies [packages/*/](../../packages/) (those with `manifest.yaml`) into [tooling/subspace-cli/registry/](./registry/), excluding junk. The embed bundles `registry/` into the binary. `SUBSPACE_REGISTRY_DIR` overrides for local dev.
+The registry builder copies manifest-backed [packages/*/](../../packages/) into [tooling/subspace-cli/registry/](./registry/) with `registry.json`, per-primitive manifests, source files, SHA-256 hashes, the source git SHA, and the registry schema version. The embed bundles generated `registry/` into release binaries.
+
+Registry source selection:
+
+- Embedded registry is used by default.
+- `SUBSPACE_REGISTRY_DIR=/path/to/registry` uses a local package or generated registry directory.
+- `SUBSPACE_REGISTRY_URL=https://.../registry.tar.gz` plus `SUBSPACE_REGISTRY_SHA256=<archive-sha256>` uses a pinned remote registry archive.
+- `SUBSPACE_REGISTRY_CA_FILE=/path/to/ca.pem` can add a private CA for internal HTTPS registry testing.
+
+Remote registries are static tar archives only. The CLI verifies the declared archive SHA-256 before extraction, validates `registry.json` file hashes after extraction, rejects path traversal and unsupported archive entries, and never executes registry-provided scripts or commands.
 
 ### What ships with every primitive
 

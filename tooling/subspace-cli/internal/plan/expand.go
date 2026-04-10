@@ -10,21 +10,15 @@ import (
 	"github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/registry"
 )
 
-// FileEnumerator lists files within a primitive's registry directory.
-// Satisfied by registry.Registry — kept minimal so the planner doesn't
-// depend on manifest loading or other registry concerns.
 type FileEnumerator interface {
 	ListPrimitiveFiles(primitive, dir string, excludes []string) ([]string, error)
 }
 
-// Options controls how a plan is built.
 type Options struct {
-	Adapter       string   // if empty, uses manifest's defaultAdapter
-	ExtraExcludes []string // merged with manifest excludes
+	Adapter       string
+	ExtraExcludes []string
 }
 
-// Build turns a manifest + tokens + options into a deterministic Plan.
-// No IO, no filesystem writes — pure data transformation.
 func Build(
 	primitive string,
 	m registry.Manifest,
@@ -32,48 +26,27 @@ func Build(
 	opts Options,
 	files FileEnumerator,
 ) (Plan, error) {
-	adapter := opts.Adapter
 	p := Plan{
 		Primitive: primitive,
 	}
 	excludes := mergeExcludes(m.Exclude, opts.ExtraExcludes)
 
-	// Base copy
 	if err := expandCopies(&p, primitive, m.Copy, excludes, tokens, files); err != nil {
 		return Plan{}, fmt.Errorf("expand base copy: %w", err)
 	}
 
-	if len(m.Adapters) > 0 {
-		if adapter == "" {
-			adapter = m.DefaultAdapter
-		}
-
-		am, ok := m.Adapters[adapter]
-		if !ok {
-			available := make([]string, 0, len(m.Adapters))
-			for k := range m.Adapters {
-				available = append(available, k)
-			}
-			sort.Strings(available)
-			return Plan{}, fmt.Errorf("unknown adapter %q (available: %s)", adapter, strings.Join(available, ", "))
-		}
-
+	adapter, adapterManifest, err := resolveAdapter(primitive, m, opts.Adapter)
+	if err != nil {
+		return Plan{}, err
+	}
+	if adapter != "" {
 		p.Adapter = adapter
-
-		// Adapter copy
-		if err := expandCopies(&p, primitive, am.Copy, excludes, tokens, files); err != nil {
+		if err := expandCopies(&p, primitive, adapterManifest.Copy, excludes, tokens, files); err != nil {
 			return Plan{}, fmt.Errorf("expand adapter %q copy: %w", adapter, err)
 		}
-
-		// Deps: primitive-level + adapter-level, deduped and sorted.
-		p.Deps = mergeDeps(m.Deps, am.Deps)
-	} else if adapter != "" {
-		return Plan{}, fmt.Errorf("primitive %q does not support adapters", primitive)
-	} else {
-		p.Deps = mergeDeps(m.Deps, nil)
 	}
+	p.Deps = mergeDeps(m.Deps, adapterManifest.Deps)
 
-	// Tests
 	if m.Tests != nil {
 		if err := expandCopies(&p, primitive, m.Tests.Copy, excludes, tokens, files); err != nil {
 			return Plan{}, fmt.Errorf("expand tests copy: %w", err)
@@ -83,9 +56,35 @@ func Build(
 	return p, nil
 }
 
-// expandCopies resolves template tokens, enumerates source files, and appends
-// FileOps and DirOps to the plan. Uses path (slash-separated) throughout
-// because registry paths and dest paths are platform-independent.
+func resolveAdapter(
+	primitive string,
+	m registry.Manifest,
+	requested string,
+) (string, registry.AdapterManifest, error) {
+	if len(m.Adapters) == 0 {
+		if requested != "" {
+			return "", registry.AdapterManifest{}, fmt.Errorf("primitive %q does not support adapters", primitive)
+		}
+		return "", registry.AdapterManifest{}, nil
+	}
+
+	adapter := requested
+	if adapter == "" {
+		adapter = m.DefaultAdapter
+	}
+
+	adapterManifest, ok := m.Adapters[adapter]
+	if !ok {
+		return "", registry.AdapterManifest{}, fmt.Errorf(
+			"unknown adapter %q (available: %s)",
+			adapter,
+			strings.Join(sortedAdapterNames(m.Adapters), ", "),
+		)
+	}
+
+	return adapter, adapterManifest, nil
+}
+
 func expandCopies(
 	p *Plan,
 	primitive string,
@@ -100,7 +99,6 @@ func expandCopies(
 			return fmt.Errorf("resolve %q: %w", op.To, err)
 		}
 
-		// Validate after resolution — this is where traversal/absolute path checks happen.
 		if _, err := fsx.ValidateRelativePath(dst); err != nil {
 			return fmt.Errorf("invalid resolved destination %q: %w", dst, err)
 		}
@@ -158,8 +156,6 @@ func addFile(p *Plan, file FileOp) error {
 	return nil
 }
 
-// resolveTokens replaces known template tokens in a string.
-// Returns an error if unresolved tokens remain.
 func resolveTokens(tpl string, t Tokens) (string, error) {
 	s := tpl
 	s = strings.ReplaceAll(s, "{{targetDir}}", t.TargetDir)
@@ -171,7 +167,6 @@ func resolveTokens(tpl string, t Tokens) (string, error) {
 	return s, nil
 }
 
-// addDir appends a DirOp if it hasn't been seen yet.
 func addDir(p *Plan, dir string) {
 	if dir == "." || dir == "" {
 		return
@@ -184,7 +179,6 @@ func addDir(p *Plan, dir string) {
 	p.Dirs = append(p.Dirs, DirOp{Path: dir})
 }
 
-// mergeDeps combines two dep slices, deduplicates, and sorts.
 func mergeDeps(a, b []string) []string {
 	seen := map[string]struct{}{}
 	var out []string
@@ -204,6 +198,15 @@ func mergeDeps(a, b []string) []string {
 
 	sort.Strings(out)
 	return out
+}
+
+func sortedAdapterNames(adapters map[string]registry.AdapterManifest) []string {
+	names := make([]string, 0, len(adapters))
+	for name := range adapters {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
 }
 
 func mergeExcludes(a, b []string) []string {

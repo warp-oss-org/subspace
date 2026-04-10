@@ -11,7 +11,6 @@ import (
 	"github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/tsconfig"
 )
 
-// NewInitCmd creates the init command.
 func NewInitCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "init",

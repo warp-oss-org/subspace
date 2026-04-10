@@ -7,8 +7,6 @@ import (
 	"time"
 )
 
-// fakeStat returns a StatFunc that reports the given paths as existing.
-// All other paths return fs.ErrNotExist.
 func fakeStat(existing map[string]bool) StatFunc {
 	return func(path string) (fs.FileInfo, error) {
 		if existing[path] {
@@ -18,7 +16,6 @@ func fakeStat(existing map[string]bool) StatFunc {
 	}
 }
 
-// failStat returns a StatFunc that returns an unexpected error for the given paths.
 func failStat(failPaths map[string]bool) StatFunc {
 	return func(path string) (fs.FileInfo, error) {
 		if failPaths[path] {
@@ -79,7 +76,6 @@ func TestPreflightCollisions_DetectsExisting(t *testing.T) {
 	if len(conflicts) != 2 {
 		t.Fatalf("expected 2 conflicts, got %d: %v", len(conflicts), conflicts)
 	}
-	// Sorted
 	if conflicts[0].Path != "src/kv/port.ts" || conflicts[1].Path != "src/kv/types.ts" {
 		t.Fatalf("expected sorted conflicts, got %v", conflicts)
 	}
@@ -91,7 +87,7 @@ func TestPreflightCollisions_DeduplicatesPaths(t *testing.T) {
 	p := Plan{
 		Files: []FileOp{
 			{DestPath: "src/kv/port.ts"},
-			{DestPath: "src/kv/port.ts"}, // duplicate
+			{DestPath: "src/kv/port.ts"},
 		},
 	}
 

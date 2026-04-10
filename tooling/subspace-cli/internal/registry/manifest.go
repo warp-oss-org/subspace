@@ -42,16 +42,11 @@ type CopyOp struct {
 	To   string `yaml:"to"`
 }
 
-// ResolvedCopyOp is a CopyOp after template resolution.
-// Both From and To are validated relative paths.
 type ResolvedCopyOp struct {
 	From string
 	To   string
 }
 
-// ParseManifestYAML unmarshals, normalizes, and structurally validates a manifest.
-// To fields in CopyOps are NOT path-validated here because they contain template tokens.
-// Call ValidateResolvedPaths after template resolution.
 func ParseManifestYAML(b []byte) (Manifest, error) {
 	var m Manifest
 	if err := yaml.Unmarshal(b, &m); err != nil {
@@ -67,8 +62,6 @@ func ParseManifestYAML(b []byte) (Manifest, error) {
 	return m, nil
 }
 
-// Normalize trims whitespace, lowercases relevant fields, and deduplicates deps.
-// Must be called before ValidateStructural.
 func (m *Manifest) Normalize() {
 	m.Name = strings.TrimSpace(m.Name)
 	m.Description = strings.TrimSpace(m.Description)
@@ -85,9 +78,6 @@ func (m *Manifest) Normalize() {
 	}
 }
 
-// ValidateStructural checks everything that can be verified at parse time:
-// required fields, language/adapter constraints, From paths, and adapter names.
-// Does NOT validate To paths (they contain template tokens like {{targetDir}}).
 func (m Manifest) ValidateStructural() error {
 	if m.Name == "" {
 		return errors.New("name is required")
@@ -169,8 +159,6 @@ func (m Manifest) ValidateStructural() error {
 	return nil
 }
 
-// ValidateResolvedPaths validates To paths after template resolution.
-// Returns ResolvedCopyOps with all paths validated as safe relative paths.
 func ValidateResolvedPaths(ops []CopyOp) ([]ResolvedCopyOp, error) {
 	resolved := make([]ResolvedCopyOp, len(ops))
 
@@ -189,7 +177,6 @@ func ValidateResolvedPaths(ops []CopyOp) ([]ResolvedCopyOp, error) {
 	return resolved, nil
 }
 
-// validateFromPath validates a From path (always a literal registry-relative path).
 func validateFromPath(from string) error {
 	if _, err := fsx.ValidateRelativePath(from); err != nil {
 		return err

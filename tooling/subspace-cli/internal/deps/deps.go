@@ -8,17 +8,12 @@ import (
 	"github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/registry"
 )
 
-// ManifestLoader loads a primitive manifest by name.
 type ManifestLoader interface {
 	LoadManifest(primitive string) (registry.Manifest, error)
 }
 
-// PrimitiveInstalledFunc reports whether a primitive already exists in the consumer repo.
-// It should return true for installed, false for missing.
 type PrimitiveInstalledFunc func(primitive string) (bool, error)
 
-// ResolveScaffoldOrder returns primitives to scaffold in deterministic order.
-// Required primitives that are missing are scaffolded first; root is always last.
 func ResolveScaffoldOrder(
 	root string,
 	loader ManifestLoader,
@@ -28,7 +23,7 @@ func ResolveScaffoldOrder(
 		return nil, fmt.Errorf("primitive name is required")
 	}
 
-	state := map[string]int{} // 0=unseen, 1=visiting, 2=done
+	state := map[string]int{}
 	stack := []string{}
 	order := []string{}
 	added := map[string]struct{}{}

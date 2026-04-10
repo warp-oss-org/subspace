@@ -9,8 +9,6 @@ import (
 	"github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/registry"
 )
 
-// NewListCmd creates the list command.
-// Does not require subspace.config.yaml — works anywhere.
 func NewListCmd(embeddedFS fs.FS) *cobra.Command {
 	return &cobra.Command{
 		Use:   "list",
@@ -40,7 +38,6 @@ func runList(embeddedFS fs.FS) error {
 
 	fmt.Printf("Available primitives (%s):\n\n", reg.Source())
 	for _, p := range prims {
-		// Try to load manifest for description; skip on error.
 		m, err := reg.LoadManifest(p)
 		if err != nil {
 			fmt.Printf("  %s\n", p)

@@ -9,49 +9,45 @@ import (
 	"strings"
 )
 
-// Registry provides read access to Subspace primitive templates.
 type Registry interface {
-	// Source returns a human-readable description of where this registry loads from.
 	Source() string
-
-	// ListPrimitives returns sorted names of all valid primitives in the registry.
 	ListPrimitives() ([]string, error)
-
-	// LoadManifest parses and structurally validates the manifest for a primitive.
 	LoadManifest(primitive string) (Manifest, error)
-
-	// ReadPrimitiveFile reads a file relative to a primitive's root directory.
 	ReadPrimitiveFile(primitive, relPath string) ([]byte, error)
-
-	// ListPrimitiveFiles returns all file paths under a primitive source path.
-	//
-	// `fromDir` is a path relative to the primitive root (e.g. "base", "adapters/redis", "adapters/fs.ts").
-	// The returned paths are relative to `fromDir` (e.g. "port.ts", "nested/file.ts").
-	// If `fromDir` points to a file, the returned sentinel path is ".".
-	// Results are sorted and contain files only (no directories).
 	ListPrimitiveFiles(primitive, fromDir string, excludes []string) ([]string, error)
 }
 
-// Open returns a Registry. If SUBSPACE_REGISTRY_DIR is set, uses local filesystem.
-// Otherwise uses the provided embedded FS.
 func Open(embedded fs.FS) (Registry, error) {
 	if dir := os.Getenv("SUBSPACE_REGISTRY_DIR"); dir != "" {
+		if os.Getenv("SUBSPACE_REGISTRY_URL") != "" {
+			return nil, fmt.Errorf("set either SUBSPACE_REGISTRY_DIR or SUBSPACE_REGISTRY_URL, not both")
+		}
 		return openLocal(dir)
 	}
+	if url := os.Getenv("SUBSPACE_REGISTRY_URL"); url != "" {
+		return openRemote(url, os.Getenv("SUBSPACE_REGISTRY_SHA256"))
+	}
 
-	rootFS, root, err := resolveRegistryRoot(embedded)
+	return OpenFS("embedded", embedded)
+}
+
+func OpenFS(src string, base fs.FS) (Registry, error) {
+	rootFS, root, err := resolveRegistryRoot(base)
 	if err != nil {
 		return nil, err
 	}
-	src := "embedded"
+	resolvedSrc := src
 	if root != "." {
-		src = "embedded:" + root
+		resolvedSrc = src + ":" + root
 	}
-	return &fsRegistry{src: src, fs: rootFS}, nil
+	if HasIndex(rootFS) {
+		if _, err := ValidateIndex(rootFS); err != nil {
+			return nil, fmt.Errorf("validate registry index: %w", err)
+		}
+	}
+	return &fsRegistry{src: resolvedSrc, fs: rootFS}, nil
 }
 
-// fsRegistry implements Registry over any fs.FS.
-// Used by both embedded and local backends.
 type fsRegistry struct {
 	src string
 	fs  fs.FS
@@ -71,10 +67,10 @@ func (r *fsRegistry) ListPrimitives() ([]string, error) {
 			continue
 		}
 		if validatePrimitiveName(e.Name()) != nil {
-			continue // skip non-primitive dirs (notes, etc.)
+			continue
 		}
 		if _, err := r.LoadManifest(e.Name()); err != nil {
-			continue // only list installable primitives with valid manifests
+			continue
 		}
 		out = append(out, e.Name())
 	}
@@ -159,7 +155,6 @@ func (r *fsRegistry) ListPrimitiveFiles(primitive, fromDir string, excludes []st
 			return nil
 		}
 
-		// fs.FS paths are slash-separated. Produce paths relative to `fromDir`.
 		if p == root {
 			return nil
 		}

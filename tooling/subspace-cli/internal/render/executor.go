@@ -8,28 +8,22 @@ import (
 	"github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/plan"
 )
 
-// FileReader reads files from the registry. Satisfied by registry.Registry.
 type FileReader interface {
 	ReadPrimitiveFile(primitive, relPath string) ([]byte, error)
 }
 
-// ExecuteOptions controls how the plan is written to disk.
 type ExecuteOptions struct {
 	Overwrite    bool
 	TemplateData TemplateData
 }
 
-// Execute creates directories and writes files described by the plan.
-// Caller should run PreflightCollisions first if Overwrite is false.
 func Execute(reg FileReader, p plan.Plan, opts ExecuteOptions) error {
-	// 1) Create directories.
 	for _, d := range p.Dirs {
 		if err := os.MkdirAll(d.Path, 0o755); err != nil {
 			return fmt.Errorf("mkdir %q: %w", d.Path, err)
 		}
 	}
 
-	// 2) Write files.
 	for _, f := range p.Files {
 		if err := writeFile(reg, p.Primitive, f, opts); err != nil {
 			return err

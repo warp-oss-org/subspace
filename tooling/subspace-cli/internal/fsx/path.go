@@ -6,14 +6,7 @@ import (
 	"strings"
 )
 
-// ValidateRelPath ensures p is a safe, relative path.
-// It rejects:
-// - empty
-// - absolute paths (Unix or Windows)
-// - "." or ".."
-// - any path that escapes its base (contains ".." after cleaning)
-//
-// It returns a cleaned, OS-native path.
+// ValidateRelativePath returns a cleaned path that cannot escape its base.
 func ValidateRelativePath(path string) (string, error) {
 	rawPath := strings.TrimSpace(path)
 

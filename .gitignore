@@ -12,6 +12,7 @@ build/
 out/
 coverage/
 bin/subspace/
+tooling/subspace-cli/registry/
 
 ############################################
 # TypeScript

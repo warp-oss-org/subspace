@@ -6,9 +6,7 @@ import (
 	"github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/registry"
 )
 
-// stubEnumerator implements FileEnumerator for testing.
 type stubEnumerator struct {
-	// files maps "primitive/dir" → list of relative file paths
 	files map[string][]string
 	seen  map[string][]string
 }
@@ -59,8 +57,6 @@ func baseTokens() Tokens {
 		TargetDir: "src/infra/subspace",
 	}
 }
-
-// --- Happy path ---
 
 func TestBuild_DefaultAdapter(t *testing.T) {
 	t.Parallel()
@@ -125,8 +121,6 @@ func TestBuild_ResolvesTokensInDestPaths(t *testing.T) {
 		t.Fatalf("expected resolved dest path 'src/infra/subspace/kv/port.ts', got files: %v", p.Files)
 	}
 }
-
-// --- Template (.tpl) handling ---
 
 func TestBuild_StripsTplSuffix(t *testing.T) {
 	t.Parallel()
@@ -295,8 +289,6 @@ func TestBuild_RejectsConflictingDestinationFiles(t *testing.T) {
 	}
 }
 
-// --- Tests section ---
-
 func TestBuild_IncludesTests(t *testing.T) {
 	t.Parallel()
 
@@ -343,7 +335,6 @@ func TestBuild_NoTestsSection(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	// Only base + adapter files, no test files.
 	if len(p.Files) != 2 {
 		t.Fatalf("expected 2 files (no tests), got %d", len(p.Files))
 	}
@@ -397,8 +388,6 @@ func TestBuild_RejectsAdapterForPrimitiveWithoutAdapters(t *testing.T) {
 	}
 }
 
-// --- Deps ---
-
 func TestBuild_MergesDeps(t *testing.T) {
 	t.Parallel()
 
@@ -415,7 +404,6 @@ func TestBuild_MergesDeps(t *testing.T) {
 	if len(p.Deps) != 2 {
 		t.Fatalf("expected 2 deps, got %d: %v", len(p.Deps), p.Deps)
 	}
-	// Sorted: ioredis, zod
 	if p.Deps[0] != "ioredis" || p.Deps[1] != "zod" {
 		t.Fatalf("expected sorted [ioredis zod], got %v", p.Deps)
 	}
@@ -430,7 +418,7 @@ func TestBuild_DeduplicatesDeps(t *testing.T) {
 		Copy: []registry.CopyOp{
 			{From: "adapters/redis", To: "{{targetDir}}/kv/adapters/redis"},
 		},
-		Deps: []string{"zod", "ioredis"}, // zod duplicates primitive-level dep
+		Deps: []string{"zod", "ioredis"},
 	}
 
 	enum := &stubEnumerator{files: map[string][]string{
@@ -458,7 +446,6 @@ func TestBuild_NoDeps(t *testing.T) {
 		Copy: []registry.CopyOp{
 			{From: "adapters/memory", To: "{{targetDir}}/kv/adapters/memory"},
 		},
-		// no deps
 	}
 
 	enum := &stubEnumerator{files: map[string][]string{
@@ -503,8 +490,6 @@ func TestBuild_PassesMergedExcludesToEnumerator(t *testing.T) {
 	}
 }
 
-// --- Dirs ---
-
 func TestBuild_DeduplicatesDirs(t *testing.T) {
 	t.Parallel()
 
@@ -518,7 +503,6 @@ func TestBuild_DeduplicatesDirs(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	// port.ts and types.ts both land in the same dir — should only appear once.
 	dirCount := map[string]int{}
 	for _, d := range p.Dirs {
 		dirCount[d.Path]++
@@ -529,8 +513,6 @@ func TestBuild_DeduplicatesDirs(t *testing.T) {
 		}
 	}
 }
-
-// --- Error cases ---
 
 func TestBuild_RejectsUnknownAdapter(t *testing.T) {
 	t.Parallel()

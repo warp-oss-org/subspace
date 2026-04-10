@@ -24,9 +24,11 @@
     "build": "pnpm -r run build",
     "clean": "pnpm -r run clean",
     "subspace:cli:fmt": "cd tooling/subspace-cli && goimports -w .",
-    "subspace:cli:test": "cd tooling/subspace-cli && go test ./...",
+    "subspace:cli:test": "pnpm subspace:registry:build && cd tooling/subspace-cli && go test ./...",
     "subspace:cli:lint": "cd tooling/subspace-cli && golangci-lint run",
-    "subspace:cli:check": "pnpm subspace:cli:fmt && pnpm subspace:cli:test && pnpm subspace:cli:lint"
+    "subspace:cli:check": "pnpm subspace:cli:fmt && pnpm subspace:cli:test && pnpm subspace:cli:lint",
+    "subspace:registry:build": "cd tooling/subspace-cli && go run ./cmd/subspace-registry build --source ../../packages --out registry",
+    "subspace:registry:validate": "cd tooling/subspace-cli && go run ./cmd/subspace-registry validate --dir registry"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.6",
