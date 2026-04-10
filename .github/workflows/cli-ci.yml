@@ -41,6 +41,12 @@ jobs:
             exit 1
           fi
 
+      - name: Build registry
+        run: go run ./cmd/subspace-registry build --source ../../packages --out registry
+
+      - name: Validate registry
+        run: go run ./cmd/subspace-registry validate --dir registry
+
       - name: Go test
         run: go test ./...
 
