@@ -3,12 +3,14 @@ name: cli-ci
 on:
   push:
     paths:
+      - ".github/workflows/cli-ci.yml"
       - "tooling/subspace-cli/**"
       - "**/*.go"
       - "go.mod"
       - "go.sum"
   pull_request:
     paths:
+      - ".github/workflows/cli-ci.yml"
       - "tooling/subspace-cli/**"
       - "**/*.go"
       - "go.mod"
