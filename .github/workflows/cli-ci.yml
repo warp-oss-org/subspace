@@ -3,7 +3,7 @@ name: cli-ci
 on:
   push:
     paths:
-      - ".github/workflows/registry-release.yml"
+      - ".github/workflows/subspace-cli-release.yml"
       - ".github/workflows/cli-ci.yml"
       - ".github/workflows/reusable-cli-registry-ci.yml"
       - "tooling/subspace-cli/**"

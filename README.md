@@ -10,7 +10,7 @@ Subspace is distributed in two ways:
 - package source under [`packages/`](./packages/) for local development inside this repo
 - a pinned source-copy registry plus CLI release assets for internal consumer repos
 
-Subspace is not currently distributed as npm/GitHub Packages for internal consumption. Consumer repos should scaffold reviewed source from a pinned registry release, commit the copied code, and own it from there.
+Subspace is not currently distributed as npm/GitHub Packages for internal consumption. Consumer repos should scaffold reviewed source from a pinned Subspace CLI release, commit the copied code, and own it from there.
 
 ## Packages
 
@@ -80,14 +80,14 @@ pnpm install
 
 For package-specific usage inside this repo, start from the package README in `packages/*/README.md`.
 
-For internal consumer repos, use the CLI and a pinned registry release instead of installing `@subspace/*` from a package registry.
+For internal consumer repos, use the CLI and a pinned Subspace CLI release instead of installing `@subspace/*` from a package registry.
 
 ## Internal Consumption
 
 Recommended flow for an internal project:
 
 1. Install `subspace` from a GitHub Release asset or via `go install`.
-2. Choose a pinned registry release tag and checksum.
+2. Choose a pinned Subspace CLI release tag and registry checksum.
 3. Scaffold the primitive from that pinned registry.
 4. Review the generated diff.
 5. Commit the copied source into the consumer repo.
@@ -97,7 +97,7 @@ Example with a pinned remote registry:
 ```bash
 subspace init
 
-export SUBSPACE_REGISTRY_URL="https://github.com/warp-oss-org/subspace/releases/download/registry-v2026.04.10.1/subspace-registry-registry-v2026.04.10.1.tar.gz"
+export SUBSPACE_REGISTRY_URL="https://github.com/warp-oss-org/subspace/releases/download/subspace-cli-v2026.04.11.2/subspace-cli-registry.tar.gz"
 export SUBSPACE_REGISTRY_SHA256="<pinned-archive-sha256>"
 
 subspace list
@@ -149,5 +149,5 @@ Requires Node 22+, pnpm 10+, Docker (for integration tests and service-backed te
 | [Examples](docs/examples.md) | Annotated example walkthroughs |
 | [CLI](docs/cli.md) | Scaffolding tool usage |
 | [Contributing](docs/contributing.md) | Development workflow |
-| [Release Runbook](docs/release-runbook.md) | How to cut a registry release |
+| [Release Runbook](docs/release-runbook.md) | How to cut a Subspace CLI release |
 | [Security Model](docs/security-model.md) | Registry trust and threat model |
