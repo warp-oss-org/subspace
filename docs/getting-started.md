@@ -2,6 +2,8 @@
 
 Subspace is a collection of focused backend primitives. Use only the pieces you need.
 
+For internal consumers, the recommended path is source-copy scaffolding from a pinned registry release, not npm package installation.
+
 ## Prerequisites
 
 - Node.js 22+
@@ -13,12 +15,30 @@ Subspace is a collection of focused backend primitives. Use only the pieces you 
 pnpm install
 ```
 
+That installs this repo for local development. For an internal consumer repo, install the `subspace` CLI from GitHub Releases or `go install`, then scaffold a primitive from a pinned registry release.
+
 ## Run checks
+
+Run static checks:
 
 ```bash
 pnpm lint
 pnpm typecheck
-pnpm test
+pnpm -r run build
+```
+
+Run package tests:
+
+```bash
+pnpm test:up
+pnpm test:coverage
+pnpm test:down
+```
+
+Run CLI tests:
+
+```bash
+pnpm subspace:cli:test
 ```
 
 ## Explore packages
@@ -27,3 +47,5 @@ pnpm test
 - Example index: [docs/examples.md](./examples.md)
 - Core concepts: [docs/concepts.md](./concepts.md)
 - CLI notes: [docs/cli.md](./cli.md)
+- Release process: [docs/release-runbook.md](./release-runbook.md)
+- Security posture: [docs/security-model.md](./security-model.md)
