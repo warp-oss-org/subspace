@@ -1,0 +1,9 @@
+# Solo-owner CODEOWNERS for the current security setup.
+# When release/security teams are established, move these entries to
+# @warp-oss-org/subspace-security-admins and @warp-oss-org/subspace-release-approvers.
+
+/.github/CODEOWNERS @warp-oss
+/.github/workflows/** @warp-oss
+/tooling/subspace-cli/** @warp-oss
+/packages/**/manifest.yaml @warp-oss
+/packages/** @warp-oss
