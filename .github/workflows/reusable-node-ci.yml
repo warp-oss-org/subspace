@@ -1,0 +1,78 @@
+name: reusable-node-ci
+
+on:
+  workflow_call:
+    inputs:
+      node_version:
+        description: Node.js version to use for package CI
+        required: false
+        type: string
+        default: "24"
+      source_sha:
+        description: Exact source commit SHA to validate
+        required: false
+        type: string
+        default: ""
+      upload_coverage:
+        description: Whether to upload Codecov coverage
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      codecov_token:
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - if: ${{ inputs.source_sha == '' }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - if: ${{ inputs.source_sha != '' }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ inputs.source_sha }}
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
+        with:
+          version: 10.28.1
+
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: ${{ inputs.node_version }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Build packages
+        run: pnpm -r run build
+
+      - name: Start test services
+        run: pnpm test:up
+
+      - name: Run test suite
+        run: pnpm test:coverage
+
+      - name: Stop test services
+        if: always()
+        run: pnpm test:down
+
+      - if: ${{ inputs.upload_coverage && secrets.codecov_token != '' }}
+        name: Upload coverage to Codecov
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+        with:
+          token: ${{ secrets.codecov_token }}
+          files: ./coverage/lcov.info
+          fail_ci_if_error: false

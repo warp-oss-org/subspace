@@ -3,42 +3,40 @@ name: node-ci
 on:
   push:
     paths-ignore:
+      - ".github/workflows/cli-ci.yml"
+      - ".github/workflows/reusable-cli-registry-ci.yml"
       - "tooling/subspace-cli/**"
       - "**/*.go"
       - "go.mod"
       - "go.sum"
   pull_request:
     paths-ignore:
+      - ".github/workflows/cli-ci.yml"
+      - ".github/workflows/reusable-cli-registry-ci.yml"
       - "tooling/subspace-cli/**"
       - "**/*.go"
       - "go.mod"
       - "go.sum"
 
+permissions:
+  contents: read
+
 jobs:
   test:
-    name: Node CI (Node ${{ matrix.node }})
-    runs-on: ubuntu-24.04
+    name: Node CI (Node ${{ matrix.node_version }})
     strategy:
+      fail-fast: false
       matrix:
-        node: [22, 24, 25]
-    steps:
-      - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10.28.1
-      - uses: actions/setup-node@v6
-        with:
-          node-version: ${{ matrix.node }}
-          cache: "pnpm"
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm lint
-      - run: pnpm typecheck
-      - run: pnpm -r run build
-      - run: pnpm test:up
-      - run: pnpm test:coverage
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage/lcov.info
-          fail_ci_if_error: false
+        include:
+          - node_version: "22"
+            upload_coverage: false
+          - node_version: "24"
+            upload_coverage: true
+          - node_version: "25"
+            upload_coverage: false
+    uses: ./.github/workflows/reusable-node-ci.yml
+    with:
+      node_version: ${{ matrix.node_version }}
+      upload_coverage: ${{ matrix.upload_coverage }}
+    secrets:
+      codecov_token: ${{ secrets.CODECOV_TOKEN }}

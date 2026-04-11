@@ -3,54 +3,32 @@ name: cli-ci
 on:
   push:
     paths:
+      - ".github/workflows/registry-release.yml"
       - ".github/workflows/cli-ci.yml"
+      - ".github/workflows/reusable-cli-registry-ci.yml"
       - "tooling/subspace-cli/**"
       - "**/*.go"
       - "go.mod"
       - "go.sum"
   pull_request:
     paths:
+      - ".github/workflows/registry-release.yml"
       - ".github/workflows/cli-ci.yml"
+      - ".github/workflows/reusable-cli-registry-ci.yml"
       - "tooling/subspace-cli/**"
       - "**/*.go"
       - "go.mod"
       - "go.sum"
 
+permissions:
+  contents: read
+
 jobs:
   test:
-    name: Go CLI CI
-    runs-on: ubuntu-24.04
-    defaults:
-      run:
-        working-directory: tooling/subspace-cli
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Set up Go
-        uses: actions/setup-go@v6
-        with:
-          go-version: "1.25.7"
-          cache: true
-          cache-dependency-path: tooling/subspace-cli/go.sum
-
-      - name: Go fmt check
-        run: |
-          unformatted=$(gofmt -l .)
-          if [ -n "$unformatted" ]; then
-            echo "The following files are not gofmt-formatted:"
-            echo "$unformatted"
-            exit 1
-          fi
-
-      - name: Build registry
-        run: go run ./cmd/subspace-registry build --source ../../packages --out registry
-
-      - name: Validate registry
-        run: go run ./cmd/subspace-registry validate --dir registry
-
-      - name: Go test
-        run: go test ./...
-
-      - name: Go build
-        run: go build ./...
+    name: Registry CLI CI
+    uses: ./.github/workflows/reusable-cli-registry-ci.yml
+    with:
+      build_binary: true
+      binary_output_path: /tmp/subspace-cli
+      run_smoke_test: true
+      upload_binary_artifact: false

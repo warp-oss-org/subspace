@@ -155,6 +155,18 @@ go build -o /tmp/subspace-cli .
 
 The registry builder copies manifest-backed [packages/*/](../../packages/) into [tooling/subspace-cli/registry/](./registry/) with `registry.json`, per-primitive manifests, source files, SHA-256 hashes, the source git SHA, and the registry schema version. The embed bundles generated `registry/` into release binaries.
 
+CLI distribution:
+
+- GitHub Releases are the primary install path for `subspace`.
+- Release assets include pinned registry artifacts plus prebuilt CLI binaries for:
+  - `darwin-amd64`
+  - `darwin-arm64`
+  - `linux-amd64`
+  - `linux-arm64`
+  - `windows-amd64`
+- `go install github.com/warp-oss-org/subspace/tooling/subspace-cli@<tag>` remains a fallback for users who prefer building from source.
+- The project does not publish the CLI to npm, so `npx` / `pnpm dlx` are intentionally not part of the trust model.
+
 Registry source selection:
 
 - Embedded registry is used by default.

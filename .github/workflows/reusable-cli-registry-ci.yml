@@ -1,0 +1,100 @@
+name: reusable-cli-registry-ci
+
+on:
+  workflow_call:
+    inputs:
+      source_sha:
+        description: Exact source commit SHA to validate
+        required: false
+        type: string
+        default: ""
+      build_binary:
+        description: Whether to build the CLI binary
+        required: false
+        type: boolean
+        default: true
+      binary_output_path:
+        description: Output path for the built CLI binary
+        required: false
+        type: string
+        default: /tmp/subspace-cli
+      run_smoke_test:
+        description: Whether to run the temp-consumer smoke test
+        required: false
+        type: boolean
+        default: true
+      upload_binary_artifact:
+        description: Whether to upload the built CLI binary as an artifact
+        required: false
+        type: boolean
+        default: false
+      binary_artifact_name:
+        description: Optional uploaded binary artifact name
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: tooling/subspace-cli
+    steps:
+      - if: ${{ inputs.source_sha == '' }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - if: ${{ inputs.source_sha != '' }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ inputs.source_sha }}
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+        with:
+          go-version: "1.25.7"
+          cache: true
+          cache-dependency-path: tooling/subspace-cli/go.sum
+
+      - name: Go fmt check
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "The following files are not gofmt-formatted:"
+            echo "$unformatted"
+            exit 1
+          fi
+
+      - if: ${{ inputs.source_sha == '' }}
+        name: Build registry
+        run: go run ./cmd/subspace-registry build --source ../../packages --out registry
+
+      - if: ${{ inputs.source_sha != '' }}
+        name: Build registry
+        run: go run ./cmd/subspace-registry build --source ../../packages --out registry --source-git-sha "${{ inputs.source_sha }}"
+
+      - name: Validate registry
+        run: go run ./cmd/subspace-registry validate --dir registry
+
+      - name: Go test
+        run: go test ./...
+
+      - if: ${{ inputs.build_binary || inputs.run_smoke_test || inputs.upload_binary_artifact }}
+        name: Build CLI binary
+        run: go build -o "${{ inputs.binary_output_path }}" .
+
+      - if: ${{ inputs.run_smoke_test }}
+        name: Registry smoke test
+        run: ./scripts/smoke-local-registry.sh "${{ inputs.binary_output_path }}" registry
+
+      - if: ${{ inputs.upload_binary_artifact }}
+        name: Upload CLI binary artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ${{ inputs.binary_artifact_name != '' && inputs.binary_artifact_name || 'subspace-cli-binary' }}
+          path: ${{ inputs.binary_output_path }}
+          if-no-files-found: error
