@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ $# -ne 1 ]]; then
-  echo "usage: $0 <out-dir>" >&2
+if [[ $# -ne 3 ]]; then
+  echo "usage: $0 <out-dir> <release-version> <source-sha>" >&2
   exit 1
 fi
 
 out_dir=$1
+release_version=$2
+source_sha=$3
 mkdir -p "$out_dir"
+
+ldflags="-s -w -X github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/buildinfo.ReleaseVersion=${release_version} -X github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/buildinfo.ReleaseCommit=${source_sha}"
 
 targets=(
   "darwin amd64"
@@ -25,5 +29,5 @@ for target in "${targets[@]}"; do
   fi
 
   output="${out_dir}/subspace-cli-${goos}-${goarch}${ext}"
-  CGO_ENABLED=0 GOOS="$goos" GOARCH="$goarch" go build -trimpath -o "$output" .
+  CGO_ENABLED=0 GOOS="$goos" GOARCH="$goarch" go build -trimpath -ldflags "$ldflags" -o "$output" .
 done

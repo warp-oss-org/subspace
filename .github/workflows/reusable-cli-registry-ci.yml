@@ -89,7 +89,7 @@ jobs:
 
       - if: ${{ inputs.run_smoke_test }}
         name: Registry smoke test
-        run: ./scripts/smoke-local-registry.sh "${{ inputs.binary_output_path }}" registry
+        run: ./scripts/smoke-local-registry.sh "${{ inputs.binary_output_path }}"
 
       - if: ${{ inputs.upload_binary_artifact }}
         name: Upload CLI binary artifact

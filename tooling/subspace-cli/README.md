@@ -125,6 +125,9 @@ subspace add cache                     # scaffolds with default adapter (memory)
 subspace add cache --adapter redis     # scaffolds with redis adapter
 subspace add cache --dry-run           # prints plan without writing
 subspace add cache --overwrite         # overwrites existing files
+subspace version                       # shows installed CLI version + commit
+subspace update                        # updates to the latest Subspace CLI release
+subspace update --to subspace-cli-v... # installs an explicit CLI release tag
 ```
 
 ### Config
@@ -158,23 +161,19 @@ The registry builder copies manifest-backed [packages/*/](../../packages/) into 
 CLI distribution:
 
 - GitHub Releases are the primary install path for `subspace`.
-- Release assets include the pinned CLI registry archive plus prebuilt CLI binaries for:
+- Release assets include prebuilt CLI binaries for:
   - `darwin-amd64`
   - `darwin-arm64`
   - `linux-amd64`
   - `linux-arm64`
   - `windows-amd64`
-- `go install github.com/warp-oss-org/subspace/tooling/subspace-cli@<tag>` remains a fallback for users who prefer building from source.
 - The project does not publish the CLI to npm, so `npx` / `pnpm dlx` are intentionally not part of the trust model.
 
-Registry source selection:
+Runtime registry behavior:
 
-- Embedded registry is used by default.
-- `SUBSPACE_REGISTRY_DIR=/path/to/registry` uses a local package or generated registry directory.
-- `SUBSPACE_REGISTRY_URL=https://.../registry.tar.gz` plus `SUBSPACE_REGISTRY_SHA256=<archive-sha256>` uses a pinned remote registry archive.
-- `SUBSPACE_REGISTRY_CA_FILE=/path/to/ca.pem` can add a private CA for internal HTTPS registry testing.
-
-Remote registries are static tar archives only. The CLI verifies the declared archive SHA-256 before extraction, validates `registry.json` file hashes after extraction, rejects path traversal and unsupported archive entries, and never executes registry-provided scripts or commands.
+- Release binaries use the embedded registry by default.
+- When working inside this repo, the CLI can read `packages/` directly for maintainer ergonomics.
+- The CLI never executes registry-provided scripts or commands.
 
 ### What ships with every primitive
 

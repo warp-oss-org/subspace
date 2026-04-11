@@ -1,9 +1,10 @@
 # Release Runbook
 
-Subspace CLI releases publish two things:
+Subspace CLI releases publish:
 
-- a pinned registry archive consumed by the CLI
-- prebuilt `subspace` CLI binaries from the same protected source commit
+- prebuilt `subspace` CLI binaries from a protected source commit
+- `checksums.txt`
+- `release-metadata.json`
 
 Releases are manual. Pushing to `main` does not publish automatically.
 
@@ -33,8 +34,8 @@ Optional local release-asset build:
 
 ```bash
 cd tooling/subspace-cli
-GOCACHE=/tmp/subspace-go-release ./scripts/build-release-binaries.sh /tmp/subspace-release-assets
-./scripts/create-registry-archive.sh registry /tmp/subspace-release-assets subspace-cli-vYYYY.MM.DD.N "$(git rev-parse HEAD)"
+GOCACHE=/tmp/subspace-go-release ./scripts/build-release-binaries.sh /tmp/subspace-release-assets subspace-cli-vYYYY.MM.DD.N "$(git rev-parse HEAD)"
+./scripts/write-release-metadata.sh /tmp/subspace-release-assets subspace-cli-vYYYY.MM.DD.N "$(git rev-parse HEAD)"
 ./scripts/write-release-checksums.sh /tmp/subspace-release-assets
 ```
 
@@ -53,17 +54,15 @@ GOCACHE=/tmp/subspace-go-release ./scripts/build-release-binaries.sh /tmp/subspa
    - candidate packaging
 6. Approve the `subspace-cli-release` environment when prompted.
 7. Confirm the GitHub Release contains:
-   - `subspace-cli-registry.tar.gz`
+   - platform CLI binaries
    - `checksums.txt`
    - `release-metadata.json`
-   - platform CLI binaries
 
 ## Verify release assets
 
-`checksums.txt` contains SHA-256 hashes for all published assets. Verify the registry archive or CLI binary before using it:
+`checksums.txt` contains SHA-256 hashes for all published assets. Verify the CLI binary before using it:
 
 ```bash
-shasum -a 256 subspace-cli-registry.tar.gz
 shasum -a 256 subspace-cli-darwin-arm64
 ```
 
@@ -74,16 +73,8 @@ Match the output to the corresponding line in `checksums.txt`.
 Consumers should upgrade intentionally:
 
 1. choose the new release tag
-2. verify the archive checksum
-3. point the CLI at the new pinned release
-4. run `subspace info` / `subspace add` as needed
-5. review and commit the resulting diff
+2. verify the published checksums or run `subspace update --to <tag>`
+3. run `subspace info` / `subspace add` as needed
+4. review and commit the resulting diff
 
 There is no automatic “follow latest” behavior in the trust model.
-
-## Deferred
-
-- explicit `subspace registry update` UX
-- `--registry <url-or-path>` flags on `list`, `info`, and `add`
-
-Today, registry source selection is controlled with `SUBSPACE_REGISTRY_DIR`, `SUBSPACE_REGISTRY_URL`, and `SUBSPACE_REGISTRY_SHA256`.

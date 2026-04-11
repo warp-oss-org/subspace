@@ -5,29 +5,7 @@ import (
 	"io/fs"
 	"os"
 	"path"
-	"path/filepath"
 )
-
-func openLocal(dir string) (Registry, error) {
-	abs, err := filepath.Abs(dir)
-	if err != nil {
-		return nil, fmt.Errorf("resolve SUBSPACE_REGISTRY_DIR %q: %w", dir, err)
-	}
-
-	info, err := os.Stat(abs)
-	if err != nil {
-		return nil, fmt.Errorf("stat SUBSPACE_REGISTRY_DIR %q: %w", abs, err)
-	}
-	if !info.IsDir() {
-		return nil, fmt.Errorf("SUBSPACE_REGISTRY_DIR is not a directory: %q", abs)
-	}
-
-	reg, err := OpenFS("local:"+abs, os.DirFS(abs))
-	if err != nil {
-		return nil, fmt.Errorf("open SUBSPACE_REGISTRY_DIR %q: %w", abs, err)
-	}
-	return reg, nil
-}
 
 func resolveRegistryRoot(base fs.FS) (fs.FS, string, error) {
 	if info, err := fs.Stat(base, IndexFilename); err == nil && !info.IsDir() {

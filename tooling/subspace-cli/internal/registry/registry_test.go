@@ -2,7 +2,6 @@ package registry
 
 import (
 	"os"
-	"path/filepath"
 	"reflect"
 	"testing"
 	"testing/fstest"
@@ -241,48 +240,6 @@ func TestReadPrimitiveFile_RejectsMissingFile(t *testing.T) {
 	_, err := r.ReadPrimitiveFile("kv", "nope.txt")
 	if err == nil {
 		t.Fatal("expected error for missing file, got nil")
-	}
-}
-
-// --- Open with local override ---
-
-func TestOpen_LocalOverride(t *testing.T) {
-	dir := t.TempDir()
-
-	kvDir := filepath.Join(dir, "kv")
-	if err := os.MkdirAll(kvDir, 0o755); err != nil {
-		t.Fatalf("mkdir: %v", err)
-	}
-	if err := os.WriteFile(filepath.Join(kvDir, "manifest.yaml"), []byte(validManifestYAML), 0o644); err != nil {
-		t.Fatalf("write manifest: %v", err)
-	}
-
-	t.Setenv("SUBSPACE_REGISTRY_DIR", dir)
-
-	r, err := Open(nil) // embedded FS ignored when env var is set
-	if err != nil {
-		t.Fatalf("Open: %v", err)
-	}
-
-	if r.Source() != "local:"+dir {
-		t.Fatalf("expected local source, got %q", r.Source())
-	}
-
-	m, err := r.LoadManifest("kv")
-	if err != nil {
-		t.Fatalf("LoadManifest: %v", err)
-	}
-	if m.Name != "kv" {
-		t.Fatalf("expected name 'kv', got %q", m.Name)
-	}
-}
-
-func TestOpen_LocalOverride_RejectsNonexistentDir(t *testing.T) {
-	t.Setenv("SUBSPACE_REGISTRY_DIR", "/nonexistent/path/to/registry")
-
-	_, err := Open(nil)
-	if err == nil {
-		t.Fatal("expected error for nonexistent dir, got nil")
 	}
 }
 

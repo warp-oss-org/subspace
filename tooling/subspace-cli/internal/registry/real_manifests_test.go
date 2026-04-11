@@ -1,6 +1,7 @@
 package registry
 
 import (
+	"os"
 	"path/filepath"
 	"reflect"
 	"runtime"
@@ -62,9 +63,9 @@ func openRealPackagesRegistry(t *testing.T) Registry {
 	}
 
 	packagesDir := filepath.Clean(filepath.Join(filepath.Dir(file), "..", "..", "..", "..", "packages"))
-	reg, err := openLocal(packagesDir)
+	reg, err := OpenFS("local:"+packagesDir, os.DirFS(packagesDir))
 	if err != nil {
-		t.Fatalf("openLocal(%q): %v", packagesDir, err)
+		t.Fatalf("OpenFS(%q): %v", packagesDir, err)
 	}
 	return reg
 }
