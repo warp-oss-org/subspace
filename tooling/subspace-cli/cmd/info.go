@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"io/fs"
 	"sort"
 	"strings"
@@ -9,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/registry"
+	"github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/ui"
 )
 
 func NewInfoCmd(embeddedFS fs.FS) *cobra.Command {
@@ -17,12 +17,12 @@ func NewInfoCmd(embeddedFS fs.FS) *cobra.Command {
 		Short: "Show details about a primitive",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runInfo(args[0], embeddedFS)
+			return runInfo(newSession(cmd), args[0], embeddedFS)
 		},
 	}
 }
 
-func runInfo(primitive string, embeddedFS fs.FS) error {
+func runInfo(session ui.Session, primitive string, embeddedFS fs.FS) error {
 	reg, err := registry.Open(embeddedFS)
 	if err != nil {
 		return err
@@ -33,48 +33,48 @@ func runInfo(primitive string, embeddedFS fs.FS) error {
 		return err
 	}
 
-	fmt.Printf("%s\n", m.Name)
-	fmt.Printf("%s\n\n", m.Description)
+	defaultAdapter := "—"
+	if len(m.Adapters) > 0 {
+		defaultAdapter = m.DefaultAdapter
+	}
+	depsValue := "None"
+	if len(m.Deps) > 0 {
+		depsValue = strings.Join(m.Deps, ", ")
+	}
+
+	session.Println(session.Banner(m.Name, m.Description))
+	session.Println("")
+	session.Println(session.InfoBox([][2]string{
+		{"Language", m.Language},
+		{"Default adapter", defaultAdapter},
+		{"Base dependencies", depsValue},
+	}))
 
 	adapters := sortedAdapterNames(m)
 	if len(adapters) > 0 {
-		fmt.Printf("Adapters:\n")
+		session.Println("")
+		session.Println(session.Section("Adapters"))
+		rows := make([][]string, 0, len(adapters))
 		for _, name := range adapters {
 			a := m.Adapters[name]
-			def := ""
+			badge := ""
 			if name == m.DefaultAdapter {
-				def = " (default)"
+				badge = session.Badge("default", ui.ToneAccent)
 			}
-			fmt.Printf("  %-16s %s%s\n", name, a.Description, def)
+			deps := "—"
+			if len(a.Deps) > 0 {
+				deps = strings.Join(a.Deps, ", ")
+			}
+			rows = append(rows, []string{name, a.Description, deps, badge})
 		}
-		fmt.Println()
+		session.Println(session.Table([]string{"Adapter", "Description", "Dependencies", ""}, rows))
 	}
 
-	if len(m.Deps) > 0 {
-		fmt.Printf("Dependencies: %s\n", strings.Join(m.Deps, ", "))
-	}
-
-	for _, name := range adapters {
-		a := m.Adapters[name]
-		if len(a.Deps) > 0 {
-			fmt.Printf("Dependencies (%s): %s\n", name, strings.Join(a.Deps, ", "))
-		}
-	}
-	if len(m.Deps) > 0 || hasAdapterDeps(m) {
-		fmt.Println()
-	}
-
-	fmt.Printf("Language: %s\n\n", m.Language)
-
-	fmt.Printf("Add to your project:\n")
-	fmt.Printf("  subspace add %s\n", m.Name)
+	session.Println("")
+	session.Println(session.Section("Next"))
+	session.Println("  " + session.Command("subspace add "+m.Name))
 	if len(adapters) > 1 {
-		fmt.Printf("  subspace add %s --adapter <name>\n", m.Name)
-	}
-
-	readme, err := reg.ReadPrimitiveFile(primitive, "README.md")
-	if err == nil && len(readme) > 0 {
-		fmt.Printf("\n---\n\n%s\n", string(readme))
+		session.Println("  " + session.Command("subspace add "+m.Name+" --adapter <name>"))
 	}
 
 	return nil
@@ -87,13 +87,4 @@ func sortedAdapterNames(m registry.Manifest) []string {
 	}
 	sort.Strings(names)
 	return names
-}
-
-func hasAdapterDeps(m registry.Manifest) bool {
-	for _, a := range m.Adapters {
-		if len(a.Deps) > 0 {
-			return true
-		}
-	}
-	return false
 }
