@@ -3,7 +3,6 @@ package registry
 import (
 	"fmt"
 	"io/fs"
-	"os"
 	"path"
 	"sort"
 	"strings"
@@ -18,16 +17,6 @@ type Registry interface {
 }
 
 func Open(embedded fs.FS) (Registry, error) {
-	if dir := os.Getenv("SUBSPACE_REGISTRY_DIR"); dir != "" {
-		if os.Getenv("SUBSPACE_REGISTRY_URL") != "" {
-			return nil, fmt.Errorf("set either SUBSPACE_REGISTRY_DIR or SUBSPACE_REGISTRY_URL, not both")
-		}
-		return openLocal(dir)
-	}
-	if url := os.Getenv("SUBSPACE_REGISTRY_URL"); url != "" {
-		return openRemote(url, os.Getenv("SUBSPACE_REGISTRY_SHA256"))
-	}
-
 	return OpenFS("embedded", embedded)
 }
 

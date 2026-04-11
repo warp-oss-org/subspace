@@ -19,6 +19,8 @@ func NewRootCmd(embeddedFS fs.FS) *cobra.Command {
 	root.AddCommand(NewListCmd(embeddedFS))
 	root.AddCommand(NewInfoCmd(embeddedFS))
 	root.AddCommand(NewAddCmd(embeddedFS))
+	root.AddCommand(NewUpdateCmd())
+	root.AddCommand(NewVersionCmd())
 	root.AddCommand(NewRegistryCmd())
 
 	return root

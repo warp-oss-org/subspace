@@ -8,9 +8,9 @@ Small packages, explicit behavior, and composable building blocks instead of a f
 Subspace is distributed in two ways:
 
 - package source under [`packages/`](./packages/) for local development inside this repo
-- a pinned source-copy registry plus CLI release assets for internal consumer repos
+- the `subspace` CLI release for internal consumer repos
 
-Subspace is not currently distributed as npm/GitHub Packages for internal consumption. Consumer repos should scaffold reviewed source from a pinned Subspace CLI release, commit the copied code, and own it from there.
+Subspace is not currently distributed as npm/GitHub Packages for internal consumption. Consumer repos should install the `subspace` CLI, scaffold reviewed source from the embedded registry, commit the copied code, and own it from there.
 
 ## Packages
 
@@ -80,32 +80,29 @@ pnpm install
 
 For package-specific usage inside this repo, start from the package README in `packages/*/README.md`.
 
-For internal consumer repos, use the CLI and a pinned Subspace CLI release instead of installing `@subspace/*` from a package registry.
+For internal consumer repos, use the CLI release instead of installing `@subspace/*` from a package registry.
 
 ## Internal Consumption
 
 Recommended flow for an internal project:
 
 1. Install `subspace` from a GitHub Release asset or via `go install`.
-2. Choose a pinned Subspace CLI release tag and registry checksum.
-3. Scaffold the primitive from that pinned registry.
+2. Scaffold the primitive from the embedded registry.
 4. Review the generated diff.
 5. Commit the copied source into the consumer repo.
 
-Example with a pinned remote registry:
+Example:
 
 ```bash
+subspace version
+subspace update
 subspace init
-
-export SUBSPACE_REGISTRY_URL="https://github.com/warp-oss-org/subspace/releases/download/subspace-cli-v2026.04.11.2/subspace-cli-registry.tar.gz"
-export SUBSPACE_REGISTRY_SHA256="<pinned-archive-sha256>"
-
 subspace list
 subspace info kv
 subspace add kv --adapter memory
 ```
 
-The CLI does not auto-install dependencies or execute registry-provided commands. Consumers should review the generated diff and add runtime dependencies explicitly.
+The CLI uses the registry embedded in the installed binary. Consumers should review the generated diff and add runtime dependencies explicitly.
 
 ## Development
 
@@ -150,4 +147,4 @@ Requires Node 22+, pnpm 10+, Docker (for integration tests and service-backed te
 | [CLI](docs/cli.md) | Scaffolding tool usage |
 | [Contributing](docs/contributing.md) | Development workflow |
 | [Release Runbook](docs/release-runbook.md) | How to cut a Subspace CLI release |
-| [Security Model](docs/security-model.md) | Registry trust and threat model |
+| [Security Model](docs/security-model.md) | CLI release trust and threat model |

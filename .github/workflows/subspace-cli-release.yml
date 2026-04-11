@@ -105,8 +105,8 @@ jobs:
         working-directory: tooling/subspace-cli
         run: |
           mkdir -p ../../dist
-          ./scripts/build-release-binaries.sh ../../dist
-          ./scripts/create-registry-archive.sh registry ../../dist "${{ inputs.release_version }}" "${{ inputs.source_sha }}"
+          ./scripts/build-release-binaries.sh ../../dist "${{ inputs.release_version }}" "${{ inputs.source_sha }}"
+          ./scripts/write-release-metadata.sh ../../dist "${{ inputs.release_version }}" "${{ inputs.source_sha }}"
           ./scripts/write-release-checksums.sh ../../dist
 
       - name: Upload release candidate
@@ -115,7 +115,6 @@ jobs:
           name: subspace-cli-release-${{ inputs.release_version }}
           path: |
             dist/subspace-cli-*
-            dist/subspace-cli-registry.tar.gz
             dist/checksums.txt
             dist/release-metadata.json
           if-no-files-found: error
@@ -139,13 +138,10 @@ jobs:
           RELEASE_VERSION: ${{ inputs.release_version }}
           SOURCE_SHA: ${{ inputs.source_sha }}
         run: |
-          archive_name="subspace-cli-registry.tar.gz"
-          archive_sha=$(awk -v name="$archive_name" '$2 == name { print $1 }' dist/checksums.txt)
           {
             echo "Subspace CLI release ${RELEASE_VERSION}"
             echo
             echo "Source commit: ${SOURCE_SHA}"
-            echo "Registry archive SHA-256: ${archive_sha}"
             echo
             echo "Assets:"
             for asset in $(find dist -maxdepth 1 -type f ! -name 'release-notes.md' -exec basename {} \; | LC_ALL=C sort); do
@@ -162,6 +158,5 @@ jobs:
           body_path: dist/release-notes.md
           files: |
             dist/subspace-cli-*
-            dist/subspace-cli-registry.tar.gz
             dist/checksums.txt
             dist/release-metadata.json

@@ -2,7 +2,7 @@
 
 Subspace is a collection of focused backend primitives. Use only the pieces you need.
 
-For internal consumers, the recommended path is source-copy scaffolding from a pinned Subspace CLI release, not npm package installation.
+For internal consumers, the recommended path is source-copy scaffolding from the installed `subspace` CLI, not npm package installation.
 
 ## Prerequisites
 
@@ -15,7 +15,7 @@ For internal consumers, the recommended path is source-copy scaffolding from a p
 pnpm install
 ```
 
-That installs this repo for local development. For an internal consumer repo, install the `subspace` CLI from GitHub Releases or `go install`, then scaffold a primitive from a pinned Subspace CLI release.
+That installs this repo for local development. For an internal consumer repo, install the `subspace` CLI from GitHub Releases, then scaffold a primitive from the embedded registry.
 
 ## Run checks
 

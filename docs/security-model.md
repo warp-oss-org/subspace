@@ -8,7 +8,7 @@ Consumers trust:
 
 - a protected source commit on `main`
 - a manually approved `subspace-cli-release` workflow run
-- a pinned registry archive URL and SHA-256
+- a released Subspace CLI binary plus published checksums
 - the reviewed diff generated in their own repo
 
 Consumers do not need to trust a mutable npm package stream for `@subspace/*`.
@@ -22,7 +22,7 @@ The CLI does not:
 - auto-install runtime dependencies
 - auto-update consumer repos after scaffolding
 
-The registry is treated as static data plus source files.
+The embedded registry is treated as static data plus source files.
 
 ## Registry integrity
 
