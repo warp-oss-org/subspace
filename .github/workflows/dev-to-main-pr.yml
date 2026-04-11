@@ -53,7 +53,7 @@ jobs:
               return
             }
 
-            const title = "Promote dev to main"
+            const title = "Release candidate: dev to main"
             const body = [
               "This is the rolling promotion PR from `dev` to `main`.",
               "",
