@@ -10,13 +10,9 @@ on:
       - "go.mod"
       - "go.sum"
   pull_request:
-    paths-ignore:
-      - ".github/workflows/cli-ci.yml"
-      - ".github/workflows/reusable-cli-registry-ci.yml"
-      - "tooling/subspace-cli/**"
-      - "**/*.go"
-      - "go.mod"
-      - "go.sum"
+    branches:
+      - dev
+      - main
 
 permissions:
   contents: read
