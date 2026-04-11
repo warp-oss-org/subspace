@@ -10,6 +10,7 @@ import (
 
 	"github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/buildinfo"
 	"github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/selfupdate"
+	"github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/ui"
 )
 
 type updateOptions struct {
@@ -23,7 +24,7 @@ func NewUpdateCmd() *cobra.Command {
 		Short: "Update the installed Subspace CLI binary",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runUpdate(cmd.Context(), opts)
+			return runUpdate(cmd.Context(), newSession(cmd), opts)
 		},
 	}
 
@@ -32,7 +33,7 @@ func NewUpdateCmd() *cobra.Command {
 	return cmd
 }
 
-func runUpdate(ctx context.Context, opts updateOptions) error {
+func runUpdate(ctx context.Context, session ui.Session, opts updateOptions) error {
 	client := selfupdate.NewClient(http.DefaultClient)
 
 	currentVersion := buildinfo.Version()
@@ -52,11 +53,22 @@ func runUpdate(ctx context.Context, opts updateOptions) error {
 	}
 
 	if currentVersion == release.TagName {
-		fmt.Printf("Current version: %s\n", currentVersion)
-		fmt.Printf("Target version:  %s\n", release.TagName)
-		fmt.Println("Already up to date.")
+		session.Println(session.Banner("Subspace", session.Status("Already up to date", ui.ToneSuccess)))
+		session.Println("")
+		session.Println(session.InfoBox([][2]string{
+			{"Current version", currentVersion},
+			{"Target version", release.TagName},
+		}))
 		return nil
 	}
+
+	session.Println(session.Banner("Subspace", "Updating CLI binary"))
+	session.Println("")
+	session.Println(session.InfoBox([][2]string{
+		{"Current version", currentVersion},
+		{"Current commit", currentCommit},
+		{"Target version", release.TagName},
+	}))
 
 	metadata, err := client.ReleaseMetadata(ctx, release)
 	if err != nil {
@@ -65,6 +77,8 @@ func runUpdate(ctx context.Context, opts updateOptions) error {
 	if metadata.ReleaseVersion != release.TagName {
 		return fmt.Errorf("release metadata version mismatch: got %s want %s", metadata.ReleaseVersion, release.TagName)
 	}
+	session.Println("")
+	session.Println(session.Step("Resolved release metadata"))
 
 	assetName, err := selfupdate.AssetName(runtime.GOOS, runtime.GOARCH)
 	if err != nil {
@@ -80,6 +94,7 @@ func runUpdate(ctx context.Context, opts updateOptions) error {
 	if err != nil {
 		return err
 	}
+	session.Println(session.Step("Selected asset " + asset.Name))
 
 	targetPath, err := selfupdate.ResolveExecutableTarget(runtime.GOOS)
 	if err != nil {
@@ -93,16 +108,17 @@ func runUpdate(ctx context.Context, opts updateOptions) error {
 	if err := selfupdate.VerifyChecksum(asset.Name, binary, checksums); err != nil {
 		return err
 	}
+	session.Println(session.Step("Verified checksum for " + asset.Name))
 
 	replacedPath, err := selfupdate.ReplaceExecutable(targetPath, binary)
 	if err != nil {
 		return err
 	}
-
-	fmt.Printf("Current version: %s\n", currentVersion)
-	fmt.Printf("Current commit:  %s\n", currentCommit)
-	fmt.Printf("Target version:  %s\n", release.TagName)
-	fmt.Printf("Target commit:   %s\n", metadata.SourceGitSHA)
-	fmt.Printf("Updated binary:  %s\n", replacedPath)
+	session.Println(session.Step("Installed " + release.TagName))
+	session.Println("")
+	session.Println(session.InfoBox([][2]string{
+		{"Target commit", metadata.SourceGitSHA},
+		{"Binary path", replacedPath},
+	}))
 	return nil
 }

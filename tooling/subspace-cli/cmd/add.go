@@ -15,6 +15,7 @@ import (
 	"github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/plan"
 	"github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/registry"
 	"github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/render"
+	"github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/ui"
 )
 
 type addOptions struct {
@@ -31,7 +32,7 @@ func NewAddCmd(embeddedFS fs.FS) *cobra.Command {
 		Short: "Scaffold a primitive into your repo",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runAdd(args[0], embeddedFS, opts)
+			return runAdd(newSession(cmd), args[0], embeddedFS, opts)
 		},
 	}
 
@@ -43,7 +44,7 @@ func NewAddCmd(embeddedFS fs.FS) *cobra.Command {
 	return cmd
 }
 
-func runAdd(primitive string, embeddedFS fs.FS, opts addOptions) error {
+func runAdd(session ui.Session, primitive string, embeddedFS fs.FS, opts addOptions) error {
 	cfg, err := config.Load(config.DefaultConfigFilename)
 	if err != nil {
 		return err
@@ -51,6 +52,10 @@ func runAdd(primitive string, embeddedFS fs.FS, opts addOptions) error {
 
 	reg, err := registry.Open(embeddedFS)
 	if err != nil {
+		return err
+	}
+
+	if err := resolveAdapterPreference(session, reg, primitive, &opts); err != nil {
 		return err
 	}
 
@@ -69,7 +74,7 @@ func runAdd(primitive string, embeddedFS fs.FS, opts addOptions) error {
 	depPkgs := collectDeps(plans)
 
 	if opts.dryRun {
-		printPlans(plans, depPkgs, cfg)
+		printPlans(session, plans, depPkgs, cfg)
 		return nil
 	}
 
@@ -79,11 +84,13 @@ func runAdd(primitive string, embeddedFS fs.FS, opts addOptions) error {
 			return err
 		}
 		if len(conflicts) > 0 {
-			fmt.Fprintf(os.Stderr, "\nThe following files already exist:\n")
+			session.Errorln("")
+			session.Errorln(session.Status("Review required", ui.ToneWarning))
+			session.Errorln(session.Muted("The following files already exist and would be overwritten:"))
 			for _, c := range conflicts {
-				fmt.Fprintf(os.Stderr, "  • %s\n", c.Path)
+				session.Errorln("  " + session.Status(c.Path, ui.ToneError))
 			}
-			return fmt.Errorf("refusing: %d files already exist (re-run with --overwrite)", len(conflicts))
+			return fmt.Errorf("refusing to overwrite %d existing files; re-run with --overwrite after reviewing the plan", len(conflicts))
 		}
 	}
 
@@ -98,7 +105,42 @@ func runAdd(primitive string, embeddedFS fs.FS, opts addOptions) error {
 		}
 	}
 
-	printSummary(plans, depPkgs, cfg)
+	printSummary(session, plans, depPkgs, cfg)
+	return nil
+}
+
+func resolveAdapterPreference(session ui.Session, reg registry.Registry, primitive string, opts *addOptions) error {
+	if opts == nil || opts.adapter != "" {
+		return nil
+	}
+
+	m, err := reg.LoadManifest(primitive)
+	if err != nil {
+		return err
+	}
+	adapterNames := sortedAdapterNames(m)
+	if len(adapterNames) <= 1 {
+		return nil
+	}
+
+	if !session.Interactive() {
+		return fmt.Errorf(
+			"primitive %q has multiple adapters; choose one with --adapter (available: %s, default: %s)",
+			primitive,
+			strings.Join(adapterNames, ", "),
+			m.DefaultAdapter,
+		)
+	}
+
+	selected, err := session.PromptSelect(
+		"Choose an adapter for "+primitive,
+		adapterNames,
+		m.DefaultAdapter,
+	)
+	if err != nil {
+		return fmt.Errorf("select adapter: %w", err)
+	}
+	opts.adapter = selected
 	return nil
 }
 
@@ -148,61 +190,75 @@ func extraExcludesForAdd(excludeTests bool) []string {
 	}
 }
 
-func printPlans(plans []plan.Plan, depPkgs []string, cfg config.Config) {
-	for i, p := range plans {
-		if i > 0 {
-			fmt.Println()
-		}
-		printPlan(p)
+func printPlans(session ui.Session, plans []plan.Plan, depPkgs []string, cfg config.Config) {
+	session.Println(session.Banner("Subspace", "Scaffold plan — review before writing"))
+	for _, p := range plans {
+		session.Println("")
+		printPlan(session, p)
 	}
 
 	if len(depPkgs) > 0 {
-		fmt.Printf("Dependencies:\n  %s add %s\n", cfg.PackageManager, strings.Join(depPkgs, " "))
+		session.Println("")
+		session.Println(session.Section("Dependencies"))
+		session.Println("  " + session.Command(cfg.PackageManager+" add "+strings.Join(depPkgs, " ")))
 	}
 }
 
-func printPlan(p plan.Plan) {
-	if p.Adapter == "" {
-		fmt.Printf("Primitive: %s\n\n", p.Primitive)
-	} else {
-		fmt.Printf("Primitive: %s (adapter: %s)\n\n", p.Primitive, p.Adapter)
+func printPlan(session ui.Session, p plan.Plan) {
+	subtitle := p.Primitive
+	if p.Adapter != "" {
+		subtitle = p.Primitive + " · adapter " + p.Adapter
 	}
+	session.Println(session.Section(subtitle))
 
 	if len(p.Dirs) > 0 {
-		fmt.Println("Directories:")
+		session.Println(session.Muted("  Directories"))
 		for _, d := range p.Dirs {
-			fmt.Printf("  %s/\n", d.Path)
+			session.Println("    " + d.Path + "/")
 		}
-		fmt.Println()
 	}
 
 	if len(p.Files) > 0 {
-		fmt.Println("Files:")
-		for _, f := range p.Files {
-			tpl := ""
-			if f.Template {
-				tpl = " (template)"
-			}
-			fmt.Printf("  %s%s\n", f.DestPath, tpl)
+		if len(p.Dirs) > 0 {
+			session.Println("")
 		}
-		fmt.Println()
+		session.Println(session.Muted("  Files"))
+		for _, f := range p.Files {
+			tpl := "copy"
+			if f.Template {
+				tpl = "template"
+			}
+			session.Println("    " + f.DestPath + "  " + session.Badge(tpl, ui.ToneMuted))
+		}
 	}
 }
 
-func printSummary(plans []plan.Plan, depPkgs []string, cfg config.Config) {
+func printSummary(session ui.Session, plans []plan.Plan, depPkgs []string, cfg config.Config) {
+	createdDirs := 0
+	createdFiles := 0
 	for _, p := range plans {
-		for _, d := range p.Dirs {
-			fmt.Printf("✓ Created %s/\n", d.Path)
-		}
+		createdDirs += len(p.Dirs)
+		createdFiles += len(p.Files)
 	}
-	fmt.Println()
+
+	session.Println(session.Banner("Subspace", session.Status("Scaffold complete", ui.ToneSuccess)))
+	session.Println("")
+	session.Println(session.InfoBox([][2]string{
+		{"Primitives", fmt.Sprintf("%d", len(plans))},
+		{"Directories", fmt.Sprintf("%d created", createdDirs)},
+		{"Files", fmt.Sprintf("%d written", createdFiles)},
+	}))
 
 	if len(depPkgs) > 0 {
-		fmt.Println("Install dependencies:")
-		fmt.Printf("  %s add %s\n\n", cfg.PackageManager, strings.Join(depPkgs, " "))
+		session.Println("")
+		session.Println(session.Section("Install dependencies"))
+		session.Println("  " + session.Command(cfg.PackageManager+" add "+strings.Join(depPkgs, " ")))
 	}
 
-	fmt.Printf("Run behavior tests:\n  %s", cfg.PackageManager)
+	session.Println("")
+	session.Println(session.Section("Next"))
+	session.Println("  " + session.Muted("Review the generated diff before committing."))
+	session.Println("  " + session.Muted("Run your normal project checks."))
 }
 
 func primitiveInstalled(targetDir, primitive string) (bool, error) {
@@ -246,4 +302,8 @@ func collectDeps(plans []plan.Plan) []string {
 	}
 	sort.Strings(out)
 	return out
+}
+
+func stripCommandStyle(value string) string {
+	return strings.ReplaceAll(strings.TrimSpace(value), "\n", " ")
 }

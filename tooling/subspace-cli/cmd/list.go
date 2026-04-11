@@ -3,10 +3,12 @@ package cmd
 import (
 	"fmt"
 	"io/fs"
+	"strings"
 
 	"github.com/spf13/cobra"
 
 	"github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/registry"
+	"github.com/warp-oss-org/subspace/tooling/subspace-cli/internal/ui"
 )
 
 func NewListCmd(embeddedFS fs.FS) *cobra.Command {
@@ -15,12 +17,12 @@ func NewListCmd(embeddedFS fs.FS) *cobra.Command {
 		Short: "List available primitives",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runList(embeddedFS)
+			return runList(newSession(cmd), embeddedFS)
 		},
 	}
 }
 
-func runList(embeddedFS fs.FS) error {
+func runList(session ui.Session, embeddedFS fs.FS) error {
 	reg, err := registry.Open(embeddedFS)
 	if err != nil {
 		return err
@@ -32,20 +34,44 @@ func runList(embeddedFS fs.FS) error {
 	}
 
 	if len(prims) == 0 {
-		fmt.Println("No primitives found.")
+		session.Println(session.Status("No primitives found.", ui.ToneWarning))
 		return nil
 	}
 
-	fmt.Printf("Available primitives (%s):\n\n", reg.Source())
+	rows := make([][]string, 0, len(prims))
 	for _, p := range prims {
 		m, err := reg.LoadManifest(p)
 		if err != nil {
-			fmt.Printf("  %s\n", p)
+			rows = append(rows, []string{p, "Manifest unavailable", "—"})
 			continue
 		}
-		fmt.Printf("  %-16s %s\n", p, m.Description)
+		defaultAdapter := "—"
+		if len(m.Adapters) > 0 {
+			defaultAdapter = m.DefaultAdapter
+		}
+		rows = append(rows, []string{p, m.Description, defaultAdapter})
 	}
-	fmt.Printf("\nRun 'subspace info <primitive>' for details.\n")
+
+	session.Println(session.Banner("Subspace", fmt.Sprintf("%d primitives available", len(prims))))
+	session.Println("")
+	session.Println(session.Table(
+		[]string{"Primitive", "Description", "Default"},
+		rows,
+	))
+	session.Println("")
+	session.Println(session.Muted("Source: " + displayRegistrySource(reg.Source())))
+	session.Println(session.Muted("Next:   " + session.Command("subspace info <primitive>")))
 
 	return nil
+}
+
+func displayRegistrySource(source string) string {
+	switch source {
+	case "embedded:registry":
+		return "embedded registry"
+	case "local:packages":
+		return "local package manifests"
+	default:
+		return strings.ReplaceAll(source, ":", " ")
+	}
 }
