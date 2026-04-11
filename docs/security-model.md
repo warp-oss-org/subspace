@@ -7,7 +7,7 @@ Subspace uses a source-copy registry model for internal consumers.
 Consumers trust:
 
 - a protected source commit on `main`
-- a manually approved `registry-release` workflow run
+- a manually approved `subspace-cli-release` workflow run
 - a pinned registry archive URL and SHA-256
 - the reviewed diff generated in their own repo
 

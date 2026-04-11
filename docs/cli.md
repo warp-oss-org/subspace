@@ -2,7 +2,7 @@
 
 Subspace CLI documentation lives under [tooling/subspace-cli](../tooling/subspace-cli/).
 
-The CLI is designed for source-copy consumption. Internal repos scaffold reviewed source from a pinned registry release and then commit that code into their own repo.
+The CLI is designed for source-copy consumption. Internal repos scaffold reviewed source from a pinned Subspace CLI release and then commit that code into their own repo.
 
 ## Entry points
 
@@ -28,7 +28,7 @@ subspace add kv --adapter memory
 Pinned remote registry example:
 
 ```bash
-export SUBSPACE_REGISTRY_URL="https://github.com/warp-oss-org/subspace/releases/download/registry-v2026.04.10.1/subspace-registry-registry-v2026.04.10.1.tar.gz"
+export SUBSPACE_REGISTRY_URL="https://github.com/warp-oss-org/subspace/releases/download/subspace-cli-v2026.04.11.2/subspace-cli-registry.tar.gz"
 export SUBSPACE_REGISTRY_SHA256="<pinned-archive-sha256>"
 
 subspace list

@@ -59,7 +59,7 @@ jobs:
               "",
               "- Pushes to `dev` update this PR automatically.",
               "- Merging this PR promotes the current `dev` tip to `main`.",
-              "- Releases are still cut manually from `main` via `registry-release`.",
+              "- Releases are still cut manually from `main` via `subspace-cli-release`.",
             ].join("\n")
 
             const { data: pullRequest } = await github.rest.pulls.create({

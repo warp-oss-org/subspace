@@ -11,7 +11,7 @@ out_dir=$2
 release_version=$3
 source_sha=$4
 
-archive_name="subspace-registry-${release_version}.tar.gz"
+archive_name="subspace-cli-registry.tar.gz"
 archive_path="${out_dir}/${archive_name}"
 
 mkdir -p "$out_dir"
@@ -48,10 +48,10 @@ printf '%s  %s\n' "$archive_sha" "$archive_name" >"$out_dir/checksums.txt"
 
 cat >"$out_dir/release-metadata.json" <<EOF
 {
-  "schemaVersion": "subspace.registry.release.v1",
+  "schemaVersion": "subspace.cli.release.v1",
   "releaseVersion": "${release_version}",
   "sourceGitSHA": "${source_sha}",
-  "archive": {
+  "registryArchive": {
     "path": "${archive_name}",
     "sha256": "${archive_sha}"
   }

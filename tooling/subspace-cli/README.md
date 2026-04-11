@@ -158,7 +158,7 @@ The registry builder copies manifest-backed [packages/*/](../../packages/) into 
 CLI distribution:
 
 - GitHub Releases are the primary install path for `subspace`.
-- Release assets include pinned registry artifacts plus prebuilt CLI binaries for:
+- Release assets include the pinned CLI registry archive plus prebuilt CLI binaries for:
   - `darwin-amd64`
   - `darwin-arm64`
   - `linux-amd64`

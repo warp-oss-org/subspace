@@ -1,10 +1,10 @@
-name: registry-release
+name: subspace-cli-release
 
 on:
   workflow_dispatch:
     inputs:
       release_version:
-        description: Protected registry release tag, for example registry-v2026.04.10.1
+        description: Protected Subspace CLI release tag, for example subspace-cli-v2026.04.11.1
         required: true
         type: string
       source_sha:
@@ -16,7 +16,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: registry-release-${{ inputs.release_version }}
+  group: subspace-cli-release-${{ inputs.release_version }}
   cancel-in-progress: false
 
 jobs:
@@ -39,9 +39,9 @@ jobs:
           test "$RELEASE_VERSION" != ""
           test "$SOURCE_SHA" != ""
           case "$RELEASE_VERSION" in
-            registry-v*) ;;
+            subspace-cli-v*) ;;
             *)
-              echo "release_version must start with registry-v" >&2
+              echo "release_version must start with subspace-cli-v" >&2
               exit 1
               ;;
           esac
@@ -112,10 +112,10 @@ jobs:
       - name: Upload release candidate
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: registry-release-${{ inputs.release_version }}
+          name: subspace-cli-release-${{ inputs.release_version }}
           path: |
             dist/subspace-cli-*
-            dist/subspace-registry-${{ inputs.release_version }}.tar.gz
+            dist/subspace-cli-registry.tar.gz
             dist/checksums.txt
             dist/release-metadata.json
           if-no-files-found: error
@@ -125,13 +125,13 @@ jobs:
     needs: package-candidate
     runs-on: ubuntu-24.04
     environment:
-      name: registry-release
+      name: subspace-cli-release
     permissions:
       contents: write
     steps:
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: registry-release-${{ inputs.release_version }}
+          name: subspace-cli-release-${{ inputs.release_version }}
           path: dist
 
       - name: Build release notes
@@ -139,10 +139,10 @@ jobs:
           RELEASE_VERSION: ${{ inputs.release_version }}
           SOURCE_SHA: ${{ inputs.source_sha }}
         run: |
-          archive_name="subspace-registry-${RELEASE_VERSION}.tar.gz"
+          archive_name="subspace-cli-registry.tar.gz"
           archive_sha=$(awk -v name="$archive_name" '$2 == name { print $1 }' dist/checksums.txt)
           {
-            echo "Registry release ${RELEASE_VERSION}"
+            echo "Subspace CLI release ${RELEASE_VERSION}"
             echo
             echo "Source commit: ${SOURCE_SHA}"
             echo "Registry archive SHA-256: ${archive_sha}"
@@ -162,6 +162,6 @@ jobs:
           body_path: dist/release-notes.md
           files: |
             dist/subspace-cli-*
-            dist/subspace-registry-${{ inputs.release_version }}.tar.gz
+            dist/subspace-cli-registry.tar.gz
             dist/checksums.txt
             dist/release-metadata.json
