@@ -11,10 +11,8 @@ overrides:
 
 allowBuilds:
   esbuild: true
-  protobufjs: true
-  sharp: true
+  protobufjs: false
+  sharp: false
 
 onlyBuiltDependencies:
   - esbuild
-  - protobufjs
-  - sharp

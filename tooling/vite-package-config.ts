@@ -38,7 +38,7 @@ const entriesByPackage: Record<string, Record<string, string>> = {
     index: "src/index.ts",
     s3: "src/s3.ts",
     gcs: "src/gcs.ts",
-    "testing/s3": "src/testing-s3.ts",
+    "testing/s3": "src/testing/s3.ts",
   },
 }
 
