@@ -1,5 +1,5 @@
-import { createRedisClient, type RedisBytesClient } from "@subspace/kv"
-import { S3Client } from "@subspace/storage"
+import { S3Client } from "@aws-sdk/client-s3"
+import { createRedisClient, type RedisBytesClient } from "@subspace/kv/redis"
 import type { AppConfig } from "../config"
 
 export type InfraClients = {

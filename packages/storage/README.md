@@ -24,8 +24,9 @@ Use the port definitions as the source of truth:
 ## Usage
 
 ```ts
-import { S3Client, createS3Storage } from "@subspace/storage"
+import { S3Client } from "@aws-sdk/client-s3"
 import { SystemClock } from "@subspace/clock"
+import { createS3Storage } from "@subspace/storage/s3"
 
 const s3 = new S3Client({ region: "us-east-1" })
 const storage = createS3Storage({

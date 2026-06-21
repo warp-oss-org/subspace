@@ -1,0 +1,94 @@
+name: npm-release
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact protected main commit SHA to publish
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: npm-release
+  cancel-in-progress: false
+
+jobs:
+  verify-input:
+    name: Verify release commit
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Verify protected main commit
+        env:
+          SOURCE_SHA: ${{ inputs.source_sha }}
+        run: |
+          [[ "$SOURCE_SHA" =~ ^[0-9a-fA-F]{40}$ ]]
+          git fetch --no-tags origin main
+          git rev-parse --verify "${SOURCE_SHA}^{commit}" >/dev/null
+          git merge-base --is-ancestor "$SOURCE_SHA" origin/main
+
+  node-validation:
+    name: Node validation
+    needs: verify-input
+    uses: ./.github/workflows/reusable-node-ci.yml
+    with:
+      node_version: "24.12.0"
+      source_sha: ${{ inputs.source_sha }}
+      upload_coverage: false
+    secrets:
+      codecov_token: ${{ secrets.CODECOV_TOKEN }}
+
+  cli-validation:
+    name: CLI registry validation
+    needs: verify-input
+    uses: ./.github/workflows/reusable-cli-registry-ci.yml
+    with:
+      source_sha: ${{ inputs.source_sha }}
+      build_binary: true
+      binary_output_path: /tmp/subspace-cli
+      run_smoke_test: true
+      upload_binary_artifact: false
+
+  publish:
+    name: Build and publish through OIDC
+    needs:
+      - node-validation
+      - cli-validation
+    runs-on: ubuntu-24.04
+    environment:
+      name: npm-release
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ inputs.source_sha }}
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
+        with:
+          version: 11.4.0
+
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: "24.12.0"
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build publishable packages
+        run: pnpm -r run build
+
+      # pnpm exchanges GitHub's short-lived OIDC token with npm. Configure
+      # npm's trusted publisher for this exact workflow before running it.
+      - name: Publish missing package versions through npm trusted publishing
+        run: pnpm release:publish

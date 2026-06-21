@@ -2,29 +2,46 @@
   "name": "@subspace/server",
   "version": "0.0.0",
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/warp-oss-org/subspace.git",
+    "directory": "packages/server"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "import": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     }
   },
   "scripts": {
     "dev:run": "tsx src/dev/run.ts",
-    "test": "vitest run",
-    "build": "tsc -p tsconfig.json"
+    "test": "vp test",
+    "build": "vp pack"
+  },
+  "publishConfig": {
+    "access": "restricted"
   },
   "dependencies": {
-    "@hono/node-server": "^1.19.7",
+    "@hono/node-server": "^2.0.5",
     "@subspace/clock": "workspace:*",
     "@subspace/config": "workspace:*",
     "@subspace/errors": "workspace:*",
     "@subspace/logger": "workspace:*",
-    "hono": "^4.11.3",
-    "zod": "^4.2.1"
+    "hono": "^4.12.26",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
-    "tsx": "^4.21.0"
+    "tsx": "^4.22.4"
   }
 }

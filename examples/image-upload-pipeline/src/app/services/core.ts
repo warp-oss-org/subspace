@@ -1,5 +1,6 @@
 import { SystemClock } from "@subspace/clock"
-import { createPinoLogger, type Logger } from "@subspace/logger"
+import type { Logger } from "@subspace/logger"
+import { createPinoLogger } from "@subspace/logger/pino"
 import { createRetryExecutor, type IRetryExecutor } from "@subspace/retry"
 import type { AppConfig } from "../config"
 

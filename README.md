@@ -10,7 +10,7 @@ Subspace is distributed in two ways:
 - package source under [`packages/`](./packages/) for local development inside this repo
 - the `subspace` CLI release for internal consumer repos
 
-Subspace is not currently distributed as npm/GitHub Packages for internal consumption. Consumer repos should install the `subspace` CLI, scaffold reviewed source from the embedded registry, commit the copied code, and own it from there.
+Consumer repos install the `subspace` CLI, scaffold reviewed source from the embedded registry, commit the copied code, and own it from there.
 
 ## Packages
 
@@ -80,7 +80,7 @@ pnpm install
 
 For package-specific usage inside this repo, start from the package README in `packages/*/README.md`.
 
-For internal consumer repos, use the CLI release instead of installing `@subspace/*` from a package registry.
+For internal consumer repos, use the CLI release and review the generated source.
 
 ## Internal Consumption
 
@@ -134,7 +134,7 @@ Run CLI tests:
 pnpm subspace:cli:test
 ```
 
-Requires Node 22+, pnpm 10+, Docker (for integration tests and service-backed test runs).
+Requires Node 22+, pnpm 11+, Docker (for integration tests and service-backed test runs).
 
 ## Documentation
 

@@ -2,8 +2,13 @@
   "extends": "../../tooling/tsconfig/base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "composite": true
+    "composite": true,
+    "rootDir": "./src"
   },
-  "references": [{ "path": "../clock" }],
+  "references": [
+    {
+      "path": "../clock"
+    }
+  ],
   "include": ["src/**/*.ts"]
 }

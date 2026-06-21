@@ -26,8 +26,8 @@ Use the port definitions as the source of truth:
 import {
   createRedisClient,
   createRedisKeyValueStoreCasAndConditional,
-  type Codec,
-} from "@subspace/kv"
+} from "@subspace/kv/redis"
+import type { Codec } from "@subspace/kv"
 
 type UploadState = { status: "awaiting_upload" | "queued" | "processing" }
 

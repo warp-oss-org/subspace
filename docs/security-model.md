@@ -11,8 +11,6 @@ Consumers trust:
 - a released Subspace CLI binary plus published checksums
 - the reviewed diff generated in their own repo
 
-Consumers do not need to trust a mutable npm package stream for `@subspace/*`.
-
 ## What the CLI does not do
 
 The CLI does not:
@@ -62,6 +60,5 @@ The risk reduction comes from combining:
 
 Current non-goals:
 
-- npm/GitHub Packages distribution for internal consumers
 - automatic registry tracking of `latest`
 - hidden post-scaffold dependency management

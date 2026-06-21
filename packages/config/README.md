@@ -19,7 +19,8 @@ Use the port definitions as the source of truth:
 ## Usage
 
 ```ts
-import { DotenvSource, EnvSource, loadConfig } from "@subspace/config"
+import { EnvSource, loadConfig } from "@subspace/config"
+import { DotenvSource } from "@subspace/config/dotenv"
 
 const result = await loadConfig({
   schema: mySchema,

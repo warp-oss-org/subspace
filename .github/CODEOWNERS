@@ -4,7 +4,8 @@
 
 /.github/CODEOWNERS @warp-oss
 /.github/workflows/** @warp-oss
+/.changeset/** @warp-oss
+/packages/*/package.json @warp-oss
 /tooling/subspace-cli/** @warp-oss
 /packages/**/manifest.yaml @warp-oss
 /packages/** @warp-oss
-
