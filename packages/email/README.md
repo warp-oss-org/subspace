@@ -20,11 +20,8 @@ Provider adapters
 ## Usage
 
 ```ts
-import {
-  SmtpTransport,
-  type EmailMessage,
-  type EmailTransport,
-} from "@subspace/email"
+import type { EmailMessage, EmailTransport } from "@subspace/email"
+import { SmtpTransport } from "@subspace/email/smtp"
 ```
 
 ## Adapters

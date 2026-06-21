@@ -2,12 +2,12 @@
 
 Subspace is a collection of focused backend primitives. Use only the pieces you need.
 
-For internal consumers, the recommended path is source-copy scaffolding from the installed `subspace` CLI, not npm package installation.
+For internal consumers, the recommended path is source-copy scaffolding from the installed `subspace` CLI.
 
 ## Prerequisites
 
 - Node.js 22+
-- pnpm 10+
+- pnpm 11+
 
 ## Install
 

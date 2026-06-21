@@ -2,27 +2,82 @@
   "name": "@subspace/email",
   "version": "0.0.0",
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/warp-oss-org/subspace.git",
+    "directory": "packages/email"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "import": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./postmark": {
+      "types": "./dist/postmark.d.ts",
+      "import": "./dist/postmark.js"
+    },
+    "./sendgrid": {
+      "types": "./dist/sendgrid.d.ts",
+      "import": "./dist/sendgrid.js"
+    },
+    "./ses": {
+      "types": "./dist/ses.d.ts",
+      "import": "./dist/ses.js"
+    },
+    "./smtp": {
+      "types": "./dist/smtp.d.ts",
+      "import": "./dist/smtp.js"
     }
   },
   "scripts": {
-    "test": "vitest run",
+    "test": "vp test",
     "test:up": "docker compose -f docker-compose.test.yml up -d --wait",
     "test:down": "docker compose -f docker-compose.test.yml down",
-    "build": "tsc -p tsconfig.json"
+    "build": "vp pack"
   },
-  "dependencies": {
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "peerDependencies": {
     "@aws-sdk/client-sesv2": "^3.958.0",
     "@sendgrid/mail": "^8.1.6",
+    "@types/nodemailer": "^7.0.4",
     "nodemailer": "^7.0.12",
     "postmark": "^4.0.5"
   },
+  "peerDependenciesMeta": {
+    "@aws-sdk/client-sesv2": {
+      "optional": true
+    },
+    "@sendgrid/mail": {
+      "optional": true
+    },
+    "@types/nodemailer": {
+      "optional": true
+    },
+    "nodemailer": {
+      "optional": true
+    },
+    "postmark": {
+      "optional": true
+    }
+  },
   "devDependencies": {
-    "@types/nodemailer": "^7.0.4"
+    "@aws-sdk/client-sesv2": "^3.1073.0",
+    "@sendgrid/mail": "^8.1.6",
+    "@types/nodemailer": "^8.0.1",
+    "nodemailer": "^9.0.1",
+    "postmark": "^4.0.7"
   }
 }

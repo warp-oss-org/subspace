@@ -191,7 +191,7 @@ export class UploadOrchestrator {
       filename,
     })
 
-    if (!stagingObject || !stagingObject.metadata) {
+    if (!stagingObject?.metadata) {
       return {
         kind: "retry",
         uploadId: upload.id,

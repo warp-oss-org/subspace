@@ -23,7 +23,13 @@ export default [
     //   "boundaries/include": ["src/**/*.ts"],
     // },
     rules: {
-      "unicorn/filename-case": ["error", { case: "kebabCase" }],
+      "unicorn/filename-case": [
+        "error",
+        {
+          case: "kebabCase",
+          ignore: ["^__test__$", "^__tests__$"],
+        },
+      ],
       "unicorn/no-null": "off",
       "unicorn/prefer-module": "off",
       "@typescript-eslint/no-unused-vars": "off",

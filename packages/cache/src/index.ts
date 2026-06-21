@@ -4,15 +4,6 @@ export {
   type MemoryCacheEntry,
   type MemoryCacheOptions,
 } from "./adapters/memory/memory-bytes-cache"
-export {
-  RedisBytesCache,
-  type RedisCacheOptions,
-} from "./adapters/redis/redis-bytes-cache"
-export {
-  createRedisBytesClient,
-  type RedisBytesClient,
-  type RedisTtl,
-} from "./adapters/redis/redis-client"
 export { CodecDataCache } from "./core/codec/codec-data-cache"
 export type { EvictionMap } from "./core/eviction/eviction-map"
 export { FifoMemoryMap } from "./core/eviction/fifo-memory-map"

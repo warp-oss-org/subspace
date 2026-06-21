@@ -24,7 +24,7 @@ Use the port definitions as the source of truth:
 ## Usage
 
 ```ts
-import { createPinoLogger } from "@subspace/logger"
+import { createPinoLogger } from "@subspace/logger/pino"
 
 const logger = createPinoLogger({}, { level: "info", prettify: false })
 logger.info("service_started", { port: 4663 })

@@ -4,15 +4,6 @@ export {
   createMemoryKeyValueStoreCasAndConditional,
   createMemoryKeyValueStoreConditional,
 } from "./adapters/memory/create"
-export {
-  createRedisClient,
-  createRedisKeyValueStore,
-  createRedisKeyValueStoreCas,
-  createRedisKeyValueStoreCasAndConditional,
-  createRedisKeyValueStoreConditional,
-} from "./adapters/redis/create"
-export type { RedisKvStoreOptions } from "./adapters/redis/redis-bytes-kv-store"
-export type { RedisBytesClient } from "./adapters/redis/redis-client"
 export * from "./ports/bytes-kv-store"
 export type { Codec } from "./ports/codec"
 export type { KeyValueStoreCas } from "./ports/kv-cas"

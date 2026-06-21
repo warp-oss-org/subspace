@@ -6,7 +6,7 @@ import type {
   LifecycleHookContext,
   ServerHandle,
 } from "@subspace/server"
-import { ensureS3BucketExists } from "@subspace/storage"
+import { ensureS3BucketExists } from "@subspace/storage/testing/s3"
 import type { AppContext, AppContextOptions } from "../app/create-context"
 import { createAppContext } from "../app/create-context"
 import { buildServer } from "../server"

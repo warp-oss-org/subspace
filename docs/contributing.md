@@ -57,4 +57,3 @@ For release-pipeline changes, prefer explicit, reviewable behavior over convenie
 
 - no implicit “latest” tracking
 - no registry-provided code execution
-- no npm publish path unless a future plan explicitly approves it

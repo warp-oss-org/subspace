@@ -2,21 +2,58 @@
   "name": "@subspace/logger",
   "version": "0.0.0",
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/warp-oss-org/subspace.git",
+    "directory": "packages/logger"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "import": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./pino": {
+      "types": "./dist/pino.d.ts",
+      "import": "./dist/pino.js"
     }
   },
   "scripts": {
-    "test": "vitest run",
-    "build": "tsc -p tsconfig.json"
+    "test": "vp test",
+    "build": "vp pack"
   },
-  "dependencies": {
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "peerDependencies": {
     "pino": "^10.1.0",
     "pino-pretty": "^13.1.3",
     "pino-std-serializers": "^7.0.0"
+  },
+  "peerDependenciesMeta": {
+    "pino": {
+      "optional": true
+    },
+    "pino-pretty": {
+      "optional": true
+    },
+    "pino-std-serializers": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "pino": "^10.3.1",
+    "pino-pretty": "^13.1.3",
+    "pino-std-serializers": "^7.1.0"
   }
 }

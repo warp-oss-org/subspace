@@ -3,8 +3,8 @@ import {
   createRedisKeyValueStore,
   createRedisKeyValueStoreCas,
   createRedisKeyValueStoreCasAndConditional,
-} from "@subspace/kv"
-import { createS3Storage } from "@subspace/storage"
+} from "@subspace/kv/redis"
+import { createS3Storage } from "@subspace/storage/s3"
 import type { AppConfig } from "../../../app/config"
 import type { CoreServices } from "../../../app/services/core"
 import type { InfraClients } from "../../../app/services/infra"

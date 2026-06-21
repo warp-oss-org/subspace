@@ -2,7 +2,7 @@
   "name": "@subspace/root",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@10.28.1",
+  "packageManager": "pnpm@11.4.0",
   "engines": {
     "node": ">=22"
   },
@@ -12,15 +12,15 @@
     "lint:eslint": "eslint .",
     "lint:biome": "biome check .",
     "lint": "pnpm lint:eslint && pnpm lint:biome",
-    "typecheck": "tsc -b -v",
-    "test": "vitest run",
+    "typecheck": "tsc -b --clean && tsc -b -v",
+    "test": "vp test",
     "dev:up": "pnpm -r --if-present run dev:up",
     "dev:down": "pnpm -r --if-present run dev:down",
-    "test:ui": "vitest --ui",
+    "test:ui": "vp test --ui",
     "test:up": "pnpm -r --if-present run test:up",
     "test:down": "pnpm -r --if-present run test:down",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
+    "test:watch": "vp test",
+    "test:coverage": "vp test --coverage",
     "build": "pnpm -r run build",
     "clean": "pnpm -r run clean",
     "subspace:cli:fmt": "cd tooling/subspace-cli && goimports -w .",
@@ -28,20 +28,28 @@
     "subspace:cli:lint": "cd tooling/subspace-cli && golangci-lint run",
     "subspace:cli:check": "pnpm subspace:cli:fmt && pnpm subspace:cli:test && pnpm subspace:cli:lint",
     "subspace:registry:build": "cd tooling/subspace-cli && go run ./cmd/subspace-registry build --source ../../packages --out registry",
-    "subspace:registry:validate": "cd tooling/subspace-cli && go run ./cmd/subspace-registry validate --dir registry"
+    "subspace:registry:validate": "cd tooling/subspace-cli && go run ./cmd/subspace-registry validate --dir registry",
+    "changeset": "changeset",
+    "version:packages": "changeset version",
+    "release:publish": "pnpm --filter \"./packages/**\" publish --recursive --access restricted --no-git-checks"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.6",
-    "@types/node": "^22.19.3",
-    "@vitest/coverage-v8": "^4.0.16",
-    "@vitest/ui": "^4.0.16",
-    "eslint": "^9.39.2",
-    "eslint-plugin-boundaries": "^5.3.1",
-    "eslint-plugin-unicorn": "^62.0.0",
-    "jiti": "^2.6.1",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.50.0",
-    "vitest": "^4.0.16",
-    "vitest-mock-extended": "^3.1.0"
+    "@biomejs/biome": "^2.5.0",
+    "@changesets/cli": "2.31.0",
+    "@types/node": "^26.0.0",
+    "@vitest/coverage-v8": "^4.1.9",
+    "@vitest/ui": "^4.1.9",
+    "eslint": "^10.5.0",
+    "eslint-plugin-boundaries": "^6.0.2",
+    "eslint-plugin-unicorn": "^68.0.0",
+    "jiti": "^2.7.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.61.1",
+    "vite-plus": "^0.2.1",
+    "vitest": "^4.1.9",
+    "vitest-mock-extended": "^4.0.0"
+  },
+  "optionalDependencies": {
+    "@voidzero-dev/vite-plus-darwin-arm64": "0.2.1"
   }
 }

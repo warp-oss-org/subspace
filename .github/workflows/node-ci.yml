@@ -13,6 +13,10 @@ on:
     branches:
       - dev
       - main
+  merge_group:
+    branches:
+      - dev
+      - main
 
 permissions:
   contents: read
