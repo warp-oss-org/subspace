@@ -1,4 +1,4 @@
-import type { Clock } from "@subspace/clock"
+import type { Clock } from "@subspace-kit/clock"
 import {
   createCodecKeyValueStore,
   createCodecKeyValueStoreCas,

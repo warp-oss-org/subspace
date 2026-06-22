@@ -1,10 +1,10 @@
-import type { Clock } from "@subspace/clock"
+import type { Clock } from "@subspace-kit/clock"
 import {
   createRedisKeyValueStore,
   createRedisKeyValueStoreCas,
   createRedisKeyValueStoreCasAndConditional,
-} from "@subspace/kv/redis"
-import { createS3Storage } from "@subspace/storage/s3"
+} from "@subspace-kit/kv/redis"
+import { createS3Storage } from "@subspace-kit/storage/s3"
 import type { AppConfig } from "../../../app/config"
 import type { CoreServices } from "../../../app/services/core"
 import type { InfraClients } from "../../../app/services/infra"

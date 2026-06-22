@@ -1,5 +1,5 @@
-import type { ErrorCode } from "@subspace/errors"
-import type { Logger } from "@subspace/logger"
+import type { ErrorCode } from "@subspace-kit/errors"
+import type { Logger } from "@subspace-kit/logger"
 import type { ErrorHandler as HonoErrorHandler } from "hono"
 import { routePath } from "hono/route"
 import type { StatusCode } from "../http/status-codes"

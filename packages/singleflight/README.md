@@ -1,4 +1,4 @@
-# @subspace/singleflight
+# @subspace-kit/singleflight
 
 Duplicate suppression for concurrent work: one in-flight execution per key.
 
@@ -24,7 +24,7 @@ Use the port definitions as the source of truth:
 import {
   MemorySingleflight,
   type Singleflight,
-} from "@subspace/singleflight"
+} from "@subspace-kit/singleflight"
 ```
 
 ## Adapters
@@ -34,8 +34,8 @@ import {
 ## Testing
 
 ```bash
-pnpm --filter @subspace/singleflight test
-pnpm --filter @subspace/singleflight build
+pnpm --filter @subspace-kit/singleflight test
+pnpm --filter @subspace-kit/singleflight build
 ```
 
 ## See Also

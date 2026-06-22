@@ -1,6 +1,6 @@
-import { type ConfigSource, EnvSource, loadConfig } from "@subspace/config"
-import { DotenvSource } from "@subspace/config/dotenv"
-import { applyOverrides, type DeepPartial } from "@subspace/server"
+import { type ConfigSource, EnvSource, loadConfig } from "@subspace-kit/config"
+import { DotenvSource } from "@subspace-kit/config/dotenv"
+import { applyOverrides, type DeepPartial } from "@subspace-kit/server"
 import type { AppConfig } from "."
 import { type EnvConfig, envSchema } from "./schema"
 

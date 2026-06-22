@@ -1,4 +1,4 @@
-import { FakeClock } from "@subspace/clock"
+import { FakeClock } from "@subspace-kit/clock"
 import { createFakeGcpSecretManagerTestClient } from "../../../tests/utils/create-gcp-secrets-manager-client"
 import { GcpSecretManagerVault } from "../gcp-secret-manager-vault"
 

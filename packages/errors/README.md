@@ -1,4 +1,4 @@
-# @subspace/errors
+# @subspace-kit/errors
 
 Shared application error model for creation, normalization, and inspection.
 
@@ -21,7 +21,7 @@ Use the port definitions as the source of truth:
 ## Usage
 
 ```ts
-import { createError, isAppError, toAppError } from "@subspace/errors"
+import { createError, isAppError, toAppError } from "@subspace-kit/errors"
 
 const UploadError = createError("upload_failed")
 
@@ -42,8 +42,8 @@ No external adapter layer. See [core](./src/core) and [ports](./src/ports).
 ## Testing
 
 ```bash
-pnpm --filter @subspace/errors test
-pnpm --filter @subspace/errors build
+pnpm --filter @subspace-kit/errors test
+pnpm --filter @subspace-kit/errors build
 ```
 
 ## See Also

@@ -1,5 +1,5 @@
 import type { Storage as GcsClient } from "@google-cloud/storage"
-import type { Clock } from "@subspace/clock"
+import type { Clock } from "@subspace-kit/clock"
 import { GcsStorage } from "./adapters/gcs-storage"
 import type { StoragePort } from "./ports/storage"
 

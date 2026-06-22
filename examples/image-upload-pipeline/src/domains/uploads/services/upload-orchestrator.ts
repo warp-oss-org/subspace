@@ -1,6 +1,6 @@
 import { Readable } from "node:stream"
-import type { Clock, Seconds } from "@subspace/clock"
-import type { Logger } from "@subspace/logger"
+import type { Clock, Seconds } from "@subspace-kit/clock"
+import type { Logger } from "@subspace-kit/logger"
 import type {
   ImageProcessor,
   ImageVariant,

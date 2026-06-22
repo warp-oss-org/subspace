@@ -1,4 +1,4 @@
-import type { Milliseconds } from "@subspace/clock"
+import type { Milliseconds } from "@subspace-kit/clock"
 import type { DelayPolicy } from "./delay-policy"
 import type { RetryObserver } from "./observer"
 import type { ErrorPredicate, ResultPredicate } from "./predicates"

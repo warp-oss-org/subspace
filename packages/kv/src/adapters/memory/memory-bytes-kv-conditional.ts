@@ -1,4 +1,4 @@
-import type { Clock, Milliseconds } from "@subspace/clock"
+import type { Clock, Milliseconds } from "@subspace-kit/clock"
 import type { BytesKeyValueStoreConditional } from "../../ports/bytes-kv-store"
 import type { KvWriteResult } from "../../ports/kv-conditional"
 import type { KvKey } from "../../ports/kv-key"

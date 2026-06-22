@@ -1,4 +1,4 @@
-import type { Logger } from "@subspace/logger"
+import type { Logger } from "@subspace-kit/logger"
 import { mock } from "vitest-mock-extended"
 import type { Mock } from "../../tests/mock"
 import { requestLoggingMiddleware } from "../request-logging"

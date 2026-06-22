@@ -64,7 +64,7 @@ func TestEnsureSubspaceAliasOverwritesAlias(t *testing.T) {
 		"compilerOptions": map[string]any{
 			"baseUrl": ".",
 			"paths": map[string]any{
-				"@subspace/*": []any{"./wrong/*"},
+				"@subspace-kit/*": []any{"./wrong/*"},
 			},
 		},
 	}}
@@ -74,9 +74,9 @@ func TestEnsureSubspaceAliasOverwritesAlias(t *testing.T) {
 	}
 
 	paths := cfg.Data["compilerOptions"].(map[string]any)["paths"].(map[string]any)
-	got, ok := paths["@subspace/*"].([]string)
+	got, ok := paths["@subspace-kit/*"].([]string)
 	if !ok {
-		t.Fatalf("expected []string alias, got %T", paths["@subspace/*"])
+		t.Fatalf("expected []string alias, got %T", paths["@subspace-kit/*"])
 	}
 	want := []string{"./src/infra/subspace/*"}
 	if !reflect.DeepEqual(got, want) {

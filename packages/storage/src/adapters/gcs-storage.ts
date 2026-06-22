@@ -1,7 +1,7 @@
 import type { Readable } from "node:stream"
 import { pipeline } from "node:stream/promises"
 import type { File, Storage as GcsClient } from "@google-cloud/storage"
-import type { Clock } from "@subspace/clock"
+import type { Clock } from "@subspace-kit/clock"
 import type { StoragePort } from "../ports/storage"
 import type {
   ObjectRef,

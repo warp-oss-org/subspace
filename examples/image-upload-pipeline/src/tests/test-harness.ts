@@ -1,12 +1,12 @@
-import type { Milliseconds } from "@subspace/clock"
-import { NullLogger } from "@subspace/logger"
+import type { Milliseconds } from "@subspace-kit/clock"
+import { NullLogger } from "@subspace-kit/logger"
 import type {
   Application,
   LifecycleHook,
   LifecycleHookContext,
   ServerHandle,
-} from "@subspace/server"
-import { ensureS3BucketExists } from "@subspace/storage/testing/s3"
+} from "@subspace-kit/server"
+import { ensureS3BucketExists } from "@subspace-kit/storage/testing/s3"
 import type { AppContext, AppContextOptions } from "../app/create-context"
 import { createAppContext } from "../app/create-context"
 import { buildServer } from "../server"

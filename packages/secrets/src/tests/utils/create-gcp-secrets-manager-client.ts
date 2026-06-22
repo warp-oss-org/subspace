@@ -1,6 +1,6 @@
 import { generateKeyPairSync, randomUUID } from "node:crypto"
 import { SecretManagerServiceClient } from "@google-cloud/secret-manager"
-import type { Clock } from "@subspace/clock"
+import type { Clock } from "@subspace-kit/clock"
 
 interface AccessSecretVersionRequest {
   name: string

@@ -1,7 +1,7 @@
 import { mkdir, rm } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { FakeClock } from "@subspace/clock"
+import { FakeClock } from "@subspace-kit/clock"
 import {
   describeListableSecretVaultContract,
   describeReadableSecretVaultContract,

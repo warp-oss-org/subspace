@@ -1,4 +1,4 @@
-# @subspace/cache
+# @subspace-kit/cache
 
 Byte-oriented cache primitives with codec, eviction, and through-cache building blocks.
 
@@ -30,7 +30,7 @@ import {
   SystemClock,
   LruMemoryMap,
   type Codec,
-} from "@subspace/cache"
+} from "@subspace-kit/cache"
 ```
 
 ## Adapters
@@ -41,16 +41,16 @@ import {
 ## Testing
 
 ```bash
-pnpm --filter @subspace/cache test
-pnpm --filter @subspace/cache build
+pnpm --filter @subspace-kit/cache test
+pnpm --filter @subspace-kit/cache build
 ```
 
 Redis adapter tests:
 
 ```bash
-pnpm --filter @subspace/cache test:up
-pnpm --filter @subspace/cache test
-pnpm --filter @subspace/cache test:down
+pnpm --filter @subspace-kit/cache test:up
+pnpm --filter @subspace-kit/cache test
+pnpm --filter @subspace-kit/cache test:down
 ```
 
 ## See Also

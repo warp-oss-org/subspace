@@ -1,4 +1,4 @@
-import { createBackoff, decorrelatedJitter, exponential } from "@subspace/backoff"
+import { createBackoff, decorrelatedJitter, exponential } from "@subspace-kit/backoff"
 import type { AppConfig } from "../../../app/config"
 import type { CoreServices } from "../../../app/services/core"
 import type { SharpImageProcessor } from "../services/image-processor.sharp"

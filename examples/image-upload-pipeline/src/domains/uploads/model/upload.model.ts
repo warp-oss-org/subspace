@@ -1,12 +1,12 @@
 import type { Readable } from "node:stream"
-import type { Seconds } from "@subspace/clock"
-import { type Brand, prefixed, uuidV4, withGenerator } from "@subspace/id"
+import type { Seconds } from "@subspace-kit/clock"
+import { type Brand, prefixed, uuidV4, withGenerator } from "@subspace-kit/id"
 import type {
   Bytes,
   ObjectRef,
   StorageObject,
   StorageObjectMetadata,
-} from "@subspace/storage"
+} from "@subspace-kit/storage"
 import { z } from "zod/mini"
 import { parseDataOrThrow } from "../../../lib/validation"
 

@@ -1,4 +1,4 @@
-import type { Milliseconds } from "@subspace/clock"
+import type { Milliseconds } from "@subspace-kit/clock"
 
 type MillisecondsTtl = { kind: "milliseconds"; milliseconds: Milliseconds }
 

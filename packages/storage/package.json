@@ -1,6 +1,6 @@
 {
-  "name": "@subspace/storage",
-  "version": "0.0.0",
+  "name": "@subspace-kit/storage",
+  "version": "0.1.0",
   "type": "module",
   "license": "MIT",
   "repository": {
@@ -46,7 +46,7 @@
     "access": "restricted"
   },
   "dependencies": {
-    "@subspace/clock": "workspace:*"
+    "@subspace-kit/clock": "workspace:*"
   },
   "peerDependencies": {
     "@aws-sdk/client-s3": "^3.962.0",

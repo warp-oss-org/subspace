@@ -1,6 +1,6 @@
 {
-  "name": "@subspace/server",
-  "version": "0.0.0",
+  "name": "@subspace-kit/server",
+  "version": "0.1.0",
   "type": "module",
   "license": "MIT",
   "repository": {
@@ -34,10 +34,10 @@
   },
   "dependencies": {
     "@hono/node-server": "^2.0.5",
-    "@subspace/clock": "workspace:*",
-    "@subspace/config": "workspace:*",
-    "@subspace/errors": "workspace:*",
-    "@subspace/logger": "workspace:*",
+    "@subspace-kit/clock": "workspace:*",
+    "@subspace-kit/config": "workspace:*",
+    "@subspace-kit/errors": "workspace:*",
+    "@subspace-kit/logger": "workspace:*",
     "hono": "^4.12.26",
     "zod": "^4.4.3"
   },

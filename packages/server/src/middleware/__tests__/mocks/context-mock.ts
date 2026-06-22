@@ -1,4 +1,4 @@
-import type { Logger } from "@subspace/logger"
+import type { Logger } from "@subspace-kit/logger"
 import type { Context } from "../../../server"
 
 export type MockContextInput = {

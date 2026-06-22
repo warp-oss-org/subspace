@@ -1,4 +1,4 @@
-import type { Milliseconds, UnixMs } from "@subspace/clock"
+import type { Milliseconds, UnixMs } from "@subspace-kit/clock"
 
 export interface AttemptContext {
   /** 0-indexed attempt number */

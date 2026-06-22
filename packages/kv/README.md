@@ -1,4 +1,4 @@
-# @subspace/kv
+# @subspace-kit/kv
 
 Key-value storage with compare-and-swap (CAS) and conditional writes. Provides primitives for distributed state coordination.
 
@@ -26,8 +26,8 @@ Use the port definitions as the source of truth:
 import {
   createRedisClient,
   createRedisKeyValueStoreCasAndConditional,
-} from "@subspace/kv/redis"
-import type { Codec } from "@subspace/kv"
+} from "@subspace-kit/kv/redis"
+import type { Codec } from "@subspace-kit/kv"
 
 type UploadState = { status: "awaiting_upload" | "queued" | "processing" }
 
@@ -93,15 +93,15 @@ Expected control-flow states are returned as values, not thrown exceptions.
 ## Testing
 
 ```bash
-pnpm --filter @subspace/kv test
+pnpm --filter @subspace-kit/kv test
 ```
 
 Redis adapter tests:
 
 ```bash
-pnpm --filter @subspace/kv test:up
-pnpm --filter @subspace/kv test
-pnpm --filter @subspace/kv test:down
+pnpm --filter @subspace-kit/kv test:up
+pnpm --filter @subspace-kit/kv test
+pnpm --filter @subspace-kit/kv test:down
 ```
 
 ## See Also

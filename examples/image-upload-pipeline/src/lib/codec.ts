@@ -1,4 +1,4 @@
-import type { Codec } from "@subspace/kv"
+import type { Codec } from "@subspace-kit/kv"
 import superjson from "superjson"
 
 const encoder = new TextEncoder()

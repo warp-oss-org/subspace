@@ -1,3 +1,3 @@
-import { parseOrThrow } from "@subspace/server"
+import { parseOrThrow } from "@subspace-kit/server"
 
 export const parseDataOrThrow = parseOrThrow

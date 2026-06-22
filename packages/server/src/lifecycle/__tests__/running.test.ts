@@ -1,5 +1,5 @@
-import { type Clock, FakeClock } from "@subspace/clock"
-import type { Logger } from "@subspace/logger"
+import { type Clock, FakeClock } from "@subspace-kit/clock"
+import type { Logger } from "@subspace-kit/logger"
 import type { Mock } from "vitest"
 import { mock } from "vitest-mock-extended"
 import { createApp } from "../../server/server"

@@ -1,6 +1,6 @@
-import type { Milliseconds, Seconds } from "@subspace/clock"
-import { type LogLevelName, logLevelNames } from "@subspace/logger"
-import type { Bytes } from "@subspace/storage"
+import type { Milliseconds, Seconds } from "@subspace-kit/clock"
+import { type LogLevelName, logLevelNames } from "@subspace-kit/logger"
+import type { Bytes } from "@subspace-kit/storage"
 import { z } from "zod/mini"
 
 export const envSchema = z.object({

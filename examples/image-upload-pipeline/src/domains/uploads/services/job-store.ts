@@ -1,5 +1,5 @@
-import type { Milliseconds } from "@subspace/clock"
-import type { KeyValueStore, KeyValueStoreCas } from "@subspace/kv"
+import type { Milliseconds } from "@subspace-kit/clock"
+import type { KeyValueStore, KeyValueStoreCas } from "@subspace-kit/kv"
 import type { FinalizeJob, JobId } from "../model/job.model"
 
 export type JobIndex = {

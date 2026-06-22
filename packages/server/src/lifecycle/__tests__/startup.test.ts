@@ -1,5 +1,5 @@
-import { FakeClock } from "@subspace/clock"
-import type { Logger } from "@subspace/logger"
+import { FakeClock } from "@subspace-kit/clock"
+import type { Logger } from "@subspace-kit/logger"
 import { mock } from "vitest-mock-extended"
 
 import type { LifecycleHook } from "../lifecycle-hook"

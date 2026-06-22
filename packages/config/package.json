@@ -1,6 +1,6 @@
 {
-  "name": "@subspace/config",
-  "version": "0.0.0",
+  "name": "@subspace-kit/config",
+  "version": "0.1.0",
   "type": "module",
   "license": "MIT",
   "repository": {

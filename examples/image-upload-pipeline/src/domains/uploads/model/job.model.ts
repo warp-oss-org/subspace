@@ -1,4 +1,4 @@
-import { type Brand, prefixed, uuidV4 } from "@subspace/id"
+import { type Brand, prefixed, uuidV4 } from "@subspace-kit/id"
 import type { UploadId } from "./upload.model"
 
 export type JobId = Brand<string, "JobId">

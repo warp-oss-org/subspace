@@ -1,5 +1,5 @@
-import { BaseError } from "@subspace/errors"
-import type { Bytes } from "@subspace/storage"
+import { BaseError } from "@subspace-kit/errors"
+import type { Bytes } from "@subspace-kit/storage"
 
 export type UploadErrorCode = "upload_too_large"
 

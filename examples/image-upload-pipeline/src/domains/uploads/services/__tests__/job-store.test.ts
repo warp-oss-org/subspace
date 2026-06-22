@@ -1,10 +1,10 @@
-import { FakeClock } from "@subspace/clock"
+import { FakeClock } from "@subspace-kit/clock"
 import {
   createMemoryKeyValueStore,
   createMemoryKeyValueStoreCas,
   type KeyValueStore,
   type KeyValueStoreCas,
-} from "@subspace/kv"
+} from "@subspace-kit/kv"
 import { beforeEach, describe, expect, it } from "vitest"
 import { createJsonCodec } from "../../../../lib"
 import { type FinalizeJob, JobId } from "../../model/job.model"

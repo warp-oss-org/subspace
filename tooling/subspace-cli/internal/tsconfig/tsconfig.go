@@ -54,7 +54,7 @@ func EnsureSubspaceAlias(cfg *TSConfig, targetDir string) error {
 
 	paths := ensureObject(compilerOptions, "paths")
 	aliasTarget := "./" + strings.ReplaceAll(targetDir, "\\", "/") + "/*"
-	paths["@subspace/*"] = []string{aliasTarget}
+	paths["@subspace-kit/*"] = []string{aliasTarget}
 
 	return nil
 }

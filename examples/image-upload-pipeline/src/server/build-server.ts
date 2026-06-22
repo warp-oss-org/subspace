@@ -1,11 +1,11 @@
-import type { AppError } from "@subspace/errors"
+import type { AppError } from "@subspace-kit/errors"
 import {
   type Application,
   createServer,
   isValidationError,
   type LifecycleHook,
   type Server,
-} from "@subspace/server"
+} from "@subspace-kit/server"
 import type { AppContext } from "../app/create-context"
 import { createStartHooks, createStopHooks } from "../app/lifecycle"
 

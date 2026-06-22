@@ -1,5 +1,5 @@
 import { serve } from "@hono/node-server"
-import type { Logger } from "@subspace/logger"
+import type { Logger } from "@subspace-kit/logger"
 import type { Application } from "../server"
 import type { ResolvedServerOptions } from "../server/server-options"
 import type { Closeable } from "./shutdown"

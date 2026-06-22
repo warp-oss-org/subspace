@@ -8,5 +8,5 @@
   "baseBranch": "dev",
   "updateInternalDependencies": "patch",
   "bumpVersionsWithWorkspaceProtocolOnly": true,
-  "ignore": ["@subspace/image-upload-pipeline"]
+  "ignore": ["@subspace-kit/image-upload-pipeline"]
 }

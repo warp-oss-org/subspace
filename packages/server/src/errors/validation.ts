@@ -1,4 +1,4 @@
-import { BaseError, type ErrorContext } from "@subspace/errors"
+import { BaseError, type ErrorContext } from "@subspace-kit/errors"
 
 type ZodMiniIssue = {
   path: unknown[]

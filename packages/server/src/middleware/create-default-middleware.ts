@@ -1,4 +1,4 @@
-import type { Logger } from "@subspace/logger"
+import type { Logger } from "@subspace-kit/logger"
 import type { Middleware } from "../server"
 import type { ResolvedServerOptions } from "../server/server-options"
 import { clientIpMiddleware } from "./client-ip"

@@ -1,4 +1,4 @@
-import type { KeyValueStoreCasAndConditional } from "@subspace/kv"
+import type { KeyValueStoreCasAndConditional } from "@subspace-kit/kv"
 import type {
   AwaitingUpload,
   CreateUploadInput,

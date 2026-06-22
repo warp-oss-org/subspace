@@ -1,4 +1,4 @@
-import type { LifecycleHook } from "@subspace/server"
+import type { LifecycleHook } from "@subspace-kit/server"
 import type { AppContext } from "../create-context"
 
 export function createStopHooks(context: AppContext): LifecycleHook[] {

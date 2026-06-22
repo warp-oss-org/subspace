@@ -1,4 +1,4 @@
-# @subspace/id
+# @subspace-kit/id
 
 ID generation utilities with branding and codec helpers.
 
@@ -21,7 +21,7 @@ Use the port definitions as the source of truth:
 ## Usage
 
 ```ts
-import { prefixed, uuidV7, withGenerator } from "@subspace/id"
+import { prefixed, uuidV7, withGenerator } from "@subspace-kit/id"
 
 type UploadId = string & { readonly __brand: "UploadId" }
 
@@ -44,8 +44,8 @@ const UploadId = withGenerator(
 ## Testing
 
 ```bash
-pnpm --filter @subspace/id test
-pnpm --filter @subspace/id build
+pnpm --filter @subspace-kit/id test
+pnpm --filter @subspace-kit/id build
 ```
 
 ## See Also

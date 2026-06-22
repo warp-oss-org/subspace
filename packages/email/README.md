@@ -1,4 +1,4 @@
-# @subspace/email
+# @subspace-kit/email
 
 Email transport abstractions with Postmark, SendGrid, SES, and SMTP adapters.
 
@@ -20,8 +20,8 @@ Provider adapters
 ## Usage
 
 ```ts
-import type { EmailMessage, EmailTransport } from "@subspace/email"
-import { SmtpTransport } from "@subspace/email/smtp"
+import type { EmailMessage, EmailTransport } from "@subspace-kit/email"
+import { SmtpTransport } from "@subspace-kit/email/smtp"
 ```
 
 ## Adapters
@@ -34,16 +34,16 @@ import { SmtpTransport } from "@subspace/email/smtp"
 ## Testing
 
 ```bash
-pnpm --filter @subspace/email test
-pnpm --filter @subspace/email build
+pnpm --filter @subspace-kit/email test
+pnpm --filter @subspace-kit/email build
 ```
 
 Provider integration tests:
 
 ```bash
-pnpm --filter @subspace/email test:up
-pnpm --filter @subspace/email test
-pnpm --filter @subspace/email test:down
+pnpm --filter @subspace-kit/email test:up
+pnpm --filter @subspace-kit/email test
+pnpm --filter @subspace-kit/email test:down
 ```
 
 ## See Also

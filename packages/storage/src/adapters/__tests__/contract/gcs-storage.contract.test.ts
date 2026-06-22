@@ -1,5 +1,5 @@
 import type { Storage } from "@google-cloud/storage"
-import { SystemClock } from "@subspace/clock"
+import { SystemClock } from "@subspace-kit/clock"
 import { describeStorageContractTests } from "../../../ports/__tests__/storage.contract"
 import { createGcsTestClient } from "../../../tests/utils/create-gcs-test-client"
 import { deleteGcsObjectsByPrefix } from "../../../tests/utils/delete-gcs-objects-by-prefix"

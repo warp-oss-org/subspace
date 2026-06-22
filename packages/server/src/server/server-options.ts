@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto"
-import type { Clock, Milliseconds } from "@subspace/clock"
-import type { Logger, LogLevelName } from "@subspace/logger"
+import type { Clock, Milliseconds } from "@subspace-kit/clock"
+import type { Logger, LogLevelName } from "@subspace-kit/logger"
 import type { ErrorHandler } from "../errors/create-error-handler"
 import type { ErrorMappingsConfig } from "../errors/errors"
 import type { LifecycleHook } from "../lifecycle/lifecycle-hook"

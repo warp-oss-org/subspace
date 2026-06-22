@@ -1,5 +1,5 @@
 import { Readable } from "node:stream"
-import { SystemClock } from "@subspace/clock"
+import { SystemClock } from "@subspace-kit/clock"
 import { MemoryStorage } from "../../memory-storage"
 
 describe("MemoryStorageAdapter behavior", () => {

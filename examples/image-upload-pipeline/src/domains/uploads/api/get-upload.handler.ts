@@ -1,4 +1,4 @@
-import type { Context, RequestHandler } from "@subspace/server"
+import type { Context, RequestHandler } from "@subspace-kit/server"
 import type { UploadServices } from "../composition"
 import { UploadId, type UploadRecord } from "../model/upload.model"
 

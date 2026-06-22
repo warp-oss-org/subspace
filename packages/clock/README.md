@@ -1,4 +1,4 @@
-# @subspace/clock
+# @subspace-kit/clock
 
 Clock abstraction for deterministic time handling in production and tests.
 
@@ -20,7 +20,7 @@ Use the port definitions as the source of truth:
 ## Usage
 
 ```ts
-import { SystemClock, FakeClock } from "@subspace/clock"
+import { SystemClock, FakeClock } from "@subspace-kit/clock"
 
 const clock = new SystemClock()
 const now = clock.now()
@@ -36,8 +36,8 @@ const testClock = new FakeClock(new Date("2026-01-01T00:00:00.000Z"))
 ## Testing
 
 ```bash
-pnpm --filter @subspace/clock test
-pnpm --filter @subspace/clock build
+pnpm --filter @subspace-kit/clock test
+pnpm --filter @subspace-kit/clock build
 ```
 
 ## See Also

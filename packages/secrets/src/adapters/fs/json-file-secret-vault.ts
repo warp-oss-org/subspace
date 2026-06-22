@@ -1,6 +1,6 @@
 import { access, mkdir, readFile, writeFile } from "node:fs/promises"
 import { dirname } from "node:path"
-import type { Clock } from "@subspace/clock"
+import type { Clock } from "@subspace-kit/clock"
 import type {
   ListableSecretVault,
   SecretValue,

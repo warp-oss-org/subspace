@@ -1,5 +1,5 @@
-import { type AppError, BaseError, type ErrorCode } from "@subspace/errors"
-import type { Logger } from "@subspace/logger"
+import { type AppError, BaseError, type ErrorCode } from "@subspace-kit/errors"
+import type { Logger } from "@subspace-kit/logger"
 import { mock } from "vitest-mock-extended"
 import { mockContext } from "../../middleware/__tests__/mocks/context-mock"
 import type { ResolvedServerOptions } from "../../server/server-options"
