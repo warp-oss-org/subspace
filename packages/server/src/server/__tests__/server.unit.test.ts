@@ -1,5 +1,5 @@
-import { FakeClock } from "@subspace/clock"
-import type { Logger } from "@subspace/logger"
+import { FakeClock } from "@subspace-kit/clock"
+import type { Logger } from "@subspace-kit/logger"
 import { Hono } from "hono"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { mock } from "vitest-mock-extended"

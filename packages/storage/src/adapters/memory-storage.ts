@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto"
 import { Readable } from "node:stream"
-import type { Clock } from "@subspace/clock"
+import type { Clock } from "@subspace-kit/clock"
 import type { StoragePort } from "../ports/storage"
 import type {
   ObjectRef,

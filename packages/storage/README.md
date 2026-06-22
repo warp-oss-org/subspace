@@ -1,4 +1,4 @@
-# @subspace/storage
+# @subspace-kit/storage
 
 Object storage abstraction for memory, filesystem, S3, and GCS backends.
 
@@ -25,8 +25,8 @@ Use the port definitions as the source of truth:
 
 ```ts
 import { S3Client } from "@aws-sdk/client-s3"
-import { SystemClock } from "@subspace/clock"
-import { createS3Storage } from "@subspace/storage/s3"
+import { SystemClock } from "@subspace-kit/clock"
+import { createS3Storage } from "@subspace-kit/storage/s3"
 
 const s3 = new S3Client({ region: "us-east-1" })
 const storage = createS3Storage({
@@ -47,16 +47,16 @@ const storage = createS3Storage({
 ## Testing
 
 ```bash
-pnpm --filter @subspace/storage test
-pnpm --filter @subspace/storage build
+pnpm --filter @subspace-kit/storage test
+pnpm --filter @subspace-kit/storage build
 ```
 
 Cloud adapter integration tests:
 
 ```bash
-pnpm --filter @subspace/storage test:up
-pnpm --filter @subspace/storage test
-pnpm --filter @subspace/storage test:down
+pnpm --filter @subspace-kit/storage test:up
+pnpm --filter @subspace-kit/storage test
+pnpm --filter @subspace-kit/storage test:down
 ```
 
 ## See Also

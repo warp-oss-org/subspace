@@ -1,4 +1,4 @@
-import type { Context, RequestHandler } from "@subspace/server"
+import type { Context, RequestHandler } from "@subspace-kit/server"
 import type { AppConfig } from "../../../app/config"
 import { parseDataOrThrow } from "../../../lib/validation"
 import type { UploadServices } from "../composition"

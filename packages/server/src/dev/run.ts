@@ -1,5 +1,5 @@
-import { SystemClock } from "@subspace/clock"
-import type { Logger } from "@subspace/logger"
+import { SystemClock } from "@subspace-kit/clock"
+import type { Logger } from "@subspace-kit/logger"
 import { PinoLogger } from "../../../logger/src/adapters/pino/pino-logger"
 import { createServer } from "../server"
 import type { ServerOptions } from "../server/server-options"

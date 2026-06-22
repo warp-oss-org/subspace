@@ -1,4 +1,4 @@
-import type { Clock } from "@subspace/clock"
+import type { Clock } from "@subspace-kit/clock"
 import type { StoragePort } from "../ports/storage"
 import { FileSystemStorage } from "./fs-storage"
 import { MemoryStorage } from "./memory-storage"

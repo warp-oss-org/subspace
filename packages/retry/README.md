@@ -1,4 +1,4 @@
-# @subspace/retry
+# @subspace-kit/retry
 
 Retry execution engine for transient failures with configurable delay/predicate behavior.
 
@@ -25,9 +25,9 @@ Predicates and observers
 ## Usage
 
 ```ts
-import { createRetryExecutor } from "@subspace/retry"
-import { SystemClock } from "@subspace/clock"
-import { createBackoff, exponential } from "@subspace/backoff"
+import { createRetryExecutor } from "@subspace-kit/retry"
+import { SystemClock } from "@subspace-kit/clock"
+import { createBackoff, exponential } from "@subspace-kit/backoff"
 
 const retry = createRetryExecutor({ clock: new SystemClock() })
 const delay = createBackoff({
@@ -46,8 +46,8 @@ No external adapter layer. See [core](./src/core) and [ports](./src/ports).
 ## Testing
 
 ```bash
-pnpm --filter @subspace/retry test
-pnpm --filter @subspace/retry build
+pnpm --filter @subspace-kit/retry test
+pnpm --filter @subspace-kit/retry build
 ```
 
 ## See Also

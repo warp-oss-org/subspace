@@ -1,5 +1,5 @@
 import path from "node:path"
-import { applyOverrides, type DeepPartial } from "@subspace/server"
+import { applyOverrides, type DeepPartial } from "@subspace-kit/server"
 import { type AppConfig, loadAppConfig } from "./config"
 import { type CreateStartHooksFn, createStartHooks } from "./lifecycle/start"
 import { type CreateStopHooksFn, createStopHooks } from "./lifecycle/stop"

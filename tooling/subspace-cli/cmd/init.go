@@ -47,9 +47,9 @@ func runInit(session ui.Session) error {
 	session.Println("")
 
 	if tsconfigChanged {
-		session.Println(session.Step("Updated tsconfig.json to map @subspace/* into " + cfg.TargetDir))
+		session.Println(session.Step("Updated tsconfig.json to map @subspace-kit/* into " + cfg.TargetDir))
 	} else {
-		session.Println(session.Step("Verified tsconfig.json already maps @subspace/* into " + cfg.TargetDir))
+		session.Println(session.Step("Verified tsconfig.json already maps @subspace-kit/* into " + cfg.TargetDir))
 	}
 
 	session.Println("")
@@ -90,7 +90,7 @@ func tsconfigAliasConfigured(cfg tsconfig.TSConfig, targetDir string) bool {
 	if !ok {
 		return false
 	}
-	values, ok := paths["@subspace/*"].([]any)
+	values, ok := paths["@subspace-kit/*"].([]any)
 	if !ok || len(values) != 1 {
 		return false
 	}

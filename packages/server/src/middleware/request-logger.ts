@@ -1,4 +1,4 @@
-import type { Logger } from "@subspace/logger"
+import type { Logger } from "@subspace-kit/logger"
 import type { Middleware } from "../server"
 import { isNonEmptyString } from "./utils/is-non-empty-string"
 

@@ -1,5 +1,5 @@
 import type { S3Client } from "@aws-sdk/client-s3"
-import type { Clock } from "@subspace/clock"
+import type { Clock } from "@subspace-kit/clock"
 import { S3Storage } from "./adapters/s3-storage"
 import type { StoragePort } from "./ports/storage"
 

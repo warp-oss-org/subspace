@@ -1,4 +1,4 @@
-import type { Seconds } from "@subspace/clock"
+import type { Seconds } from "@subspace-kit/clock"
 import type { StorageData, StorageKey } from "./storage-object"
 
 export interface PutOptions {

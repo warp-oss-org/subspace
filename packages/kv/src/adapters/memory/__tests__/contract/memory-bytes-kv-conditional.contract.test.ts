@@ -1,4 +1,4 @@
-import { SystemClock } from "@subspace/clock"
+import { SystemClock } from "@subspace-kit/clock"
 import { describeKvConditionalContract } from "../../../../ports/__tests__/kv-conditional.contract"
 import { MemoryBytesKeyValueStoreConditional } from "../../memory-bytes-kv-conditional"
 

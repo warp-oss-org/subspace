@@ -1,6 +1,6 @@
 import { Readable } from "node:stream"
-import { FakeClock, type Seconds } from "@subspace/clock"
-import type { Logger } from "@subspace/logger"
+import { FakeClock, type Seconds } from "@subspace-kit/clock"
+import type { Logger } from "@subspace-kit/logger"
 import { beforeEach, describe, expect, it } from "vitest"
 import { mock } from "vitest-mock-extended"
 import type { Mock } from "../../../../tests/mock"

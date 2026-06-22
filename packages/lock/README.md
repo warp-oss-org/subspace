@@ -1,4 +1,4 @@
-# @subspace/lock
+# @subspace-kit/lock
 
 Distributed lock primitives for critical sections with lease semantics.
 
@@ -33,7 +33,7 @@ import {
   pollUntil,
   sleep,
   withLock,
-} from "@subspace/lock"
+} from "@subspace-kit/lock"
 ```
 
 ## Adapters
@@ -45,16 +45,16 @@ import {
 ## Testing
 
 ```bash
-pnpm --filter @subspace/lock test
-pnpm --filter @subspace/lock build
+pnpm --filter @subspace-kit/lock test
+pnpm --filter @subspace-kit/lock build
 ```
 
 Adapter integration tests:
 
 ```bash
-pnpm --filter @subspace/lock test:up
-pnpm --filter @subspace/lock test
-pnpm --filter @subspace/lock test:down
+pnpm --filter @subspace-kit/lock test:up
+pnpm --filter @subspace-kit/lock test
+pnpm --filter @subspace-kit/lock test:down
 ```
 
 ## See Also

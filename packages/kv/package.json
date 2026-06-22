@@ -1,6 +1,6 @@
 {
-  "name": "@subspace/kv",
-  "version": "0.0.0",
+  "name": "@subspace-kit/kv",
+  "version": "0.1.0",
   "type": "module",
   "license": "MIT",
   "repository": {
@@ -38,7 +38,7 @@
     "access": "restricted"
   },
   "dependencies": {
-    "@subspace/clock": "workspace:*"
+    "@subspace-kit/clock": "workspace:*"
   },
   "peerDependencies": {
     "redis": "^5.10.0"

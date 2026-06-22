@@ -1,4 +1,4 @@
-import { SystemClock } from "@subspace/clock"
+import { SystemClock } from "@subspace-kit/clock"
 import { describeStorageContractTests } from "../../../ports/__tests__/storage.contract"
 import { MemoryStorage } from "../../memory-storage"
 

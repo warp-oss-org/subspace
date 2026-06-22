@@ -1,5 +1,5 @@
-import type { Milliseconds } from "@subspace/clock"
-import { FakeClock } from "@subspace/clock"
+import type { Milliseconds } from "@subspace-kit/clock"
+import { FakeClock } from "@subspace-kit/clock"
 import type { AttemptContext, RetryAttemptInfo } from "../../ports/attempt-context"
 import type { DelayPolicy } from "../../ports/delay-policy"
 import { createRetryExecutor } from "../retry-executor"

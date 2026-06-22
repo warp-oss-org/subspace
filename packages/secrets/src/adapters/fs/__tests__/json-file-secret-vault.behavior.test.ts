@@ -1,7 +1,7 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { FakeClock } from "@subspace/clock"
+import { FakeClock } from "@subspace-kit/clock"
 import { JsonFileSecretVault } from "../json-file-secret-vault"
 
 let testDir: string

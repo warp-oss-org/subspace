@@ -1,4 +1,4 @@
-import type { Clock, Milliseconds } from "@subspace/clock"
+import type { Clock, Milliseconds } from "@subspace-kit/clock"
 import type {
   BytesKeyValueStoreCas,
   BytesKeyValueStoreConditional,

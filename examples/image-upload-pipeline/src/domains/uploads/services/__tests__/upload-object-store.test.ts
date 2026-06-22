@@ -1,6 +1,6 @@
 import { Readable } from "node:stream"
-import { type Clock, FakeClock } from "@subspace/clock"
-import { createMemoryStorage, type StoragePort } from "@subspace/storage"
+import { type Clock, FakeClock } from "@subspace-kit/clock"
+import { createMemoryStorage, type StoragePort } from "@subspace-kit/storage"
 import type { UploadId } from "../../model/upload.model"
 import { UploadObjectStore, type UploadObjectStoreOptions } from "../upload-object-store"
 

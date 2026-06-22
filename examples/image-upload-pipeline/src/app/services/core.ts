@@ -1,7 +1,7 @@
-import { SystemClock } from "@subspace/clock"
-import type { Logger } from "@subspace/logger"
-import { createPinoLogger } from "@subspace/logger/pino"
-import { createRetryExecutor, type IRetryExecutor } from "@subspace/retry"
+import { SystemClock } from "@subspace-kit/clock"
+import type { Logger } from "@subspace-kit/logger"
+import { createPinoLogger } from "@subspace-kit/logger/pino"
+import { createRetryExecutor, type IRetryExecutor } from "@subspace-kit/retry"
 import type { AppConfig } from "../config"
 
 export type CoreServices = {

@@ -39,13 +39,13 @@ src/
 
 ```bash
 # Start Redis + LocalStack
-pnpm --filter @subspace/image-upload-pipeline dev:up
+pnpm --filter @subspace-kit/image-upload-pipeline dev:up
 
 # Create the S3 bucket expected by .env.development
 aws --endpoint-url http://localhost:4570 s3 mb s3://image-upload-pipeline-dev
 
 # Run API + worker
-pnpm --filter @subspace/image-upload-pipeline dev
+pnpm --filter @subspace-kit/image-upload-pipeline dev
 
 # In another terminal - create an upload
 curl -X POST http://localhost:4663/api/v1/uploads \
@@ -56,17 +56,17 @@ curl -X POST http://localhost:4663/api/v1/uploads \
 ## Testing
 
 ```bash
-pnpm --filter @subspace/image-upload-pipeline test:up
-pnpm --filter @subspace/image-upload-pipeline test
-pnpm --filter @subspace/image-upload-pipeline test:down
+pnpm --filter @subspace-kit/image-upload-pipeline test:up
+pnpm --filter @subspace-kit/image-upload-pipeline test
+pnpm --filter @subspace-kit/image-upload-pipeline test:down
 ```
 
 ## Packages Used
 
 | Package | Purpose |
 |---------|---------|
-| `@subspace/server` | Hono-based HTTP with typed error handling |
-| `@subspace/kv` | Redis KV with CAS operations for metadata/jobs |
-| `@subspace/storage` | S3 client wrapper for staging/final buckets |
-| `@subspace/retry` | IO retry with backoff for transient failures |
-| `@subspace/clock` | Injectable time for testing worker timing |
+| `@subspace-kit/server` | Hono-based HTTP with typed error handling |
+| `@subspace-kit/kv` | Redis KV with CAS operations for metadata/jobs |
+| `@subspace-kit/storage` | S3 client wrapper for staging/final buckets |
+| `@subspace-kit/retry` | IO retry with backoff for transient failures |
+| `@subspace-kit/clock` | Injectable time for testing worker timing |

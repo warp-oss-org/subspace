@@ -1,4 +1,4 @@
-# @subspace/secrets
+# @subspace-kit/secrets
 
 Secret vault interfaces with cloud and local adapter implementations.
 
@@ -25,7 +25,7 @@ import {
   EnvSecretVault,
   MemorySecretVault,
   type SecretVault,
-} from "@subspace/secrets"
+} from "@subspace-kit/secrets"
 ```
 
 ## Adapters
@@ -40,16 +40,16 @@ import {
 ## Testing
 
 ```bash
-pnpm --filter @subspace/secrets test
-pnpm --filter @subspace/secrets build
+pnpm --filter @subspace-kit/secrets test
+pnpm --filter @subspace-kit/secrets build
 ```
 
 Adapter integration tests:
 
 ```bash
-pnpm --filter @subspace/secrets test:up
-pnpm --filter @subspace/secrets test
-pnpm --filter @subspace/secrets test:down
+pnpm --filter @subspace-kit/secrets test:up
+pnpm --filter @subspace-kit/secrets test
+pnpm --filter @subspace-kit/secrets test:down
 ```
 
 ## See Also

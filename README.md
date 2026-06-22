@@ -16,30 +16,30 @@ Consumer repos install the `subspace` CLI, scaffold reviewed source from the emb
 
 | Package | What it does |
 |---------|--------------|
-| [`@subspace/backoff`](packages/backoff/README.md) | Backoff strategy and jitter policy primitives |
-| [`@subspace/cache`](packages/cache/README.md) | Cache ports/core with memory and Redis adapters |
-| [`@subspace/clock`](packages/clock/README.md) | Real and fake clock abstractions |
-| [`@subspace/config`](packages/config/README.md) | Layered config loading from dotenv/env/json sources |
-| [`@subspace/email`](packages/email/README.md) | Email transport abstractions and provider adapters |
-| [`@subspace/errors`](packages/errors/README.md) | Shared app error types and helpers |
-| [`@subspace/id`](packages/id/README.md) | ID generators, branding, and ID codecs |
-| [`@subspace/kv`](packages/kv/README.md) | Key-value storage with CAS and conditional writes |
-| [`@subspace/lock`](packages/lock/README.md) | Lock interfaces plus memory/Redis/Postgres adapters |
-| [`@subspace/logger`](packages/logger/README.md) | Structured logger interfaces and adapters |
-| [`@subspace/retry`](packages/retry/README.md) | Retry executor with configurable predicates and delays |
-| [`@subspace/secrets`](packages/secrets/README.md) | Secret-vault interfaces with cloud/local adapters |
-| [`@subspace/server`](packages/server/README.md) | Opinionated server composition utilities |
-| [`@subspace/singleflight`](packages/singleflight/README.md) | In-flight request deduplication by key |
-| [`@subspace/storage`](packages/storage/README.md) | Object storage abstraction (memory/fs/S3/GCS) |
+| [`@subspace-kit/backoff`](packages/backoff/README.md) | Backoff strategy and jitter policy primitives |
+| [`@subspace-kit/cache`](packages/cache/README.md) | Cache ports/core with memory and Redis adapters |
+| [`@subspace-kit/clock`](packages/clock/README.md) | Real and fake clock abstractions |
+| [`@subspace-kit/config`](packages/config/README.md) | Layered config loading from dotenv/env/json sources |
+| [`@subspace-kit/email`](packages/email/README.md) | Email transport abstractions and provider adapters |
+| [`@subspace-kit/errors`](packages/errors/README.md) | Shared app error types and helpers |
+| [`@subspace-kit/id`](packages/id/README.md) | ID generators, branding, and ID codecs |
+| [`@subspace-kit/kv`](packages/kv/README.md) | Key-value storage with CAS and conditional writes |
+| [`@subspace-kit/lock`](packages/lock/README.md) | Lock interfaces plus memory/Redis/Postgres adapters |
+| [`@subspace-kit/logger`](packages/logger/README.md) | Structured logger interfaces and adapters |
+| [`@subspace-kit/retry`](packages/retry/README.md) | Retry executor with configurable predicates and delays |
+| [`@subspace-kit/secrets`](packages/secrets/README.md) | Secret-vault interfaces with cloud/local adapters |
+| [`@subspace-kit/server`](packages/server/README.md) | Opinionated server composition utilities |
+| [`@subspace-kit/singleflight`](packages/singleflight/README.md) | In-flight request deduplication by key |
+| [`@subspace-kit/storage`](packages/storage/README.md) | Object storage abstraction (memory/fs/S3/GCS) |
 
 Each package is independent. Use one, use several, or use none together.
 
 ## Quick Example
 
 ```ts
-import { createRetryExecutor } from "@subspace/retry"
-import { createBackoff, exponential } from "@subspace/backoff"
-import { SystemClock } from "@subspace/clock"
+import { createRetryExecutor } from "@subspace-kit/retry"
+import { createBackoff, exponential } from "@subspace-kit/backoff"
+import { SystemClock } from "@subspace-kit/clock"
 
 const retry = createRetryExecutor({ clock: new SystemClock() })
 const delay = createBackoff({
@@ -68,8 +68,8 @@ Full working applications showing how packages compose:
 
 ```bash
 # Run an example
-pnpm --filter @subspace/image-upload-pipeline dev:up
-pnpm --filter @subspace/image-upload-pipeline dev
+pnpm --filter @subspace-kit/image-upload-pipeline dev:up
+pnpm --filter @subspace-kit/image-upload-pipeline dev
 ```
 
 ## Install

@@ -1,4 +1,4 @@
-# @subspace/logger
+# @subspace-kit/logger
 
 Structured logging interfaces with console, pino, and null adapters.
 
@@ -24,7 +24,7 @@ Use the port definitions as the source of truth:
 ## Usage
 
 ```ts
-import { createPinoLogger } from "@subspace/logger/pino"
+import { createPinoLogger } from "@subspace-kit/logger/pino"
 
 const logger = createPinoLogger({}, { level: "info", prettify: false })
 logger.info("service_started", { port: 4663 })
@@ -39,8 +39,8 @@ logger.info("service_started", { port: 4663 })
 ## Testing
 
 ```bash
-pnpm --filter @subspace/logger test
-pnpm --filter @subspace/logger build
+pnpm --filter @subspace-kit/logger test
+pnpm --filter @subspace-kit/logger build
 ```
 
 ## See Also

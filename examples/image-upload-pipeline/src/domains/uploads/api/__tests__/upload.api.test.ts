@@ -1,6 +1,6 @@
 import fs from "node:fs/promises"
-import { uuidV4 } from "@subspace/id"
-import type { Application } from "@subspace/server"
+import { uuidV4 } from "@subspace-kit/id"
+import type { Application } from "@subspace-kit/server"
 import { createTestHarness, type TestHarness } from "../../../../tests/test-harness"
 import type { CreateUploadResult, UploadRecord } from "../../model/upload.model"
 

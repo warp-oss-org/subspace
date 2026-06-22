@@ -1,4 +1,4 @@
-import type { Seconds } from "@subspace/clock"
+import type { Seconds } from "@subspace-kit/clock"
 import type { Middleware } from "../server"
 
 export interface HstsConfig {

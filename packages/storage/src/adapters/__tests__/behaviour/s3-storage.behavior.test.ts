@@ -1,7 +1,7 @@
 import type { S3Client } from "@aws-sdk/client-s3"
 import { ListObjectsV2Command } from "@aws-sdk/client-s3"
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
-import { SystemClock } from "@subspace/clock"
+import { SystemClock } from "@subspace-kit/clock"
 import { vi } from "vitest"
 import { createS3TestClient } from "../../../tests/utils/create-s3-test-client"
 import { deleteS3KeysByPrefix } from "../../../tests/utils/delete-s3-keys-by-prefix"

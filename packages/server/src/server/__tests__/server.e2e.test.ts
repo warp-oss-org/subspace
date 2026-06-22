@@ -1,5 +1,5 @@
 import net from "node:net"
-import { SystemClock } from "@subspace/clock"
+import { SystemClock } from "@subspace-kit/clock"
 import { NullLogger } from "../../../../logger/src/adapters/null/null-logger"
 import type { ServerHandle } from "../../lifecycle/create-stopper"
 import type { ServerDependencies, ServerOptions } from ".."

@@ -1,4 +1,4 @@
-import type { Clock } from "@subspace/clock"
+import type { Clock } from "@subspace-kit/clock"
 import type { AttemptContext, RetryAttemptInfo } from "../ports/attempt-context"
 import type { RetryConfig } from "../ports/retry-config"
 import type { IRetryExecutor } from "../ports/retry-executor"

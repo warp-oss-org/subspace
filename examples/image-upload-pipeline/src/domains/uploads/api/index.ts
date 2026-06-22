@@ -1,4 +1,4 @@
-import { type Application, createRouter } from "@subspace/server"
+import { type Application, createRouter } from "@subspace-kit/server"
 import type { AppConfig } from "../../../app/config"
 import type { UploadServices } from "../composition"
 import { completeUploadHandler } from "./complete-upload.handler"

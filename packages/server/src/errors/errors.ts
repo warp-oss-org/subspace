@@ -1,4 +1,4 @@
-import { type AppError, type ErrorCode, isAppError } from "@subspace/errors"
+import { type AppError, type ErrorCode, isAppError } from "@subspace-kit/errors"
 import type { StatusCode } from "../http/status-codes"
 
 export type ErrorMapping = {

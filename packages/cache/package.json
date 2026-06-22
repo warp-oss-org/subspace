@@ -1,6 +1,6 @@
 {
-  "name": "@subspace/cache",
-  "version": "0.0.0",
+  "name": "@subspace-kit/cache",
+  "version": "0.1.0",
   "type": "module",
   "license": "MIT",
   "repository": {

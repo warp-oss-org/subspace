@@ -1,4 +1,4 @@
-import type { Logger } from "@subspace/logger"
+import type { Logger } from "@subspace-kit/logger"
 import type { MockProxy } from "vitest-mock-extended"
 import { mock } from "vitest-mock-extended"
 import type { ResolvedServerOptions } from "../../server/server-options"

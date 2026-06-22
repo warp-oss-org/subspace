@@ -1,7 +1,7 @@
-# @subspace/server
+# @subspace-kit/server
 
 > [!CAUTION]
-> `@subspace/server` is primarily an internal package. It is intentionally opinionated around our service conventions and is not intended to be a universal server framework for every team.
+> `@subspace-kit/server` is primarily an internal package. It is intentionally opinionated around our service conventions and is not intended to be a universal server framework for every team.
 
 HTTP server composition utilities with lifecycle hooks, middleware wiring, and error mapping.
 
@@ -27,7 +27,7 @@ Use the port/type definitions as the source of truth:
 ## Usage
 
 ```ts
-import { createServer, createRouter, type Application } from "@subspace/server"
+import { createServer, createRouter, type Application } from "@subspace-kit/server"
 
 const server = createServer(
   { clock, logger },
@@ -56,8 +56,8 @@ No dedicated `src/adapters` layer. Composition is organized under:
 ## Testing
 
 ```bash
-pnpm --filter @subspace/server test
-pnpm --filter @subspace/server build
+pnpm --filter @subspace-kit/server test
+pnpm --filter @subspace-kit/server build
 ```
 
 ## See Also

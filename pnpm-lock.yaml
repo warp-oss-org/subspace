@@ -67,37 +67,37 @@ importers:
       '@aws-sdk/client-s3':
         specifier: ^3.1073.0
         version: 3.1073.0
-      '@subspace/backoff':
+      '@subspace-kit/backoff':
         specifier: workspace:*
         version: link:../../packages/backoff
-      '@subspace/clock':
+      '@subspace-kit/clock':
         specifier: workspace:*
         version: link:../../packages/clock
-      '@subspace/config':
+      '@subspace-kit/config':
         specifier: workspace:*
         version: link:../../packages/config
-      '@subspace/errors':
+      '@subspace-kit/errors':
         specifier: workspace:*
         version: link:../../packages/errors
-      '@subspace/id':
+      '@subspace-kit/id':
         specifier: workspace:*
         version: link:../../packages/id
-      '@subspace/kv':
+      '@subspace-kit/kv':
         specifier: workspace:*
         version: link:../../packages/kv
-      '@subspace/lock':
+      '@subspace-kit/lock':
         specifier: workspace:*
         version: link:../../packages/lock
-      '@subspace/logger':
+      '@subspace-kit/logger':
         specifier: workspace:*
         version: link:../../packages/logger
-      '@subspace/retry':
+      '@subspace-kit/retry':
         specifier: workspace:*
         version: link:../../packages/retry
-      '@subspace/server':
+      '@subspace-kit/server':
         specifier: workspace:*
         version: link:../../packages/server
-      '@subspace/storage':
+      '@subspace-kit/storage':
         specifier: workspace:*
         version: link:../../packages/storage
       sharp:
@@ -161,7 +161,7 @@ importers:
 
   packages/kv:
     dependencies:
-      '@subspace/clock':
+      '@subspace-kit/clock':
         specifier: workspace:*
         version: link:../clock
     devDependencies:
@@ -195,13 +195,13 @@ importers:
 
   packages/retry:
     dependencies:
-      '@subspace/clock':
+      '@subspace-kit/clock':
         specifier: workspace:*
         version: link:../clock
 
   packages/secrets:
     dependencies:
-      '@subspace/clock':
+      '@subspace-kit/clock':
         specifier: workspace:*
         version: link:../clock
     devDependencies:
@@ -220,16 +220,16 @@ importers:
       '@hono/node-server':
         specifier: ^2.0.5
         version: 2.0.5(hono@4.12.26)
-      '@subspace/clock':
+      '@subspace-kit/clock':
         specifier: workspace:*
         version: link:../clock
-      '@subspace/config':
+      '@subspace-kit/config':
         specifier: workspace:*
         version: link:../config
-      '@subspace/errors':
+      '@subspace-kit/errors':
         specifier: workspace:*
         version: link:../errors
-      '@subspace/logger':
+      '@subspace-kit/logger':
         specifier: workspace:*
         version: link:../logger
       hono:
@@ -247,7 +247,7 @@ importers:
 
   packages/storage:
     dependencies:
-      '@subspace/clock':
+      '@subspace-kit/clock':
         specifier: workspace:*
         version: link:../clock
     devDependencies:

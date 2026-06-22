@@ -1,4 +1,4 @@
-import type { Logger } from "@subspace/logger"
+import type { Logger } from "@subspace-kit/logger"
 import { routePath } from "hono/route"
 import type { Middleware } from "../server"
 import type { EnabledRequestLoggingConfig, PathString } from "../server/server-options"

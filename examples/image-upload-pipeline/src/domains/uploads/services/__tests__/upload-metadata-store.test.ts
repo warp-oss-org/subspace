@@ -1,8 +1,8 @@
-import { FakeClock } from "@subspace/clock"
+import { FakeClock } from "@subspace-kit/clock"
 import {
   createMemoryKeyValueStoreCasAndConditional,
   type KeyValueStoreCasAndConditional,
-} from "@subspace/kv"
+} from "@subspace-kit/kv"
 import { createJsonCodec } from "../../../../lib"
 import {
   type MarkFinalizedInput,

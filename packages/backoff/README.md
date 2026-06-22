@@ -1,4 +1,4 @@
-# @subspace/backoff
+# @subspace-kit/backoff
 
 Composable backoff and jitter primitives for retries, polling, and contention control.
 
@@ -23,7 +23,7 @@ Use the port definitions as the source of truth:
 ## Usage
 
 ```ts
-import { createBackoff, exponential, decorrelatedJitter } from "@subspace/backoff"
+import { createBackoff, exponential, decorrelatedJitter } from "@subspace-kit/backoff"
 
 const policy = createBackoff({
   delay: exponential({ base: { milliseconds: 100 }, factor: 2 }),
@@ -42,8 +42,8 @@ const nextDelay = policy.getDelay(3)
 ## Testing
 
 ```bash
-pnpm --filter @subspace/backoff test
-pnpm --filter @subspace/backoff build
+pnpm --filter @subspace-kit/backoff test
+pnpm --filter @subspace-kit/backoff build
 ```
 
 ## See Also

@@ -1,4 +1,4 @@
-# @subspace/config
+# @subspace-kit/config
 
 Composable config loading with typed schema validation and layered sources.
 
@@ -19,8 +19,8 @@ Use the port definitions as the source of truth:
 ## Usage
 
 ```ts
-import { EnvSource, loadConfig } from "@subspace/config"
-import { DotenvSource } from "@subspace/config/dotenv"
+import { EnvSource, loadConfig } from "@subspace-kit/config"
+import { DotenvSource } from "@subspace-kit/config/dotenv"
 
 const result = await loadConfig({
   schema: mySchema,
@@ -42,8 +42,8 @@ const result = await loadConfig({
 ## Testing
 
 ```bash
-pnpm --filter @subspace/config test
-pnpm --filter @subspace/config build
+pnpm --filter @subspace-kit/config test
+pnpm --filter @subspace-kit/config build
 ```
 
 ## See Also

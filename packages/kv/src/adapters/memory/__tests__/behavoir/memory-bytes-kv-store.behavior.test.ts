@@ -1,4 +1,4 @@
-import { FakeClock } from "@subspace/clock"
+import { FakeClock } from "@subspace-kit/clock"
 import { MemoryBytesKeyValueStore } from "../../memory-bytes-kv-store"
 
 describe("MemoryBytesKeyValueStore (behavior)", () => {

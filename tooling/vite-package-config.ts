@@ -12,29 +12,29 @@ type PackageJson = {
 const workspaceRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)))
 
 const entriesByPackage: Record<string, Record<string, string>> = {
-  "@subspace/cache": { index: "src/index.ts", redis: "src/redis.ts" },
-  "@subspace/config": { index: "src/index.ts", dotenv: "src/dotenv.ts" },
-  "@subspace/email": {
+  "@subspace-kit/cache": { index: "src/index.ts", redis: "src/redis.ts" },
+  "@subspace-kit/config": { index: "src/index.ts", dotenv: "src/dotenv.ts" },
+  "@subspace-kit/email": {
     index: "src/index.ts",
     postmark: "src/postmark.ts",
     sendgrid: "src/sendgrid.ts",
     ses: "src/ses.ts",
     smtp: "src/smtp.ts",
   },
-  "@subspace/kv": { index: "src/index.ts", redis: "src/redis.ts" },
-  "@subspace/lock": {
+  "@subspace-kit/kv": { index: "src/index.ts", redis: "src/redis.ts" },
+  "@subspace-kit/lock": {
     index: "src/index.ts",
     postgres: "src/postgres.ts",
     redis: "src/redis.ts",
   },
-  "@subspace/logger": { index: "src/index.ts", pino: "src/pino.ts" },
-  "@subspace/secrets": {
+  "@subspace-kit/logger": { index: "src/index.ts", pino: "src/pino.ts" },
+  "@subspace-kit/secrets": {
     index: "src/index.ts",
     "aws-secrets-manager": "src/aws-secrets-manager.ts",
     "aws-ssm": "src/aws-ssm.ts",
     gcp: "src/gcp.ts",
   },
-  "@subspace/storage": {
+  "@subspace-kit/storage": {
     index: "src/index.ts",
     s3: "src/s3.ts",
     gcs: "src/gcs.ts",

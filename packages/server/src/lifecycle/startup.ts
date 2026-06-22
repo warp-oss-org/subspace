@@ -1,5 +1,5 @@
-import type { Clock, UnixMs } from "@subspace/clock"
-import type { Logger } from "@subspace/logger"
+import type { Clock, UnixMs } from "@subspace-kit/clock"
+import type { Logger } from "@subspace-kit/logger"
 import type { HookFailure, LifecycleHook } from "./lifecycle-hook"
 import { runHooks } from "./run-hooks"
 

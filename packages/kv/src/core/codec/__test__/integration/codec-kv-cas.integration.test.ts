@@ -1,4 +1,4 @@
-import { FakeClock } from "@subspace/clock"
+import { FakeClock } from "@subspace-kit/clock"
 import { describe, expect, it } from "vitest"
 import { MemoryBytesKeyValueStoreCas } from "../../../../adapters/memory/memory-bytes-kv-cas"
 import type { Codec } from "../../../../ports/codec"

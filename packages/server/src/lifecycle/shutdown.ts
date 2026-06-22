@@ -1,4 +1,4 @@
-import type { UnixMs } from "@subspace/clock"
+import type { UnixMs } from "@subspace-kit/clock"
 import type { ServerDependencies } from "../server/server-options"
 import type { HookFailure, LifecycleHook } from "./lifecycle-hook"
 import { runHooks } from "./run-hooks"

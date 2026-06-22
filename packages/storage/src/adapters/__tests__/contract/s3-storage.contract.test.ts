@@ -1,5 +1,5 @@
 import type { S3Client } from "@aws-sdk/client-s3"
-import { SystemClock } from "@subspace/clock"
+import { SystemClock } from "@subspace-kit/clock"
 import { describeStorageContractTests } from "../../../ports/__tests__/storage.contract"
 import { createS3TestClient } from "../../../tests/utils/create-s3-test-client"
 import { deleteS3KeysByPrefix } from "../../../tests/utils/delete-s3-keys-by-prefix"

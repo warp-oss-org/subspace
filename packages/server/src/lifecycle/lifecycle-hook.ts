@@ -1,4 +1,4 @@
-import type { Milliseconds } from "@subspace/clock"
+import type { Milliseconds } from "@subspace-kit/clock"
 
 export interface LifecycleHookContext {
   signal: AbortSignal

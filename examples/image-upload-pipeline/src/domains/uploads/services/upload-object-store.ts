@@ -1,5 +1,10 @@
-import type { Clock, Seconds } from "@subspace/clock"
-import type { ObjectRef, StorageBucket, StorageKey, StoragePort } from "@subspace/storage"
+import type { Clock, Seconds } from "@subspace-kit/clock"
+import type {
+  ObjectRef,
+  StorageBucket,
+  StorageKey,
+  StoragePort,
+} from "@subspace-kit/storage"
 import type {
   PresignedUpload,
   PresignedUploadInput,
