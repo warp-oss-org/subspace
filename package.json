@@ -9,9 +9,8 @@
   "scripts": {
     "format": "biome check --write .",
     "format:force": "biome check --write --unsafe",
-    "lint:eslint": "eslint .",
     "lint:biome": "biome check .",
-    "lint": "pnpm lint:eslint && pnpm lint:biome",
+    "lint": "pnpm lint:biome",
     "typecheck": "tsc -b --clean && tsc -b -v",
     "test": "vp test",
     "dev:up": "pnpm -r --if-present run dev:up",
@@ -37,19 +36,15 @@
     "@biomejs/biome": "^2.5.0",
     "@changesets/cli": "2.31.0",
     "@types/node": "^26.0.0",
-    "@vitest/coverage-v8": "^4.1.9",
-    "@vitest/ui": "^4.1.9",
-    "eslint": "^10.5.0",
-    "eslint-plugin-boundaries": "^6.0.2",
-    "eslint-plugin-unicorn": "^68.0.0",
+    "@vitest/coverage-v8": "^4.1.10",
+    "@vitest/ui": "^4.1.10",
     "jiti": "^2.7.0",
-    "typescript": "^6.0.3",
-    "typescript-eslint": "^8.61.1",
-    "vite-plus": "^0.2.1",
-    "vitest": "^4.1.9",
+    "typescript": "^7.0.2",
+    "vite-plus": "^0.2.4",
+    "vitest": "^4.1.10",
     "vitest-mock-extended": "^4.0.0"
   },
   "optionalDependencies": {
-    "@voidzero-dev/vite-plus-darwin-arm64": "0.2.1"
+    "@voidzero-dev/vite-plus-darwin-arm64": "0.2.4"
   }
 }

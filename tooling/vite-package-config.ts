@@ -100,7 +100,7 @@ export const defineSubspacePackageConfig = () => {
       splitting: true,
       treeshake: true,
       sourcemap: true,
-      dts: { compilerOptions: { composite: false } },
+      dts: false,
       deps: {
         neverBundle: Object.keys(dependencies),
         skipNodeModulesBundle: true,

@@ -1,4 +1,5 @@
-import type { MailDataRequired, MailService } from "@sendgrid/mail"
+import type sendgridMail from "@sendgrid/mail"
+import type { MailDataRequired } from "@sendgrid/mail/src/mail"
 import { validateMessage } from "../../core/validation/validate-message"
 import type { EmailRecipient, EmailRecipients } from "../../ports/address"
 import type { Attachment, EmailMessage } from "../../ports/message"
@@ -36,7 +37,7 @@ export interface SendGridEmailTransport {
 }
 
 export type SendGridTransportDeps = {
-  client: MailService
+  client: typeof sendgridMail
 }
 
 export class SendGridTransport implements SendGridEmailTransport {
