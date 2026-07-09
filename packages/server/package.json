@@ -27,7 +27,7 @@
   "scripts": {
     "dev:run": "tsx src/dev/run.ts",
     "test": "vp test",
-    "build": "vp pack"
+    "build": "vp pack && tsc -b tsconfig.json --force --emitDeclarationOnly"
   },
   "publishConfig": {
     "access": "restricted"
